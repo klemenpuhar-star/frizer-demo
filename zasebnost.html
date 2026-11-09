@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pravilnik o zasebnosti — {IME}</title>
+<script src="nastavitve.js"></script>
+<style>
+:root{ --navy:#1c1a19; --coral:#b08d57; --bez2:#f7f3ee; }
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--bez2); color:var(--navy); font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif; line-height:1.65; }
+.wrap{ max-width:760px; margin:0 auto; padding:28px 16px 60px; }
+.card{ background:#fff; border-radius:18px; padding:28px 24px; box-shadow:0 8px 28px rgba(28,26,25,.08); }
+h1{ font-family:Georgia,'Times New Roman',serif; font-weight:400; font-size:1.8rem; margin:0 0 4px; }
+h2{ font-size:1.08rem; margin:1.8rem 0 .5rem; }
+.sub{ color:#6b7c87; font-size:.9rem; margin:0 0 1.2rem; }
+table{ width:100%; border-collapse:collapse; font-size:.92rem; margin:.4rem 0; }
+td,th{ text-align:left; vertical-align:top; padding:.45rem .5rem; border-bottom:1px solid #ece5db; }
+th{ font-weight:600; }
+.izpolni{ background:#fff3cd; padding:0 .25rem; border-radius:4px; }
+a{ color:var(--navy); text-decoration-color:var(--coral); text-underline-offset:3px; }
+.nazaj{ display:inline-block; margin-bottom:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="nazaj" href="index.html">← Nazaj na naročanje</a>
+  <div class="card">
+    <!-- PREDLOGA: rumeno označena mesta zamenjajte s svojimi podatki in besedilo preverite
+         (po potrebi s pravnim svetovalcem). Seznam ponudnikov v 4. točki uskladite s tem,
+         katere storitve res uporabljate (SMS, e-pošta, Telegram). -->
+    <h1>Pravilnik o zasebnosti</h1>
+    <p class="sub"><span data-app="ime"></span> · Zadnja sprememba: <span class="izpolni">[DATUM]</span></p>
+
+    <p>Spoštujemo vašo zasebnost. V tem pravilniku pojasnjujemo, katere osebne podatke zbiramo ob spletnem
+       naročanju, zakaj, kako dolgo jih hranimo in katere pravice imate. Podatke obdelujemo skladno s Splošno
+       uredbo o varstvu podatkov (GDPR) in Zakonom o varstvu osebnih podatkov (ZVOP-2).</p>
+
+    <h2>1. Upravljavec podatkov</h2>
+    <table>
+      <tr><th>Upravljavec</th><td><span class="izpolni">[NAZIV PODJETJA / s.p.]</span></td></tr>
+      <tr><th>Naslov</th><td><span class="izpolni">[NASLOV]</span></td></tr>
+      <tr><th>Davčna številka</th><td><span class="izpolni">[DAVČNA ŠTEVILKA]</span></td></tr>
+      <tr><th>Telefon</th><td><a data-app="tel" href="#"></a></td></tr>
+      <tr><th>E-pošta</th><td><span class="izpolni">[E-NASLOV]</span></td></tr>
+    </table>
+
+    <h2>2. Katere podatke zbiramo</h2>
+    <p>Ob spletni rezervaciji: ime in priimek, telefonsko številko (za stik in SMS obvestila o terminu),
+       e-naslov (neobvezno, za potrditev po e-pošti), izbrane storitve, datum in uro termina, vašo opombo ter
+       vir obiska (s katere strani ste prišli, npr. Instagram ali Google – zapiše se le ob oddani rezervaciji,
+       brez piškotkov). Stran ne uporablja piškotkov za sledenje, analitike ali oglaševanja.
+       Posebnih vrst osebnih podatkov (npr. zdravstvenih) ne zbiramo – prosimo, ne vpisujte jih v opombo.</p>
+
+    <h2>3. Namen in pravna podlaga</h2>
+    <table>
+      <tr><th>Namen</th><th>Pravna podlaga</th></tr>
+      <tr><td>Izvedba rezervacije in storitve, SMS/e-poštna potrditev, opomnik dan pred terminom, obvestilo ob spremembi ali preklicu</td><td>Izvajanje pogodbe – člen 6(1)(b) GDPR</td></tr>
+      <tr><td>Obvestilo lastniku o novi, spremenjeni ali preklicani rezervaciji</td><td>Zakoniti interes – člen 6(1)(f) GDPR</td></tr>
+      <tr><td>Pregled, prek katerih kanalov pridejo rezervacije (vir obiska)</td><td>Zakoniti interes – člen 6(1)(f) GDPR</td></tr>
+      <tr><td>Izdaja in hramba računov</td><td>Zakonska obveznost – člen 6(1)(c) GDPR</td></tr>
+    </table>
+    <p>Podatkov ne uporabljamo za oglaševanje, ne izvajamo profiliranja in jih ne prodajamo.</p>
+
+    <h2>4. Komu podatke posredujemo</h2>
+    <table>
+      <tr><th>Ponudnik</th><th>Namen</th><th>Lokacija</th></tr>
+      <tr><td>Supabase</td><td>Baza rezervacij</td><td>EU</td></tr>
+      <tr><td>Lertify</td><td>Pošiljanje SMS obvestil</td><td>Slovenija (EU)</td></tr>
+      <tr><td>Resend</td><td>Pošiljanje e-poštnih potrditev</td><td>ZDA</td></tr>
+      <tr><td>Telegram</td><td>Obvestilo lastniku o rezervaciji</td><td>Izven EU</td></tr>
+      <tr><td>GitHub Pages</td><td>Gostovanje spletne strani</td><td>ZDA</td></tr>
+      <tr><td>jsDelivr</td><td>Nalaganje programskih knjižnic</td><td>Omrežje strežnikov</td></tr>
+    </table>
+    <p>Pri ponudnikih izven EU prenos poteka na podlagi ustreznih zaščitnih ukrepov iz poglavja V GDPR
+       (standardne pogodbene klavzule oziroma odločba o ustreznosti).</p>
+
+    <h2>5. Koliko časa podatke hranimo</h2>
+    <p>Rezervacije 12 mesecev od termina, preklicane rezervacije 6 mesecev, kartoteko stranke največ 3 leta po
+       zadnjem obisku, evidenco poslanih SMS sporočil 12 mesecev, račune toliko, kot določa davčna zakonodaja.
+       Brisanje izvaja sistem samodejno vsak dan.</p>
+
+    <h2>6. Vaše pravice</h2>
+    <p>Imate pravico do dostopa, popravka, izbrisa, omejitve obdelave, prenosljivosti in ugovora. Pravico
+       uveljavite prek podatkov iz 1. točke; odgovorimo najkasneje v enem mesecu. Če menite, da podatke
+       obdelujemo nezakonito, se lahko pritožite pri Informacijskem pooblaščencu RS
+       (Dunajska cesta 22, 1000 Ljubljana, <a href="https://www.ip-rs.si">www.ip-rs.si</a>).</p>
+  </div>
+</div>
+</body>
+</html>
