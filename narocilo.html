@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
 <title>Moje naročilo — {IME}</title>
-<script src="nastavitve.js"></script>
+<script src="/nastavitve.js" data-stran="narocilo"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{ --navy:#1c1a19; --coral:#b08d57; --bez:#e8dfd3; --line:#ebe4da; --bg:#fbf8f4; }
@@ -121,7 +121,7 @@ var app=document.getElementById('app');
 
 function selArr(){ var out=[]; for(var k in SEL){ if(SEL.hasOwnProperty(k)) out.push(SEL[k]); } return out; }
 function qtyOf(s){ return QTY[s.id]||1; }
-function isChild(s){ return (s.category||'')==='Otroci'; }
+function isChild(s){ return APP.katVecOseb(s.category||''); }
 function svcLabel(s){ var q=qtyOf(s); return s.name+(q>1?(' ×'+q):''); }
 function sumPrice(){ return selArr().reduce(function(a,s){ return a+(parseFloat(s.price)||0)*qtyOf(s); },0); }
 function sumDur(){ return selArr().reduce(function(a,s){ return a+(parseInt(s.duration_min)||0)*qtyOf(s); },0); }
@@ -172,8 +172,24 @@ function calcFreeSlots(ds,dow,busyRaw,dur){
 }
 
 function init(){
+  if(!TOKEN){ zacni(); return; }
+  app.innerHTML='<div class="loading">Nalagam vaše naročilo…</div>';
+  /* salon se prepozna po žetonu naročila */
+  sb.rpc('app_salon_po_zetonu',{zeton:TOKEN}).then(function(r){
+    var slug = r && !r.error ? r.data : null;
+    return APP.naloziSalon(slug);
+  }).then(function(){
+    APP.vstavi();
+    var p=APP.pravila||{};
+    if(p.korak_min) SLOT_STEP=parseInt(p.korak_min)||15;
+    if(p.min_ur_vnaprej!=null) MIN_LEAD_MIN=Math.round(parseFloat(p.min_ur_vnaprej)*60)||0;
+    zacni();
+  }, function(){ zacni(); });
+}
+
+function zacni(){
   if(!TOKEN){ app.innerHTML='<div class="note note-bad">Povezava ni veljavna. Odprite jo iz potrditvenega sporočila ali nas pokličite na <a class="tel" href="tel:'+APP.telefonIntl+'">'+APP.telefon+'</a>.</div>'; return; }
-  sb.from('delovni_cas').select('dan,teden,nacin,od,do_').then(function(dres){
+  sb.from('delovni_cas').select('dan,teden,nacin,od,do_').eq('salon_id', APP.salonId).then(function(dres){
     if(!dres.error && dres.data && dres.data.length){
       var novi={0:{},1:{},2:{}};
       dres.data.forEach(function(r){
@@ -186,7 +202,7 @@ function init(){
   });
   nalozPraznike();
   sb.from('services').select('id,name,description,price,category,sort_order,duration_min,gap_after_min,gap_duration_min')
-    .eq('active',true).order('category').order('sort_order')
+    .eq('active',true).eq('salon_id', APP.salonId).order('category').order('sort_order')
     .then(function(res){ SERVICES=res.data||[]; loadBooking(); });
 }
 
@@ -414,7 +430,7 @@ window.toggleSvc=toggleSvc; window.bumpQty=bumpQty; window.pickSlot=pickSlot;
 init();
 </script>
 <div style="text-align:center;margin:26px auto 40px;font-size:.82rem;color:#8a969d">
-  <a href="zasebnost.html" style="color:#8a969d">Pravilnik o zasebnosti</a>
+  <a data-app="zasebnost" href="/zasebnost.html" style="color:#8a969d">Pravilnik o zasebnosti</a>
 </div>
 </body>
 </html>

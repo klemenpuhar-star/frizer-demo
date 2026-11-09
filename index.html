@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spletno naročanje — {IME}</title>
 <meta name="description" content="Spletno naročanje na termin – izberite storitev in prosto uro.">
-<script src="nastavitve.js"></script>
+<script src="/nastavitve.js" data-stran="narocanje"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <!-- preverjanje telefonskih stevilk: Googlova knjiznica (za tuje stevilke) -->
 <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.13.12/bundle/libphonenumber-max.js" defer></script>
@@ -606,7 +606,7 @@
     <p>Izberite storitev in prosto uro. Potrditev prejmete takoj, dan pred terminom pa še opomnik po SMS-u.</p>
     <button class="btn-main open-modal" type="button" style="font-size:.95rem;padding:1rem 2.8rem">Naroči se ✦</button>
     <p class="mali">Imate vprašanje? Pokličite <a data-app="tel" href="#"></a>.</p>
-    <p class="mali" style="font-size:.78rem;margin-top:.6rem"><a href="zasebnost.html">Pravilnik o zasebnosti</a></p>
+    <p class="mali" style="font-size:.78rem;margin-top:.6rem"><a data-app="zasebnost" href="/zasebnost.html">Pravilnik o zasebnosti</a></p>
   </div>
 </main>
 
@@ -700,6 +700,7 @@ var foot    = document.getElementById('bkFoot');
 var stepBar = document.getElementById('bkStepBar');
 
 function openModal(){
+  if(!APP.salonId){ APP.ready.then(function(ok){ if(ok) openModal(); }); return; }
   state = { step:1, totalSteps:4, service:null, date:null, slot:null, customer:{}, isNujni:false, nujniNote:'', selectedIds:{}, selectedServices:[], allServices:[], qty:{} };
   overlay.classList.add('open');
   document.body.style.overflow='hidden';
@@ -760,6 +761,7 @@ function renderStep1(){
   sb.from('services')
     .select('id,name,description,price,category,sort_order,duration_min,requires_base,is_base,active,gap_after_min,gap_duration_min')
     .eq('active', true)
+    .eq('salon_id', APP.salonId)
     .order('sort_order', { ascending: true })
     .then(function(res){
       if(res.error){ showBodyError('Napaka pri nalaganju storitev: '+res.error.message); return; }
@@ -777,14 +779,14 @@ function renderStep1(){
         catMap[c].items.push(sv);
       });
       var catNames = Object.keys(catMap).sort(function(a,b){
-        var aN = a.toLowerCase().indexOf('nujni')>=0 ? 99999 : catMap[a].minSort;
-        var bN = b.toLowerCase().indexOf('nujni')>=0 ? 99999 : catMap[b].minSort;
+        var aN = APP.katNujna(a) ? 99999 : catMap[a].minSort;
+        var bN = APP.katNujna(b) ? 99999 : catMap[b].minSort;
         return aN - bN;
       });
 
       var h = '<div class="bk-step-label">Korak 1</div><div class="bk-step-title">Izbira storitev</div>';
       catNames.forEach(function(cat){
-        var isNujni = cat.toLowerCase().indexOf('nujni') >= 0;
+        var isNujni = APP.katNujna(cat);
         h += '<div class="bk-macc-item" data-cat="'+esc(cat)+'">'
            + '<button class="bk-macc-trigger" type="button">'
            + '<span class="bk-macc-cat'+(isNujni?' nujni':'')+'">' + esc(cat) + '</span>'
@@ -814,7 +816,7 @@ function renderStep1(){
                : '')
              + (isChildSvc(sv)
                ? '<div class="bk-qty" id="qty-'+sv.id+'" data-qid="'+sv.id+'" style="display:none">'
-                 + '<span class="bk-qty-lbl">Število otrok</span>'
+                 + '<span class="bk-qty-lbl">'+esc(APP.katOznakaOseb(sv.category))+'</span>'
                  + '<button type="button" class="bk-qty-btn" data-q="dec" aria-label="Manj">−</button>'
                  + '<span class="bk-qty-n" id="qtyn-'+sv.id+'">1</span>'
                  + '<button type="button" class="bk-qty-btn" data-q="inc" aria-label="Več">+</button>'
@@ -926,7 +928,7 @@ function renderFoot1(){
     var selArr = services.filter(function(sv){ return state.selectedIds[sv.id]; });
     if(selArr.length){
       state.service = selArr[0];
-      state.isNujni = selArr.some(function(sv){ return (sv.category||'').toLowerCase().indexOf('nujni')>=0; });
+      state.isNujni = selArr.some(function(sv){ return APP.katNujna(sv.category); });
       state.selectedServices = selArr;
     }
     state.step = 2; renderStep();
@@ -946,7 +948,8 @@ var DC = {
   6: 'dogovor'
 };
 var SLOT_STEP = 15; // minutni raaster za generiranje
-var MIN_LEAD_MIN = 240; // najmanjsi cas vnaprej za narocanje (v minutah); 240 = 4 ure
+var MIN_LEAD_MIN = 240; // najmanjsi cas vnaprej za narocanje (v minutah); prebere se iz pravil salona
+APP.ready.then(function(){ var p=APP.pravila||{}; if(p.korak_min) SLOT_STEP=parseInt(p.korak_min)||15; if(p.min_ur_vnaprej!=null) MIN_LEAD_MIN=Math.round(parseFloat(p.min_ur_vnaprej)*60)||0; });
 
 /* Delovni cas se bere iz baze (tabela delovni_cas) – zgornje vrednosti so le zasilne.
    Urnik je lahko razlicen v lihih in sodih ISO tednih (torek/sreda si izmenjata izmeno). */
@@ -967,7 +970,7 @@ function dcZa(ds){
 }
 function nalozDelovniCas(){
   try{
-    return sb.from('delovni_cas').select('dan,teden,nacin,od,do_').then(function(res){
+    return sb.from('delovni_cas').select('dan,teden,nacin,od,do_').eq('salon_id', APP.salonId).then(function(res){
       if(res.error || !res.data || !res.data.length) return;
       var novi={0:{},1:{},2:{}};
       res.data.forEach(function(r){
@@ -981,7 +984,7 @@ function nalozDelovniCas(){
     });
   }catch(e){ /* ob napaki ostanejo zasilne vrednosti */ }
 }
-nalozDelovniCas();
+APP.ready.then(function(ok){ if(ok) nalozDelovniCas(); });
 
 /* Slovenski dela prosti prazniki (datum -> naziv). Prebrano iz tabele prazniki;
    dokler se ne naloži, PRAZNIKI ostane prazen (koncno varovalko vedno izvede
@@ -1018,7 +1021,7 @@ function getSelArr(){
     : (state.service ? [state.service] : []);
 }
 function qtyOf(s){ return (state.qty && state.qty[s.id]) ? state.qty[s.id] : 1; }
-function isChildSvc(s){ return (s.category||'') === 'Otroci'; }
+function isChildSvc(s){ return APP.katVecOseb(s.category||''); }
 function svcLabel(s){ var q=qtyOf(s); return s.name + (q>1 ? (' ×'+q) : ''); }
 function sumPrice(arr){ return arr.reduce(function(a,s){ return a+(parseFloat(s.price)||0)*qtyOf(s); }, 0); }
 function sumDur(arr){ return arr.reduce(function(a,s){ return a+(parseInt(s.duration_min)||0)*qtyOf(s); }, 0); }
@@ -1135,7 +1138,7 @@ function buildStrip(){
 function prefetchDayStatus(ds, dow, isFuture){
   if(!isFuture || PRAZNIKI[ds] || dcZa(ds)==='dogovor' || !dcZa(ds)) return;
   var dur = getTotalDur();
-  sb.rpc('zasedeni_intervali',{izbrani_datum:ds}).then(function(res){
+  sb.rpc('app_zasedeni_intervali',{p_slug:APP.slug, izbrani_datum:ds}).then(function(res){
     if(res.error) return;
     var slots = calcFreeSlots(ds, dow, res.data||[], dur);
     var status = slots.length ? 'free' : 'all';
@@ -1219,7 +1222,7 @@ function loadSlotList(){
   var dur = getTotalDur();
   var tp  = getTotalPrice();
 
-  sb.rpc('zasedeni_intervali',{izbrani_datum:ds}).then(function(res){
+  sb.rpc('app_zasedeni_intervali',{p_slug:APP.slug, izbrani_datum:ds}).then(function(res){
     if(res.error){
       area.innerHTML='<div class="bk-error show">Napaka: '+esc(res.error.message)+'</div>';
       return;
@@ -1453,10 +1456,11 @@ function submitBooking(btn){
     telefon:  c.phone,
     epota:    c.email || null,
     opomba:   state.isNujni ? (state.nujniNote + (c.note ? ('\n'+c.note) : '')) : (c.note || null),
-    nujni:    !!state.isNujni
+    nujni:    !!state.isNujni,
+    p_slug:   APP.slug
   };
 
-  sb.rpc('ustvari_rezervacijo', rpcArgs).then(function(res){
+  sb.rpc('app_oddaj_narocilo', rpcArgs).then(function(res){
     var r = res.data || {};
     if(res.error || !r.ok){
       var t = 'Prišlo je do napake. Pokličite nas na '+APP.telefon+'.';
@@ -1505,7 +1509,7 @@ function showBodyError(msg){
 </script>
 <script>
 /* stran za narocanje: okno se odpre samo od sebe */
-window.addEventListener('load', function(){ var b=document.querySelector('.open-modal'); if(b) b.click(); });
+APP.ready.then(function(ok){ if(!ok) return; var b=document.querySelector('.open-modal'); if(b) b.click(); });
 </script>
 </body>
 </html>
