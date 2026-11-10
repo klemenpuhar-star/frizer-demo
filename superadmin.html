@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Saloni · Skrbnik platforme</title>
+<script src="/nastavitve.js" data-stran="superadmin"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root{--crna:#1f2328;--siva:#5d6670;--rob:#e3e6ea;--ozadje:#f5f6f8;--poudarek:#2f6f6a;--napaka:#b23b3b;--ok:#2f7a4a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:var(--ozadje);color:var(--crna);line-height:1.45}
+.hidden{display:none!important}
+a{color:var(--poudarek)}
+.vsebina{max-width:980px;margin:0 auto;padding:24px 16px 64px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+header h1{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:1.7rem}
+header .desno{display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--siva)}
+.karta{background:#fff;border:1px solid var(--rob);border-radius:14px;padding:18px 18px 16px;margin-bottom:16px}
+.karta h2{font-size:1rem;margin-bottom:12px}
+.vrsta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+label{display:flex;flex-direction:column;gap:4px;flex:1 1 200px;font-size:.78rem;color:var(--siva)}
+input,select{font:inherit;font-size:.95rem;padding:.55rem .65rem;border:1px solid var(--rob);border-radius:9px;color:var(--crna);background:#fff}
+input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
+.namig{font-size:.76rem;color:var(--siva);margin-top:2px}
+.gumb{font:inherit;font-size:.88rem;padding:.6rem 1.1rem;border-radius:999px;border:1.5px solid var(--crna);background:var(--crna);color:#fff;cursor:pointer}
+.gumb:hover{background:#000}
+.gumb.svetel{background:#fff;color:var(--crna);border-color:var(--rob)}
+.gumb.svetel:hover{border-color:var(--crna)}
+.gumb:disabled{opacity:.5;cursor:default}
+.sporocilo{font-size:.85rem;margin-top:8px;min-height:1.2em}
+.sporocilo.ok{color:var(--ok)}.sporocilo.err{color:var(--napaka)}
+.salon{border-top:1px solid var(--rob);padding:14px 0;display:flex;gap:14px;justify-content:space-between;flex-wrap:wrap}
+.salon:first-of-type{border-top:none}
+.salon .levo{flex:1 1 320px;min-width:0}
+.salon b{font-size:1rem}
+.salon .meta{font-size:.8rem;color:var(--siva);margin-top:2px;word-break:break-word}
+.znacka{display:inline-block;font-size:.72rem;padding:1px 8px;border-radius:999px;background:#e7f2ef;color:var(--poudarek);margin-left:6px;vertical-align:1px}
+.znacka.off{background:#fdf0d5;color:#8a5a00}
+.salon .desno{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.clan{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.clan input{flex:1 1 200px;font-size:.85rem;padding:.4rem .55rem}
+.clan select{font-size:.85rem;padding:.4rem .55rem}
+.clan .gumb{font-size:.8rem;padding:.4rem .8rem}
+.prijava{max-width:380px;margin:12vh auto 0}
+.rezultat{background:#eef7f2;border:1px solid #cfe7d8;border-radius:12px;padding:12px 14px;font-size:.88rem;margin-top:12px;line-height:1.55}
+.rezultat.opoz{background:#fff8e8;border-color:#f1dfb0}
+</style>
+</head>
+<body>
+<div class="vsebina">
+
+  <div id="pogledPrijava" class="prijava karta hidden">
+    <h2 style="font-family:Georgia,serif;font-weight:400;font-size:1.4rem;margin-bottom:4px">Skrbnik platforme</h2>
+    <p class="namig" style="margin-bottom:14px">Prijava z računom skrbnika.</p>
+    <div class="vrsta"><label>E-pošta<input type="email" id="email" autocomplete="username"></label></div>
+    <div class="vrsta"><label>Geslo<input type="password" id="geslo" autocomplete="current-password"></label></div>
+    <button class="gumb" id="gPrijava" style="width:100%">Prijava</button>
+    <div class="sporocilo" id="spPrijava"></div>
+  </div>
+
+  <div id="pogledNi" class="karta hidden" style="max-width:520px;margin:12vh auto 0;text-align:center">
+    <h2>Ni dostopa</h2>
+    <p class="namig" style="font-size:.9rem;margin:8px 0 14px">Ta stran je samo za skrbnika platforme. Upravljanje salona je v <a href="/admin">administraciji</a>.</p>
+    <button class="gumb svetel" id="gOdjava2">Odjava</button>
+  </div>
+
+  <div id="pogledApp" class="hidden">
+    <header>
+      <h1>Saloni</h1>
+      <div class="desno"><span id="kdo"></span><a href="/admin">Administracija</a><button class="gumb svetel" id="gOdjava">Odjava</button></div>
+    </header>
+
+    <div class="karta">
+      <h2>Nov salon</h2>
+      <div class="vrsta">
+        <label>Ime salona<input type="text" id="nIme" placeholder="npr. Frizerski salon Ana"></label>
+        <label>Naslov strani<input type="text" id="nSlug" placeholder="npr. frizer-ana"><span class="namig" id="nSlugNamig"></span></label>
+      </div>
+      <div class="vrsta">
+        <label>Tip salona<select id="nTip">
+          <option value="frizer">Frizerski salon</option>
+          <option value="brivec">Brivnica</option>
+          <option value="pasji_frizer">Salon za hišne ljubljenčke</option>
+          <option value="kozmetika">Kozmetični salon</option>
+          <option value="">Drugo (brez privzetih storitev)</option>
+        </select></label>
+        <label>E-pošta lastnika<input type="email" id="nEmail" placeholder="lastnik@primer.si"></label>
+        <label>Telefon salona<input type="text" id="nTel" placeholder="031 000 000"></label>
+      </div>
+      <p class="namig" style="margin-bottom:10px">Salon dobi privzete barve in storitve glede na tip, delovni čas pon–pet 8–16, sobota po dogovoru. Vse to lastnik kasneje spremeni v administraciji pod »Nastavitve«.</p>
+      <button class="gumb" id="gUstvari">Ustvari salon</button>
+      <div class="sporocilo" id="spUstvari"></div>
+      <div id="rezUstvari"></div>
+    </div>
+
+    <div class="karta">
+      <h2>Vsi saloni</h2>
+      <div id="seznam"><p class="namig">Nalagam …</p></div>
+    </div>
+  </div>
+
+</div>
+<script>
+(function(){
+'use strict';
+var sb = supabase.createClient(APP.supabaseUrl, APP.supabaseKey);
+var $ = function(id){ return document.getElementById(id); };
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function sporoci(id, t, ok){ var m=$(id); m.textContent=t; m.className='sporocilo '+(ok?'ok':'err'); }
+function pokazi(k){ ['pogledPrijava','pogledNi','pogledApp'].forEach(function(x){ $(x).classList.toggle('hidden', x!==k); }); }
+var TIPI={frizer:'Frizerski salon',brivec:'Brivnica',pasji_frizer:'Salon za ljubljenčke',kozmetika:'Kozmetični salon'};
+
+/* naslov iz imena: "Frizerski salon Ana" -> "frizerski-salon-ana" */
+function vSlug(t){
+  return String(t||'').toLowerCase()
+    .replace(/[čć]/g,'c').replace(/š/g,'s').replace(/ž/g,'z').replace(/đ/g,'d')
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40).replace(/-+$/,'');
+}
+var slugRocno=false;
+$('nIme').addEventListener('input', function(){ if(!slugRocno){ $('nSlug').value=vSlug($('nIme').value); namigSlug(); } });
+$('nSlug').addEventListener('input', function(){ slugRocno=true; $('nSlug').value=$('nSlug').value.toLowerCase().replace(/[^a-z0-9-]/g,''); namigSlug(); });
+function namigSlug(){ var s=$('nSlug').value; $('nSlugNamig').textContent = s ? (location.origin+'/'+s) : ''; }
+
+function zacni(seja){
+  $('kdo').textContent = seja.user.email;
+  sb.rpc('app_je_superadmin').then(function(r){
+    if(r.error || r.data!==true){ pokazi('pogledNi'); return; }
+    pokazi('pogledApp'); nalozi();
+  });
+}
+
+function nalozi(){
+  sb.rpc('app_superadmin_saloni').then(function(r){
+    var box=$('seznam');
+    if(r.error){ box.innerHTML='<p class="sporocilo err">Napaka: '+esc(r.error.message)+'</p>'; return; }
+    var v=r.data||[];
+    if(!v.length){ box.innerHTML='<p class="namig">Še ni salonov.</p>'; return; }
+    box.innerHTML = v.map(function(s){
+      var url=location.origin+'/'+s.slug;
+      return '<div class="salon"><div class="levo"><b>'+esc(s.ime)+'</b>'
+        +(s.aktiven?'<span class="znacka">aktiven</span>':'<span class="znacka off">izklopljen</span>')
+        +'<div class="meta">'+esc(TIPI[s.tip]||'drugo')+' · <a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(url)+'</a></div>'
+        +'<div class="meta">Storitev: '+s.st_storitev+' · Rezervacij: '+s.st_rezervacij+' · Ustvarjen: '+new Date(s.created_at).toLocaleDateString('sl-SI')+'</div>'
+        +'<div class="meta">Člani: '+esc(s.clani||'—')+'</div>'
+        +(s.povabila?'<div class="meta" style="color:#8a5a00">Čaka na račun: '+esc(s.povabila)+'</div>':'')
+        +'<div class="clan"><input type="email" placeholder="e-pošta novega člana" data-clan-email="'+s.id+'">'
+        +'<select data-clan-vloga="'+s.id+'"><option value="lastnik">lastnik</option><option value="admin" selected>admin</option><option value="zaposleni">zaposleni</option></select>'
+        +'<button class="gumb svetel" data-clan="'+s.id+'">Dodaj člana</button></div>'
+        +'<div class="sporocilo" id="sp-'+s.id+'"></div></div>'
+        +'<div class="desno"><button class="gumb svetel" data-aktiven="'+s.id+'" data-vrednost="'+(s.aktiven?'0':'1')+'">'+(s.aktiven?'Izklopi':'Vklopi')+'</button></div></div>';
+    }).join('');
+    box.querySelectorAll('[data-aktiven]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var vklop=b.getAttribute('data-vrednost')==='1';
+        if(!vklop && !confirm('Izklopljen salon ne sprejema spletnih naročil. Izklopim?')) return;
+        b.disabled=true;
+        sb.rpc('app_salon_aktiven',{s:b.getAttribute('data-aktiven'), p_aktiven:vklop}).then(function(){ nalozi(); });
+      });
+    });
+    box.querySelectorAll('[data-clan]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var id=b.getAttribute('data-clan');
+        var em=box.querySelector('[data-clan-email="'+id+'"]').value.trim();
+        var vl=box.querySelector('[data-clan-vloga="'+id+'"]').value;
+        b.disabled=true;
+        sb.rpc('app_dodaj_clana',{s:id, p_email:em, p_vloga:vl}).then(function(r){
+          b.disabled=false;
+          if(r.error){ sporoci('sp-'+id,'Napaka: '+r.error.message,false); return; }
+          if(!r.data||!r.data.ok){ sporoci('sp-'+id,(r.data&&r.data.napaka)||'Ni uspelo.',false); return; }
+          nalozi();
+          setTimeout(function(){ sporoci('sp-'+id, r.data.rezultat==='povezan'
+            ? 'Dodano – uporabnik se lahko takoj prijavi.'
+            : 'Povabilo shranjeno. Ustvarite račun za '+em+' v Supabase (Authentication → Users → Add user); ob tem bo samodejno dodan.', true); }, 400);
+        });
+      });
+    });
+  });
+}
+
+$('gUstvari').addEventListener('click', function(){
+  var b=this, ime=$('nIme').value.trim(), slug=$('nSlug').value.trim(), email=$('nEmail').value.trim();
+  $('rezUstvari').innerHTML='';
+  if(!ime){ sporoci('spUstvari','Vpišite ime salona.',false); return; }
+  if(!slug){ sporoci('spUstvari','Vpišite naslov strani.',false); return; }
+  if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ sporoci('spUstvari','E-pošta lastnika ni veljavna.',false); return; }
+  b.disabled=true; sporoci('spUstvari','Ustvarjam …',true);
+  sb.rpc('app_ustvari_salon',{p_ime:ime, p_slug:slug, p_tip:$('nTip').value, p_email_lastnika:email||null, p_telefon:$('nTel').value.trim()||null}).then(function(r){
+    b.disabled=false;
+    if(r.error){ sporoci('spUstvari','Napaka: '+r.error.message,false); return; }
+    if(!r.data||!r.data.ok){ sporoci('spUstvari',(r.data&&r.data.napaka)||'Ni uspelo.',false); return; }
+    var d=r.data, url=location.origin+'/'+d.slug;
+    sporoci('spUstvari','Salon je ustvarjen.',true);
+    var h='<div class="rezultat'+(d.lastnik==='povabljen'?' opoz':'')+'"><b>'+esc(ime)+'</b> je pripravljen ('+d.storitev+' storitev).<br>'
+      +'Stran za naročanje: <a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(url)+'</a><br>'
+      +'Administracija: <a href="'+esc(location.origin)+'/admin" target="_blank" rel="noopener">'+esc(location.origin)+'/admin</a><br>';
+    if(d.lastnik==='povezan') h+='Lastnik <b>'+esc(email)+'</b> že ima račun in se lahko takoj prijavi.';
+    else if(d.lastnik==='povabljen') h+='<b>Še en korak:</b> lastnik '+esc(email)+' še nima računa. V Supabase odprite Authentication → Users → <b>Add user → Create new user</b>, vpišite '+esc(email)+' in začasno geslo, označite <b>Auto Confirm User</b>. Račun bo samodejno povezan s salonom. Geslo sporočite lastniku osebno.';
+    else h+='Salon še nima lastnika. Dodajte ga spodaj v seznamu (»Dodaj člana«).';
+    $('rezUstvari').innerHTML=h+'</div>';
+    $('nIme').value=''; $('nSlug').value=''; $('nEmail').value=''; $('nTel').value=''; slugRocno=false; namigSlug();
+    nalozi();
+  });
+});
+
+$('gPrijava').addEventListener('click', prijava);
+$('geslo').addEventListener('keydown', function(e){ if(e.key==='Enter') prijava(); });
+function prijava(){
+  var em=$('email').value.trim(), g=$('geslo').value;
+  if(!em||!g){ sporoci('spPrijava','Vpišite e-pošto in geslo.',false); return; }
+  $('gPrijava').disabled=true;
+  sb.auth.signInWithPassword({email:em,password:g}).then(function(r){
+    $('gPrijava').disabled=false;
+    if(r.error){ sporoci('spPrijava','Napačna e-pošta ali geslo.',false); return; }
+    zacni(r.data.session);
+  });
+}
+function odjava(){ sb.auth.signOut().then(function(){ pokazi('pogledPrijava'); }); }
+$('gOdjava').addEventListener('click', odjava);
+$('gOdjava2').addEventListener('click', odjava);
+
+sb.auth.getSession().then(function(r){ if(r.data&&r.data.session) zacni(r.data.session); else pokazi('pogledPrijava'); });
+})();
+</script>
+</body>
+</html>

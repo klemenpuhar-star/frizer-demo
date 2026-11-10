@@ -22,7 +22,7 @@ window.APP = {
   var skript = document.currentScript;
   var STRAN = (skript && skript.getAttribute('data-stran')) || 'narocanje';   // narocanje | narocilo | admin | zasebnost
   var REZERVIRANO = ['index', 'index.html', 'admin', 'admin.html', 'narocilo', 'narocilo.html', 'zasebnost',
-                     'zasebnost.html', 'n', 'nastavitve.js', 'robots.txt', 'favicon.ico'];
+                     'zasebnost.html', 'n', 'nastavitve.js', 'robots.txt', 'favicon.ico', 'superadmin', 'superadmin.html'];
 
   function slugIzNaslova() {
     var q = new URLSearchParams(location.search).get('s');
@@ -145,7 +145,7 @@ window.APP = {
      Stran za spremembo termina (narocilo) salon naloži sama po žetonu. */
   var slug = slugIzNaslova();
   var nalaganje;
-  if (STRAN === 'narocilo') nalaganje = Promise.resolve(false);
+  if (STRAN === 'narocilo' || STRAN === 'superadmin') nalaganje = Promise.resolve(false);
   else if (STRAN === 'admin') {
     // admin: salon iz ?s= ali zadnji izbrani; dokončna izbira je po prijavi (med saloni, katerih član je uporabnik)
     var zadnji = ''; try { zadnji = localStorage.getItem('admin_salon') || ''; } catch (e) {}

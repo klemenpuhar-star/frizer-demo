@@ -804,6 +804,7 @@ function izberiSalon(s){
     MOJI_SALONI=(r.data||[]).filter(function(x){return x.app_salons;}).map(function(x){
       return {vloga:x.vloga, id:x.app_salons.id, slug:x.app_salons.slug, ime:x.app_salons.ime};
     }).sort(function(a,b){return a.ime.localeCompare(b.ime,'sl');});
+    povezavaSuperadmin();
     if(!MOJI_SALONI.length){
       calScroll.innerHTML='<div class="empty" style="padding:3rem 1rem;line-height:1.6">Vaš račun še ni povezan z nobenim salonom.<br>Za dostop se obrnite na skrbnika platforme.</div>';
       return false;
@@ -815,6 +816,16 @@ function izberiSalon(s){
     return (APP.slug===izbran.slug?Promise.resolve(true):APP.naloziSalon(izbran.slug)).then(function(){
       APP.vstavi(); document.title=(APP.kratko||APP.ime)+' · Admin'; return true;
     });
+  });
+}
+/* skrbnik platforme dobi v glavi povezavo do strani s saloni */
+function povezavaSuperadmin(){
+  sb.rpc('app_je_superadmin').then(function(r){
+    if(r.error||r.data!==true||document.getElementById('povSuperadmin')) return;
+    var who=document.getElementById('whoLabel'); if(!who) return;
+    var a=document.createElement('a'); a.id='povSuperadmin'; a.href='/superadmin'; a.textContent='Saloni';
+    a.style.cssText='font-size:.82rem;color:var(--navy);text-decoration:underline;text-underline-offset:3px';
+    who.parentNode.insertBefore(a,who);
   });
 }
 function izrisiIzbiroSalona(){
