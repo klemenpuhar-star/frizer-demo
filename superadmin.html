@@ -80,6 +80,7 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
       </div>
       <div class="vrsta">
         <label>Tip salona<select id="nTip">
+          <option value="-" selected disabled>— izberite tip —</option>
           <option value="frizer">Frizerski salon</option>
           <option value="brivec">Brivnica</option>
           <option value="pasji_frizer">Salon za hišne ljubljenčke</option>
@@ -185,6 +186,7 @@ $('gUstvari').addEventListener('click', function(){
   $('rezUstvari').innerHTML='';
   if(!ime){ sporoci('spUstvari','Vpišite ime salona.',false); return; }
   if(!slug){ sporoci('spUstvari','Vpišite naslov strani.',false); return; }
+  if($('nTip').value==='-'){ sporoci('spUstvari','Izberite tip salona (od njega so odvisne privzete storitve in barve).',false); return; }
   if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ sporoci('spUstvari','E-pošta lastnika ni veljavna.',false); return; }
   b.disabled=true; sporoci('spUstvari','Ustvarjam …',true);
   sb.rpc('app_ustvari_salon',{p_ime:ime, p_slug:slug, p_tip:$('nTip').value, p_email_lastnika:email||null, p_telefon:$('nTel').value.trim()||null}).then(function(r){
@@ -200,7 +202,7 @@ $('gUstvari').addEventListener('click', function(){
     else if(d.lastnik==='povabljen') h+='<b>Še en korak:</b> lastnik '+esc(email)+' še nima računa. V Supabase odprite Authentication → Users → <b>Add user → Create new user</b>, vpišite '+esc(email)+' in začasno geslo, označite <b>Auto Confirm User</b>. Račun bo samodejno povezan s salonom. Geslo sporočite lastniku osebno.';
     else h+='Salon še nima lastnika. Dodajte ga spodaj v seznamu (»Dodaj člana«).';
     $('rezUstvari').innerHTML=h+'</div>';
-    $('nIme').value=''; $('nSlug').value=''; $('nEmail').value=''; $('nTel').value=''; slugRocno=false; namigSlug();
+    $('nIme').value=''; $('nSlug').value=''; $('nEmail').value=''; $('nTel').value=''; $('nTip').value='-'; slugRocno=false; namigSlug();
     nalozi();
   });
 });
