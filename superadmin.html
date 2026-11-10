@@ -13,7 +13,7 @@
 body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:var(--ozadje);color:var(--crna);line-height:1.45}
 .hidden{display:none!important}
 a{color:var(--poudarek)}
-.vsebina{max-width:980px;margin:0 auto;padding:24px 16px 64px}
+.vsebina{max-width:1200px;margin:0 auto;padding:24px 16px 64px}
 header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
 header h1{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:1.7rem}
 header .desno{display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--siva)}
@@ -46,6 +46,57 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
 .prijava{max-width:380px;margin:12vh auto 0}
 .rezultat{background:#eef7f2;border:1px solid #cfe7d8;border-radius:12px;padding:12px 14px;font-size:.88rem;margin-top:12px;line-height:1.55}
 .rezultat.opoz{background:#fff8e8;border-color:#f1dfb0}
+/* zavihki */
+.zavihki{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.zavihki button{font:inherit;font-size:.9rem;padding:.5rem 1rem;border-radius:999px;border:1px solid var(--rob);background:#fff;color:var(--crna);cursor:pointer}
+.zavihki button.akt{background:var(--crna);border-color:var(--crna);color:#fff}
+/* kalkulator */
+.num{font-variant-numeric:tabular-nums}
+.kpi-vrsta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--rob);border-radius:14px;padding:14px 16px}
+.kpi .l{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--siva)}
+.kpi .v{font-size:1.5rem;font-weight:600;margin-top:2px}
+.kpi .h{font-size:.78rem;color:var(--siva)}
+.v.poz{color:var(--ok)}.v.neg{color:var(--napaka)}
+.k-mreza{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
+@media (max-width:860px){.k-mreza{grid-template-columns:1fr}}
+.k-mreza>*{min-width:0}
+.k-polje{display:grid;grid-template-columns:1fr 90px;gap:8px;align-items:center;margin-bottom:7px;font-size:.86rem}
+.k-polje input,.k-polje select{padding:.35rem .5rem;font-size:.88rem;text-align:right}
+.k-polje select{text-align:left}
+.k-paket{display:grid;grid-template-columns:1fr 66px 62px;gap:6px;margin-bottom:6px}
+.k-paket input{padding:.35rem .5rem;font-size:.88rem}
+.k-paket input[type=number]{text-align:right}
+.k-leg{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--siva);font-weight:600;margin:14px 0 8px}
+.k-leg:first-of-type{margin-top:0}
+.potreba{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.potreba div{background:var(--ozadje);border-radius:10px;padding:10px 12px}
+.potreba b{font-size:1.3rem;display:block}
+.potreba span{font-size:.78rem;color:var(--siva)}
+.trak{height:8px;background:var(--ozadje);border:1px solid var(--rob);border-radius:99px;overflow:hidden}
+.trak i{display:block;height:100%;background:var(--poudarek)}
+.trak i.opoz{background:#c58a00}
+.tabela{overflow-x:auto;border:1px solid var(--rob);border-radius:12px}
+.tabela table{border-collapse:collapse;width:100%;min-width:820px;font-size:.85rem}
+.tabela th,.tabela td{padding:7px 9px;border-bottom:1px solid var(--rob);text-align:left;vertical-align:middle}
+.tabela th{font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--siva);background:var(--ozadje);font-weight:600}
+.tabela .d{text-align:right}
+.tabela tfoot td{font-weight:700;background:var(--ozadje);border-bottom:0}
+.tabela td input,.tabela td select{padding:.3rem .4rem;font-size:.84rem}
+.tabela td input[type=number]{width:70px;text-align:right}
+.tabela small{display:block;color:var(--siva);font-size:.74rem}
+.m-poz{color:var(--ok)}.m-neg{color:var(--napaka)}
+.nov-vnos{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 80px auto;gap:8px;align-items:end;margin-top:12px}
+.nov-vnos label{flex:none}
+.nov-vnos input,.nov-vnos select{padding:.4rem .5rem;font-size:.88rem}
+@media (max-width:700px){.nov-vnos{grid-template-columns:1fr 1fr}}
+.gumb.mali{font-size:.78rem;padding:.3rem .7rem}
+.k-paket input,.k-polje input,.k-polje select,.nov-vnos input,.nov-vnos select{width:100%;min-width:0}
+.nov-vnos label{min-width:0}
+.k-mreza{grid-template-columns:290px minmax(0,1fr)}
+@media (max-width:860px){.k-mreza{grid-template-columns:1fr}}
+.tabela td:first-child{min-width:170px}
+.tabela td select{max-width:150px}
 </style>
 </head>
 <body>
@@ -72,6 +123,80 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
       <div class="desno"><span id="kdo"></span><a href="/admin">Administracija</a><button class="gumb svetel" id="gOdjava">Odjava</button></div>
     </header>
 
+    <nav class="zavihki" aria-label="Zavihki">
+      <button type="button" class="akt" data-zavihek="zSaloni">Saloni</button>
+      <button type="button" data-zavihek="zKalk">Kalkulator naročnin</button>
+    </nav>
+
+    <div id="zKalk" class="hidden">
+      <div class="kpi-vrsta">
+        <div class="kpi"><div class="l">Prihodek / mesec</div><div class="v num" id="kMrr">–</div><div class="h" id="kMrrH"></div></div>
+        <div class="kpi"><div class="l">Stroški / mesec</div><div class="v num" id="kStr">–</div><div class="h" id="kStrH"></div></div>
+        <div class="kpi"><div class="l">Ostane tebi</div><div class="v num" id="kDob">–</div><div class="h" id="kDobH"></div></div>
+        <div class="kpi"><div class="l">Plačljivi saloni</div><div class="v num" id="kSt">–</div><div class="h" id="kStH"></div></div>
+      </div>
+      <div class="k-mreza">
+        <div class="karta" id="kNast">
+          <h2>Predpostavke</h2>
+          <div class="k-leg">Paketi (ime · €/mes · SMS)</div>
+          <div class="k-paket"><input id="p_solo_ime" aria-label="Ime paketa 1"><input id="p_solo_cena" type="number" step="0.5" aria-label="Cena paketa 1"><input id="p_solo_sms" type="number" step="10" aria-label="SMS paketa 1"></div>
+          <div class="k-paket"><input id="p_salon_ime" aria-label="Ime paketa 2"><input id="p_salon_cena" type="number" step="0.5" aria-label="Cena paketa 2"><input id="p_salon_sms" type="number" step="10" aria-label="SMS paketa 2"></div>
+          <div class="k-paket"><input id="p_pro_ime" aria-label="Ime paketa 3"><input id="p_pro_cena" type="number" step="0.5" aria-label="Cena paketa 3"><input id="p_pro_sms" type="number" step="10" aria-label="SMS paketa 3"></div>
+          <div class="k-leg">SMS in plačila</div>
+          <div class="k-polje"><span>Tvoj strošek SMS (€)</span><input id="k_smsCena" type="number" step="0.01"></div>
+          <div class="k-polje"><span>Doplačilo nad paketom (€/SMS)</span><input id="k_smsDoplacilo" type="number" step="0.01"></div>
+          <div class="k-polje"><span>Provizija na račun (€)</span><input id="k_provizija" type="number" step="0.05"></div>
+          <div class="k-polje"><span>Davek (% prihodka)</span><input id="k_davek" type="number" step="0.5"></div>
+          <div class="k-leg">Fiksni stroški / mesec</div>
+          <div class="k-polje"><span>Oblika s.p.</span><select id="k_prispevkiTip">
+            <option value="93">Popoldanski</option><option value="460">Polni, 1. leto</option><option value="540">Polni, 2. leto</option><option value="648">Polni</option><option value="custom">Po meri</option></select></div>
+          <div class="k-polje"><span>Prispevki (€)</span><input id="k_prispevki" type="number" step="1"></div>
+          <div class="k-polje"><span>Supabase, Resend, domena (€)</span><input id="k_tech" type="number" step="1"></div>
+          <div class="k-polje"><span>Računovodstvo (€)</span><input id="k_racunovodstvo" type="number" step="5"></div>
+          <div class="k-polje"><span>Poslovni račun (€)</span><input id="k_banka" type="number" step="1"></div>
+          <div class="k-leg">Cilj</div>
+          <div class="k-polje"><span>Želim zaslužiti (€/mes)</span><input id="k_cilj" type="number" step="100"></div>
+          <div class="k-polje"><span>Prag za DDV (€/leto)</span><input id="k_ddvPrag" type="number" step="1000"></div>
+          <p class="namig">Prispevki so okvirni za 2026. Shrani se samodejno.</p>
+          <div class="sporocilo" id="spNast"></div>
+        </div>
+        <div>
+          <div class="karta">
+            <h2>Koliko salonov potrebuješ</h2>
+            <div class="potreba">
+              <div><b class="num" id="nMarza">–</b><span>ostane na plačljiv salon</span></div>
+              <div><b class="num" id="nPokritje">–</b><span>salonov za pokritje stroškov</span></div>
+              <div><b class="num" id="nCilj">–</b><span id="nCiljL">salonov za cilj</span></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--siva);margin-bottom:5px"><span>Letni prihodek glede na prag za DDV</span><span class="num" id="ddvTxt"></span></div>
+            <div class="trak"><i id="ddvTrak" style="width:0"></i></div>
+          </div>
+          <div class="karta">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+              <h2 style="margin:0">Naročnine</h2>
+              <label style="flex-direction:row;align-items:center;gap:6px;flex:none;font-size:.82rem"><input type="checkbox" id="k_useLive"> Računaj z dejanskimi SMS (30 dni)</label>
+            </div>
+            <div class="tabela"><table>
+              <thead><tr><th>Salon</th><th>Status</th><th>Paket</th><th class="d">Posebna cena</th><th class="d">SMS / mes</th><th class="d">Prihodek</th><th class="d">Stroški</th><th class="d">Ostane</th><th></th></tr></thead>
+              <tbody id="kVrstice"><tr><td colspan="9" class="namig">Nalagam …</td></tr></tbody>
+              <tfoot><tr><td colspan="5">Skupaj</td><td class="d num" id="fPri"></td><td class="d num" id="fStr"></td><td class="d num" id="fOst"></td><td></td></tr></tfoot>
+            </table></div>
+            <div class="nov-vnos">
+              <label>Ime (dogovorjen salon)<input id="aIme" placeholder="npr. Salon Lepa"></label>
+              <label>Vrsta<select id="aTip"><option value="frizer">Frizer</option><option value="brivec">Brivec</option><option value="pasji_frizer">Pasji frizer</option><option value="kozmetika">Kozmetika</option><option value="">Drugo</option></select></label>
+              <label>Paket<select id="aPaket"></select></label>
+              <label>Status<select id="aStatus"></select></label>
+              <label>SMS / mes<input id="aSms" type="number" value="120" step="10"></label>
+              <button class="gumb" id="gDodajN" type="button">Dodaj</button>
+            </div>
+            <p class="namig" style="margin-top:8px">Saloni, ustvarjeni zgoraj pod »Nov salon«, se v tabelo dodajo sami s statusom »Poskus«. Ročno dodaj salone, ki jih še nimaš v sistemu.</p>
+            <div class="sporocilo" id="spNar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="zSaloni">
     <div class="karta">
       <h2>Nov salon</h2>
       <div class="vrsta">
@@ -99,6 +224,7 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
     <div class="karta">
       <h2>Vsi saloni</h2>
       <div id="seznam"><p class="namig">Nalagam …</p></div>
+    </div>
     </div>
   </div>
 
@@ -204,6 +330,213 @@ $('gUstvari').addEventListener('click', function(){
     $('rezUstvari').innerHTML=h+'</div>';
     $('nIme').value=''; $('nSlug').value=''; $('nEmail').value=''; $('nTel').value=''; $('nTip').value='-'; slugRocno=false; namigSlug();
     nalozi();
+  });
+});
+
+/* ================= zavihki ================= */
+document.querySelectorAll('[data-zavihek]').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('[data-zavihek]').forEach(function(x){
+      x.classList.toggle('akt', x===b);
+      $(x.getAttribute('data-zavihek')).classList.toggle('hidden', x!==b);
+    });
+    if(b.getAttribute('data-zavihek')==='zKalk') kNalozi();
+  });
+});
+
+/* ================= kalkulator naročnin ================= */
+var EUR = new Intl.NumberFormat('sl-SI',{style:'currency',currency:'EUR',maximumFractionDigits:2});
+var EUR0 = new Intl.NumberFormat('sl-SI',{style:'currency',currency:'EUR',maximumFractionDigits:0});
+var STATUSI = {poskus:'Poskus (brezplačno)', ustanovna:'Ustanovna cena', placuje:'Plačuje', neaktiven:'Neaktiven'};
+var PAKETI = ['solo','salon','pro'];
+var K_PRIVZETO = {
+  paketi:{solo:{ime:'Solo',cena:15,sms:0}, salon:{ime:'Salon',cena:25,sms:150}, pro:{ime:'Pro',cena:39,sms:400}},
+  smsCena:0.06, smsDoplacilo:0.10, provizija:0.5, davek:4,
+  prispevkiTip:'93', prispevki:93, tech:45, racunovodstvo:60, banka:10,
+  cilj:1000, ddvPrag:60000, useLive:false
+};
+var K_POLJA = ['smsCena','smsDoplacilo','provizija','davek','prispevki','tech','racunovodstvo','banka','cilj','ddvPrag'];
+var KS = JSON.parse(JSON.stringify(K_PRIVZETO)), kNar = [], kPoraba = {}, kSaloni = {}, kNalozeno = false;
+
+function kst(v, d){ var x = parseFloat(String(v).replace(',','.')); return isFinite(x) ? x : d; }
+function kOpcije(sel, obj, val){
+  sel.innerHTML = '';
+  Object.keys(obj).forEach(function(k){ var o=document.createElement('option'); o.value=k; o.textContent=obj[k]; sel.appendChild(o); });
+  sel.value = val;
+}
+function kPaketiOpc(){ var o={}; PAKETI.forEach(function(k){ o[k]=KS.paketi[k].ime+' · '+EUR.format(KS.paketi[k].cena); }); return o; }
+
+function kVObrazec(){
+  PAKETI.forEach(function(k){
+    $('p_'+k+'_ime').value = KS.paketi[k].ime; $('p_'+k+'_cena').value = KS.paketi[k].cena; $('p_'+k+'_sms').value = KS.paketi[k].sms;
+  });
+  K_POLJA.forEach(function(f){ $('k_'+f).value = KS[f]; });
+  $('k_prispevkiTip').value = KS.prispevkiTip; $('k_useLive').checked = !!KS.useLive;
+  kOpcije($('aPaket'), kPaketiOpc(), 'salon'); kOpcije($('aStatus'), STATUSI, 'poskus');
+}
+function kIzObrazca(){
+  PAKETI.forEach(function(k){
+    KS.paketi[k].ime = $('p_'+k+'_ime').value || KS.paketi[k].ime;
+    KS.paketi[k].cena = kst($('p_'+k+'_cena').value, 0); KS.paketi[k].sms = kst($('p_'+k+'_sms').value, 0);
+  });
+  K_POLJA.forEach(function(f){ KS[f] = kst($('k_'+f).value, 0); });
+  KS.useLive = $('k_useLive').checked;
+}
+
+var kTimer = null;
+function kShraniNast(){
+  clearTimeout(kTimer);
+  kTimer = setTimeout(function(){
+    sb.from('app_platforma').update({nastavitve: KS, updated_at: new Date().toISOString()}).eq('id',1).then(function(r){
+      sporoci('spNast', r.error ? 'Ni shranjeno: '+r.error.message : 'Shranjeno.', !r.error);
+    });
+  }, 700);
+}
+$('kNast').addEventListener('input', function(e){
+  if(e.target.id === 'k_prispevkiTip') return;
+  if(e.target.id === 'k_prispevki'){ KS.prispevkiTip = 'custom'; $('k_prispevkiTip').value = 'custom'; }
+  kIzObrazca(); kIzris(); kShraniNast();
+});
+$('k_prispevkiTip').addEventListener('change', function(){
+  KS.prispevkiTip = this.value;
+  if(this.value !== 'custom'){ KS.prispevki = +this.value; $('k_prispevki').value = KS.prispevki; }
+  kIzris(); kShraniNast();
+});
+$('k_useLive').addEventListener('change', function(){ kIzObrazca(); kIzris(); kShraniNast(); });
+
+function kNalozi(){
+  Promise.all([
+    sb.from('app_platforma').select('nastavitve').eq('id',1).maybeSingle(),
+    sb.from('app_narocnine').select('*').eq('arhiviran', false).order('created_at'),
+    sb.rpc('app_superadmin_poraba'),
+    sb.rpc('app_superadmin_saloni')
+  ]).then(function(r){
+    var err = r.map(function(x){ return x.error; }).filter(Boolean)[0];
+    if(err){ $('kVrstice').innerHTML = '<tr><td colspan="9" class="sporocilo err">Napaka: '+esc(err.message)+'</td></tr>'; return; }
+    var n = (r[0].data && r[0].data.nastavitve) || {};
+    KS = Object.assign(JSON.parse(JSON.stringify(K_PRIVZETO)), JSON.parse(JSON.stringify(n)));
+    KS.paketi = Object.assign(JSON.parse(JSON.stringify(K_PRIVZETO.paketi)), KS.paketi || {});
+    kNar = r[1].data || [];
+    kPoraba = {}; (r[2].data || []).forEach(function(p){ kPoraba[p.salon_id] = p; });
+    kSaloni = {}; (r[3].data || []).forEach(function(s){ kSaloni[s.id] = s; });
+    kNalozeno = true;
+    kVObrazec(); kIzris();
+  });
+}
+
+function kIzracun(n){
+  var p = KS.paketi[n.paket] || KS.paketi.salon;
+  var por = n.salon_id ? kPoraba[n.salon_id] : null;
+  var sms = (KS.useLive && por) ? por.sms_30d : kst(n.sms_ocena, 0);
+  if(n.status === 'neaktiven') return {sms:0, pri:0, str:0, ost:0, placljiv:false, por:por};
+  var pri = 0;
+  if(n.status === 'placuje' || n.status === 'ustanovna'){
+    var cena = (n.posebna_cena === null || n.posebna_cena === undefined || n.posebna_cena === '') ? p.cena : kst(n.posebna_cena, p.cena);
+    pri = cena + Math.max(0, sms - p.sms) * KS.smsDoplacilo;
+  }
+  var str = sms*KS.smsCena + (pri > 0 ? KS.provizija : 0) + pri*KS.davek/100;
+  return {sms:sms, pri:pri, str:str, ost:pri-str, placljiv:pri>0, por:por};
+}
+
+function kIzris(){
+  if(!kNalozeno) return;
+  var tb = $('kVrstice'); tb.innerHTML = '';
+  var pri=0, str=0, ost=0, plac=0, posk=0, ostPlac=0;
+  if(!kNar.length) tb.innerHTML = '<tr><td colspan="9" class="namig">Še ni naročnin.</td></tr>';
+  kNar.forEach(function(n){
+    var c = kIzracun(n);
+    pri += c.pri; str += c.str; ost += c.ost;
+    if(c.placljiv){ plac++; ostPlac += c.ost; }
+    if(n.status === 'poskus') posk++;
+    tb.appendChild(kVrstica(n, c));
+  });
+  $('fPri').textContent = EUR.format(pri); $('fStr').textContent = EUR.format(str); $('fOst').textContent = EUR.format(ost);
+  var fx = KS.prispevki + KS.tech + KS.racunovodstvo + KS.banka, dob = ost - fx;
+  $('kMrr').textContent = EUR0.format(pri); $('kMrrH').textContent = 'letno ' + EUR0.format(pri*12);
+  $('kStr').textContent = EUR0.format(str + fx); $('kStrH').textContent = 'fiksni ' + EUR0.format(fx) + ' + spremenljivi ' + EUR0.format(str);
+  $('kDob').textContent = EUR0.format(dob); $('kDob').className = 'v num ' + (dob >= 0 ? 'poz' : 'neg');
+  $('kDobH').textContent = dob >= 0 ? 'po vseh stroških' : 'manjka do pokritja stroškov';
+  $('kSt').textContent = plac; $('kStH').textContent = posk ? posk + ' na poskusu' : 'brez poskusnih';
+
+  var avg = plac ? ostPlac / plac : 0, vir = 'povprečje plačljivih salonov';
+  if(avg <= 0){
+    var p = KS.paketi.salon, s = 120, pr = p.cena + Math.max(0, s - p.sms)*KS.smsDoplacilo;
+    avg = pr - (s*KS.smsCena + KS.provizija + pr*KS.davek/100); vir = 'paket ' + p.ime + ', 120 SMS';
+  }
+  $('nMarza').textContent = EUR.format(avg); $('nMarza').title = vir;
+  $('nPokritje').textContent = avg > 0 ? Math.ceil(fx/avg) : '∞';
+  $('nCilj').textContent = avg > 0 ? Math.ceil((fx + KS.cilj)/avg) : '∞';
+  $('nCiljL').textContent = 'salonov za ' + EUR0.format(KS.cilj) + ' zate';
+  var leto = pri*12, pct = KS.ddvPrag > 0 ? Math.min(100, leto/KS.ddvPrag*100) : 0;
+  $('ddvTxt').textContent = EUR0.format(leto) + ' / ' + EUR0.format(KS.ddvPrag);
+  $('ddvTrak').style.width = pct.toFixed(1) + '%'; $('ddvTrak').className = pct >= 80 ? 'opoz' : '';
+}
+
+function kVrstica(n, c){
+  var tr = document.createElement('tr'), s = n.salon_id ? kSaloni[n.salon_id] : null;
+  var td = document.createElement('td');
+  var b = document.createElement('b'); b.textContent = (s && s.ime) || n.ime || '(brez imena)'; td.appendChild(b);
+  var sm = document.createElement('small');
+  var deli = [TIPI[(s && s.tip) || n.tip] || 'drugo'];
+  if(s) deli.push('/' + s.slug + (s.aktiven ? '' : ' · izklopljen')); else deli.push('ročno dodan');
+  if(c.por) deli.push(c.por.termini_30d + ' terminov v 30 dneh');
+  sm.textContent = deli.join(' · '); td.appendChild(sm); tr.appendChild(td);
+
+  td = document.createElement('td'); var st = document.createElement('select'); st.setAttribute('aria-label','Status');
+  kOpcije(st, STATUSI, n.status); st.onchange = function(){ kPopravi(n, {status: st.value}); }; td.appendChild(st); tr.appendChild(td);
+
+  td = document.createElement('td'); var pk = document.createElement('select'); pk.setAttribute('aria-label','Paket');
+  kOpcije(pk, kPaketiOpc(), n.paket); pk.onchange = function(){ kPopravi(n, {paket: pk.value}); }; td.appendChild(pk); tr.appendChild(td);
+
+  td = document.createElement('td'); td.className = 'd'; var pc = document.createElement('input'); pc.type = 'number'; pc.step = '0.5';
+  pc.placeholder = String((KS.paketi[n.paket] || KS.paketi.salon).cena); pc.setAttribute('aria-label','Posebna cena');
+  pc.value = n.posebna_cena === null || n.posebna_cena === undefined ? '' : n.posebna_cena;
+  pc.onchange = function(){ kPopravi(n, {posebna_cena: pc.value === '' ? null : kst(pc.value, null)}); };
+  td.appendChild(pc); tr.appendChild(td);
+
+  td = document.createElement('td'); td.className = 'd'; var si = document.createElement('input'); si.type = 'number'; si.step = '10';
+  si.value = n.sms_ocena; si.setAttribute('aria-label','SMS na mesec (ocena)');
+  si.onchange = function(){ kPopravi(n, {sms_ocena: Math.round(kst(si.value, 0))}); };
+  td.appendChild(si);
+  if(c.por){ var d = document.createElement('small'); d.textContent = '30 dni: ' + c.por.sms_30d; td.appendChild(d); }
+  tr.appendChild(td);
+
+  [[c.pri,''],[c.str,''],[c.ost, c.ost>0?'m-poz':(c.ost<0?'m-neg':'')]].forEach(function(x){
+    td = document.createElement('td'); td.className = 'd num ' + x[1]; td.textContent = EUR.format(x[0]); tr.appendChild(td);
+  });
+
+  td = document.createElement('td');
+  if(!n.salon_id){
+    var g = document.createElement('button'); g.type = 'button'; g.className = 'gumb svetel mali'; g.textContent = 'Odstrani';
+    g.onclick = function(){
+      if(!g.dataset.potrdi){ g.dataset.potrdi = '1'; g.textContent = 'Potrdi?'; setTimeout(function(){ if(g.isConnected){ delete g.dataset.potrdi; g.textContent = 'Odstrani'; } }, 3000); return; }
+      kPopravi(n, {arhiviran: true});
+    };
+    td.appendChild(g);
+  }
+  tr.appendChild(td);
+  return tr;
+}
+
+function kPopravi(n, pod){
+  pod.updated_at = new Date().toISOString();
+  Object.assign(n, pod);
+  if(n.arhiviran) kNar = kNar.filter(function(x){ return x !== n; });
+  kIzris();
+  sb.from('app_narocnine').update(pod).eq('id', n.id).then(function(r){
+    sporoci('spNar', r.error ? 'Ni shranjeno: ' + r.error.message : 'Shranjeno.', !r.error);
+  });
+}
+
+$('gDodajN').addEventListener('click', function(){
+  var ime = $('aIme').value.trim();
+  if(!ime){ sporoci('spNar','Vpiši ime salona.',false); return; }
+  var b = this; b.disabled = true;
+  sb.from('app_narocnine').insert({ime:ime, tip:$('aTip').value || null, paket:$('aPaket').value, status:$('aStatus').value,
+    sms_ocena: Math.round(kst($('aSms').value, 0))}).select().single().then(function(r){
+    b.disabled = false;
+    if(r.error){ sporoci('spNar','Napaka: ' + r.error.message, false); return; }
+    kNar.push(r.data); $('aIme').value = ''; kIzris(); sporoci('spNar','Dodano.',true);
   });
 });
 
