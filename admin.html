@@ -953,13 +953,13 @@ function shraniSalon(){
     kontakt:Object.assign({},NS.salon.kontakt||{},{telefon:nsVal('nsTel')||null,email:nsVal('nsEmail')||null,naslov:nsVal('nsNaslov')||null}),
     barve:{glavna:nsVal('nsB1'),poudarek:nsVal('nsB2'),ozadje:nsVal('nsB3'),ozadje2:nsVal('nsB4')},
     pravila:p,
-    obvestila:{telegram_chat_ids:nsVal('nsTg')||null,lastnik_telefon:nsVal('nsLastTel')||null,email_od:nsVal('nsMailOd')||null,email_odgovor:nsVal('nsMailOdg')||null},
-    updated_at:new Date().toISOString()
+    obvestila:{telegram_chat_ids:nsVal('nsTg')||null,lastnik_telefon:nsVal('nsLastTel')||null,email_od:nsVal('nsMailOd')||null,email_odgovor:nsVal('nsMailOdg')||null}
   };
   nsMsg('nsMsgSalon','Shranjujem …',true);
-  _sbFrom('app_salons').update(patch).eq('id',SALON_ID).select('id').then(function(r){
+  /* shranjevanje prek funkcije v bazi (preveri lastnika; obvestila niso javno berljiva) */
+  sb.rpc('app_shrani_salon',{s:SALON_ID, podatki:patch}).then(function(r){
     if(r.error){ nsMsg('nsMsgSalon','Napaka: '+r.error.message,false); return; }
-    if(!r.data||!r.data.length){ nsMsg('nsMsgSalon','Ni shranjeno – podatke salona lahko spreminja samo lastnik.',false); return; }
+    if(!r.data||!r.data.ok){ nsMsg('nsMsgSalon',(r.data&&r.data.napaka)||'Ni shranjeno.',false); return; }
     nsMsg('nsMsgSalon','Shranjeno.',true);
     APP.naloziSalon(APP.slug).then(function(){ APP.vstavi(); document.title=(APP.kratko||APP.ime)+' · Admin'; });
   });
