@@ -146,12 +146,17 @@ window.APP = {
   var slug = slugIzNaslova();
   var nalaganje;
   if (STRAN === 'narocilo') nalaganje = Promise.resolve(false);
-  else if (STRAN === 'admin') nalaganje = A.naloziSalon(slug || 'primer');   // izbira salona po prijavi pride v fazi 4
+  else if (STRAN === 'admin') {
+    // admin: salon iz ?s= ali zadnji izbrani; dokončna izbira je po prijavi (med saloni, katerih član je uporabnik)
+    var zadnji = ''; try { zadnji = localStorage.getItem('admin_salon') || ''; } catch (e) {}
+    nalaganje = A.naloziSalon(slug || zadnji);
+  }
   else nalaganje = A.naloziSalon(slug);
 
   A.ready = Promise.all([nalaganje, domPripravljen]).then(function (r) {
     var ok = r[0];
     if (!ok && STRAN === 'narocanje') { if (slug) prikaziNiSalona(); else prikaziSeznam(); return false; }
+    if (!ok && STRAN === 'admin') { A.ime = A.platforma; A.kratko = A.platforma; }
     vstavi();
     return ok;
   });

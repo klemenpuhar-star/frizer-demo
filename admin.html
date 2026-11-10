@@ -435,6 +435,7 @@ header .who{font-size:.74rem;opacity:.65}
 .obr-form{background:#fbf8f4;border-radius:12px;padding:.85rem}
 .obr-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.5rem}
 .obr-row label,.obr-op{display:flex;flex-direction:column;gap:.2rem;flex:1;min-width:120px;font-size:.76rem;color:#7c8a93}
+.obr-row select,.bl-r select,.bl-r input[type=time],.bl-r input[type=text]{padding:.45rem .5rem;border:1px solid #ebe4da;border-radius:9px;font-family:inherit;font-size:.9rem;color:var(--navy);background:#fff}
 .obr-row input,.obr-op input{padding:.5rem;border:1px solid #ebe4da;border-radius:9px;font-family:inherit;font-size:.95rem;color:var(--navy)}
 .obr-nacin{display:flex;gap:.4rem;margin:.5rem 0}
 .obr-nacin button{flex:1;padding:.55rem .3rem;border:1.5px solid #ebe4da;background:#fff;border-radius:10px;cursor:pointer;font-family:inherit;font-size:.82rem;color:var(--navy)}
@@ -684,6 +685,7 @@ header .brand .brand-tag[style]{ opacity:.55 !important }   /* oznaka razlicice 
       <button data-mode="blagajna">Blagajna</button>
       <button data-mode="izdelki">Izdelki</button>
       <button data-mode="narocila">Naročila</button>
+      <button data-mode="nastavitve">Nastavitve</button>
     </div>
   </div>
 
@@ -715,6 +717,7 @@ header .brand .brand-tag[style]{ opacity:.55 !important }   /* oznaka razlicice 
         <div class="blagajna hidden" id="blagajnaView"></div>
         <div class="blagajna hidden" id="izdelkiView"></div>
         <div class="blagajna hidden" id="narocilaView"></div>
+        <div class="blagajna hidden" id="nastavitveView"></div>
       </div>
     </div>
   </div>
@@ -768,6 +771,266 @@ header .brand .brand-tag[style]{ opacity:.55 !important }   /* oznaka razlicice 
 var SB_URL=APP.supabaseUrl;
 var SB_KEY=APP.supabaseKey;
 var sb=supabase.createClient(SB_URL,SB_KEY);
+
+/* ══ VEČ SALONOV (faza 4) ═══════════════════════════════════════════════
+   Po prijavi se prebere, katerih salonov je uporabnik član. Vse poizvedbe na tabele
+   s podatki salona samodejno dobijo filter salon_id (branje, sprememba, brisanje),
+   novi zapisi pa salon_id. Pravila dostopa (RLS) v bazi to še dodatno varujejo. */
+var SALON_ID=null, SALON_VLOGA=null, MOJI_SALONI=[];
+var SALONSKE_TABELE={services:1,bookings:1,blocks:1,delovni_cas:1,stranke:1,sms_dnevnik:1,artikli:1,obracuni:1,
+                     narocila_trgovina:1,nastavitve_trgovina:1,app_kategorije:1};
+var _sbFrom=sb.from.bind(sb);
+sb.from=function(t){
+  var qb=_sbFrom(t);
+  if(!SALONSKE_TABELE[t]) return qb;
+  var sid=SALON_ID;
+  function dodaj(v){
+    if(Array.isArray(v)) return v.map(function(r){ var o=Object.assign({},r); o.salon_id=sid; return o; });
+    var o=Object.assign({},v); o.salon_id=sid; return o;
+  }
+  return {
+    select:function(){ return qb.select.apply(qb,arguments).eq('salon_id',sid); },
+    insert:function(v,o){ return qb.insert(dodaj(v),o); },
+    upsert:function(v,o){ return qb.upsert(dodaj(v),o); },
+    update:function(v,o){ return qb.update(v,o).eq('salon_id',sid); },
+    delete:function(o){ return qb.delete(o).eq('salon_id',sid); }
+  };
+};
+function lsGet(k){ try{ return localStorage.getItem(k)||''; }catch(e){ return ''; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+function izberiSalon(s){
+  return _sbFrom('app_salon_members').select('vloga, app_salons(id,slug,ime,aktiven)').eq('user_id',s.user.id).then(function(r){
+    MOJI_SALONI=(r.data||[]).filter(function(x){return x.app_salons;}).map(function(x){
+      return {vloga:x.vloga, id:x.app_salons.id, slug:x.app_salons.slug, ime:x.app_salons.ime};
+    }).sort(function(a,b){return a.ime.localeCompare(b.ime,'sl');});
+    if(!MOJI_SALONI.length){
+      calScroll.innerHTML='<div class="empty" style="padding:3rem 1rem;line-height:1.6">Vaš račun še ni povezan z nobenim salonom.<br>Za dostop se obrnite na skrbnika platforme.</div>';
+      return false;
+    }
+    var zelen=new URLSearchParams(location.search).get('s')||lsGet('admin_salon');
+    var izbran=MOJI_SALONI.filter(function(x){return x.slug===zelen;})[0]||MOJI_SALONI[0];
+    SALON_ID=izbran.id; SALON_VLOGA=izbran.vloga; lsSet('admin_salon',izbran.slug);
+    izrisiIzbiroSalona();
+    return (APP.slug===izbran.slug?Promise.resolve(true):APP.naloziSalon(izbran.slug)).then(function(){
+      APP.vstavi(); document.title=(APP.kratko||APP.ime)+' · Admin'; return true;
+    });
+  });
+}
+function izrisiIzbiroSalona(){
+  var who=document.getElementById('whoLabel'); if(!who) return;
+  var st=document.getElementById('salonIzbira'); if(st) st.remove();
+  if(MOJI_SALONI.length<2) return;
+  var sel=document.createElement('select'); sel.id='salonIzbira'; sel.title='Izberite salon';
+  sel.style.cssText='font:inherit;font-size:.82rem;padding:.35rem .6rem;border-radius:999px;border:1.5px solid rgba(28,26,25,.18);background:#fff;color:var(--navy);max-width:14rem';
+  MOJI_SALONI.forEach(function(x){ var o=document.createElement('option'); o.value=x.slug; o.textContent=x.ime; if(x.id===SALON_ID) o.selected=true; sel.appendChild(o); });
+  sel.addEventListener('change',function(){ lsSet('admin_salon',sel.value); location.href='/admin?s='+encodeURIComponent(sel.value); });
+  who.parentNode.insertBefore(sel,who);
+}
+
+/* ══ NASTAVITVE SALONA ══════════════════════════════════════════════════ */
+var NS={};
+function nsVal(id){ var el=document.getElementById(id); return el?String(el.value||'').trim():''; }
+function nsChk(id){ var el=document.getElementById(id); return !!(el&&el.checked); }
+function nsMsg(id,t,ok){ var m=document.getElementById(id); if(!m)return; m.textContent=t; m.className='d-edit-msg '+(ok?'ok':'err'); }
+function nsInp(id,label,val,extra){ return '<label>'+label+'<input type="text" id="'+id+'" value="'+esc(val==null?'':val)+'" '+(extra||'')+'></label>'; }
+function nsBarva(id,label,val){ return '<label>'+label+'<span style="display:flex;gap:.4rem;align-items:center"><input type="color" id="'+id+'" value="'+esc(val||'#000000')+'" style="width:3rem;height:2.2rem;padding:0;border-radius:8px"><code id="'+id+'Hex" style="font-size:.78rem">'+esc(val||'')+'</code></span></label>'; }
+
+function loadNastavitve(){
+  calScroll.classList.add('hidden'); nujniList.classList.add('hidden');
+  document.getElementById('strankeView').classList.add('hidden'); skrijBlagajno();
+  var box=document.getElementById('nastavitveView'); box.classList.remove('hidden');
+  resetMiniHeight();
+  document.getElementById('rangeLabel').textContent='Nastavitve salona';
+  box.innerHTML='<div class="empty">Nalagam …</div>';
+  Promise.all([
+    _sbFrom('app_salons').select('id,slug,ime,kratko,tip,barve,logo_url,kontakt,pravila,sms_predpona').eq('id',SALON_ID).single(),
+    sb.rpc('app_salon_obvestila',{s:SALON_ID}),
+    sb.from('delovni_cas').select('dan,teden,nacin,od,do_'),
+    sb.from('services').select('*').order('sort_order',{ascending:true}),
+    sb.from('app_kategorije').select('*').order('sort_order',{ascending:true})
+  ]).then(function(r){
+    if(r[0].error){ box.innerHTML='<div class="empty">Napaka: '+esc(r[0].error.message)+'</div>'; return; }
+    NS={salon:r[0].data, obv:(r[1].data||{}), dc:r[2].data||[], svc:r[3].data||[], kat:r[4].data||[]};
+    izrisiNastavitve(box);
+  });
+}
+
+function izrisiNastavitve(box){
+  var s=NS.salon, k=s.kontakt||{}, b=s.barve||{}, p=s.pravila||{}, o=NS.obv||{};
+  var lastnik=(SALON_VLOGA==='lastnik');
+  var javni=location.origin+'/'+s.slug;
+  var h='';
+  h+='<div class="obr-form" style="margin-bottom:1rem"><div class="d-edit-hd">Osnovni podatki</div>'
+    +'<p class="bl-svc" style="margin:.2rem 0 .7rem">Stran za naročanje: <a href="'+esc(javni)+'" target="_blank" rel="noopener">'+esc(javni)+'</a></p>'
+    +(lastnik?'':'<p class="bl-svc" style="color:#8a5a00">Podatke salona lahko spreminja samo lastnik.</p>')
+    +'<div class="obr-row">'+nsInp('nsIme','Ime salona',s.ime)+nsInp('nsKratko','Kratko ime',s.kratko)+'</div>'
+    +'<div class="obr-row">'+nsInp('nsTel','Telefon za stranke',k.telefon)+nsInp('nsEmail','E-pošta',k.email)+'</div>'
+    +'<div class="obr-row">'+nsInp('nsNaslov','Naslov',k.naslov)+nsInp('nsLogo','Povezava do logotipa (URL)',s.logo_url,'placeholder="https://…/logo.png"')+'</div>'
+    +'<div class="d-edit-hd" style="margin-top:.9rem">Videz</div>'
+    +'<div class="obr-row">'+nsBarva('nsB1','Glavna (besedilo, gumbi)',b.glavna)+nsBarva('nsB2','Poudarek',b.poudarek)+'</div>'
+    +'<div class="obr-row">'+nsBarva('nsB3','Ozadje',b.ozadje)+nsBarva('nsB4','Ozadje 2 (kartice, glava)',b.ozadje2)+'</div>'
+    +'<div class="d-edit-hd" style="margin-top:.9rem">Pravila naročanja</div>'
+    +'<div class="obr-row">'+nsInp('nsMinUr','Najmanj ur vnaprej',p.min_ur_vnaprej!=null?p.min_ur_vnaprej:4,'inputmode="decimal"')
+    +'<label>Korak terminov (min)<select id="nsKorak">'+[5,10,15,20,30,60].map(function(x){return '<option'+((+p.korak_min||15)===x?' selected':'')+'>'+x+'</option>';}).join('')+'</select></label></div>'
+    +'<div class="obr-row">'+nsInp('nsMaxDni','Največ dni vnaprej (prazno = brez omejitve)',p.max_dni_vnaprej!=null?p.max_dni_vnaprej:'','inputmode="numeric"')
+    +nsInp('nsSms','SMS predpona (brez šumnikov, do 11 znakov)',s.sms_predpona,'maxlength="11"')+'</div>'
+    +'<div class="d-edit-hd" style="margin-top:.9rem">Obvestila salonu</div>'
+    +'<div class="obr-row">'+nsInp('nsTg','Telegram chat ID (več z vejico)',o.telegram_chat_ids)+nsInp('nsLastTel','Mobilni lastnika (SMS ob nujni zahtevi)',o.lastnik_telefon)+'</div>'
+    +'<div class="obr-row">'+nsInp('nsMailOd','Pošiljatelj e-pošte (neobvezno)',o.email_od,'placeholder="Salon Ana <rezervacije@domena.si>"')+nsInp('nsMailOdg','Odgovori na e-pošto (neobvezno)',o.email_odgovor)+'</div>'
+    +'<div class="obr-btns"><button class="act save" id="nsSaveSalon"'+(lastnik?'':' disabled')+'>Shrani podatke salona</button></div>'
+    +'<div class="d-edit-msg" id="nsMsgSalon"></div></div>';
+
+  /* delovni čas */
+  var DN=['Nedelja','Ponedeljek','Torek','Sreda','Četrtek','Petek','Sobota'], vrstni=[1,2,3,4,5,6,0];
+  var izmenicni=NS.dc.some(function(x){return +x.teden!==0;});
+  var dcMap={}; NS.dc.filter(function(x){return +x.teden===0;}).forEach(function(x){dcMap[x.dan]=x;});
+  h+='<div class="obr-form" style="margin-bottom:1rem"><div class="d-edit-hd">Delovni čas</div>'
+    +(izmenicni?'<p class="bl-svc" style="color:#8a5a00">Salon ima nastavljene izmenične tedne. Tukaj se ureja osnovni urnik (velja vsak teden).</p>':'')
+    +'<div class="bl-list">'+vrstni.map(function(d){
+      var x=dcMap[d]||{nacin:'zaprto',od:null,do_:null};
+      return '<div class="bl-row" style="flex-wrap:wrap"><div class="bl-l" style="min-width:7rem"><b>'+DN[d]+'</b></div>'
+        +'<div class="bl-r" style="flex-wrap:wrap">'
+        +'<select id="nsDcN'+d+'">'+[['odprto','Odprto'],['dogovor','Po dogovoru'],['zaprto','Zaprto']].map(function(n){return '<option value="'+n[0]+'"'+(x.nacin===n[0]?' selected':'')+'>'+n[1]+'</option>';}).join('')+'</select>'
+        +'<input type="time" id="nsDcOd'+d+'" value="'+esc(x.od?String(x.od).slice(0,5):'')+'"> – '
+        +'<input type="time" id="nsDcDo'+d+'" value="'+esc(x.do_?String(x.do_).slice(0,5):'')+'"></div></div>';
+    }).join('')+'</div>'
+    +'<div class="obr-btns"><button class="act save" id="nsSaveDc">Shrani delovni čas</button></div>'
+    +'<div class="d-edit-msg" id="nsMsgDc"></div></div>';
+
+  /* storitve */
+  h+='<div class="obr-form" style="margin-bottom:1rem"><div class="d-edit-hd">Storitve</div>'
+    +'<div class="bl-actions" style="margin-top:.4rem"><button class="btn bl-add" id="nsNovaSvc">➕ Nova storitev</button></div>'
+    +'<div id="nsSvcForm"></div>'
+    +(NS.svc.length?'<div class="bl-list">'+NS.svc.map(function(v){
+        return '<div class="bl-row"><div class="bl-l" style="min-width:0;flex:1 1 auto"><b>'+esc(v.name)+'</b> · '+esc(v.category)
+          +'<div class="bl-svc">'+eur(v.price)+' · '+(+v.duration_min||0)+' min'
+          +(v.requires_base?' <span class="bl-rn">dodatek</span>':'')
+          +(v.gap_after_min&&v.gap_duration_min?' <span class="bl-rn">vrzel</span>':'')
+          +(v.active?'':' <span class="bl-rn bl-rn-ni">neaktivna</span>')+'</div></div>'
+          +'<div class="bl-r"><button class="act" data-svc="'+v.id+'">Uredi</button></div></div>';
+      }).join('')+'</div>':'<div class="empty">Še ni storitev. Dodajte prvo zgoraj.</div>')
+    +'</div>';
+
+  /* kategorije */
+  var kats={}; NS.kat.forEach(function(x){kats[x.ime]=x;});
+  NS.svc.forEach(function(v){ if(!kats[v.category]) kats[v.category]={ime:v.category,sort_order:v.sort_order,vec_oseb:false,oznaka_oseb:null,nujna:false,_nova:true}; });
+  var kl=Object.keys(kats).map(function(k){return kats[k];}).sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);});
+  h+='<div class="obr-form" style="margin-bottom:1rem"><div class="d-edit-hd">Kategorije</div>'
+    +'<p class="bl-svc" style="margin:.2rem 0 .7rem">»Več oseb« omogoči izbiro števila oseb v enem terminu (npr. otroci, živali). »Nujna« kategorija vodi v nujno zahtevo brez termina – salon stranko pokliče.</p>'
+    +(kl.length?'<div class="bl-list">'+kl.map(function(x,i){
+        return '<div class="bl-row" style="flex-wrap:wrap"><div class="bl-l" style="min-width:9rem"><b>'+esc(x.ime)+'</b></div>'
+          +'<div class="bl-r" style="flex-wrap:wrap">'
+          +'<label style="display:flex;gap:.3rem;align-items:center"><input type="checkbox" id="nsKv'+i+'"'+(x.vec_oseb?' checked':'')+'> več oseb</label>'
+          +'<input type="text" id="nsKo'+i+'" value="'+esc(x.oznaka_oseb||'')+'" placeholder="npr. Število otrok" style="width:10rem">'
+          +'<label style="display:flex;gap:.3rem;align-items:center"><input type="checkbox" id="nsKn'+i+'"'+(x.nujna?' checked':'')+'> nujna</label>'
+          +'</div></div>';
+      }).join('')+'</div>':'<div class="empty">Kategorije nastanejo samodejno iz storitev.</div>')
+    +'<div class="obr-btns"><button class="act save" id="nsSaveKat">Shrani kategorije</button></div>'
+    +'<div class="d-edit-msg" id="nsMsgKat"></div></div>';
+
+  box.innerHTML=h;
+
+  ['nsB1','nsB2','nsB3','nsB4'].forEach(function(id){ var el=document.getElementById(id); el.addEventListener('input',function(){ document.getElementById(id+'Hex').textContent=el.value; }); });
+  document.getElementById('nsSaveSalon').addEventListener('click',shraniSalon);
+  document.getElementById('nsSaveDc').addEventListener('click',function(){ shraniDelovniCas(vrstni); });
+  document.getElementById('nsSaveKat').addEventListener('click',function(){ shraniKategorije(kl); });
+  document.getElementById('nsNovaSvc').addEventListener('click',function(){ storitevForma(null); });
+  box.querySelectorAll('[data-svc]').forEach(function(btn){
+    btn.addEventListener('click',function(){ var v=NS.svc.filter(function(x){return String(x.id)===btn.getAttribute('data-svc');})[0]; storitevForma(v||null); });
+  });
+}
+
+function shraniSalon(){
+  var minUr=parseFloat(nsVal('nsMinUr').replace(',','.')), maxDni=nsVal('nsMaxDni');
+  if(!nsVal('nsIme')){ nsMsg('nsMsgSalon','Ime salona je obvezno.',false); return; }
+  if(isNaN(minUr)||minUr<0){ nsMsg('nsMsgSalon','»Najmanj ur vnaprej« mora biti število.',false); return; }
+  if(maxDni!==''&&!/^\d+$/.test(maxDni)){ nsMsg('nsMsgSalon','»Največ dni vnaprej« mora biti celo število ali prazno.',false); return; }
+  var sms=nsVal('nsSms').toUpperCase().replace(/[^A-Z0-9 ]/g,'').slice(0,11)||'NAROCILO';
+  var p=Object.assign({},NS.salon.pravila||{},{min_ur_vnaprej:minUr,korak_min:parseInt(nsVal('nsKorak'))||15,max_dni_vnaprej:maxDni===''?null:parseInt(maxDni)});
+  var patch={
+    ime:nsVal('nsIme'), kratko:nsVal('nsKratko')||null, logo_url:nsVal('nsLogo')||null, sms_predpona:sms,
+    kontakt:Object.assign({},NS.salon.kontakt||{},{telefon:nsVal('nsTel')||null,email:nsVal('nsEmail')||null,naslov:nsVal('nsNaslov')||null}),
+    barve:{glavna:nsVal('nsB1'),poudarek:nsVal('nsB2'),ozadje:nsVal('nsB3'),ozadje2:nsVal('nsB4')},
+    pravila:p,
+    obvestila:{telegram_chat_ids:nsVal('nsTg')||null,lastnik_telefon:nsVal('nsLastTel')||null,email_od:nsVal('nsMailOd')||null,email_odgovor:nsVal('nsMailOdg')||null},
+    updated_at:new Date().toISOString()
+  };
+  nsMsg('nsMsgSalon','Shranjujem …',true);
+  _sbFrom('app_salons').update(patch).eq('id',SALON_ID).select('id').then(function(r){
+    if(r.error){ nsMsg('nsMsgSalon','Napaka: '+r.error.message,false); return; }
+    if(!r.data||!r.data.length){ nsMsg('nsMsgSalon','Ni shranjeno – podatke salona lahko spreminja samo lastnik.',false); return; }
+    nsMsg('nsMsgSalon','Shranjeno.',true);
+    APP.naloziSalon(APP.slug).then(function(){ APP.vstavi(); document.title=(APP.kratko||APP.ime)+' · Admin'; });
+  });
+}
+
+function shraniDelovniCas(dnevi){
+  var vrstice=[], napaka='';
+  dnevi.forEach(function(d){
+    var n=nsVal('nsDcN'+d), od=nsVal('nsDcOd'+d), dd=nsVal('nsDcDo'+d);
+    if(n==='odprto'&&(!od||!dd||od>=dd)) napaka='Pri odprtih dneh vpišite uro od in do (»do« mora biti za »od«).';
+    vrstice.push({dan:d,teden:0,nacin:n,od:n==='odprto'?od:null,do_:n==='odprto'?dd:null,updated_at:new Date().toISOString()});
+  });
+  if(napaka){ nsMsg('nsMsgDc',napaka,false); return; }
+  nsMsg('nsMsgDc','Shranjujem …',true);
+  sb.from('delovni_cas').upsert(vrstice,{onConflict:'salon_id,dan,teden'}).then(function(r){
+    if(r.error){ nsMsg('nsMsgDc','Napaka: '+r.error.message,false); return; }
+    nsMsg('nsMsgDc','Shranjeno.',true);
+    nalozDelovniCas(function(){});
+  });
+}
+
+function shraniKategorije(kl){
+  var vrstice=kl.map(function(x,i){
+    return {ime:x.ime,sort_order:x.sort_order||0,vec_oseb:nsChk('nsKv'+i),oznaka_oseb:nsVal('nsKo'+i)||null,nujna:nsChk('nsKn'+i)};
+  });
+  if(!vrstice.length) return;
+  nsMsg('nsMsgKat','Shranjujem …',true);
+  sb.from('app_kategorije').upsert(vrstice,{onConflict:'salon_id,ime'}).then(function(r){
+    if(r.error){ nsMsg('nsMsgKat','Napaka: '+r.error.message,false); return; }
+    nsMsg('nsMsgKat','Shranjeno.',true);
+    APP.naloziSalon(APP.slug);
+  });
+}
+
+function storitevForma(v){
+  var box=document.getElementById('nsSvcForm'); if(!box) return;
+  var kat=[]; NS.svc.forEach(function(x){ if(kat.indexOf(x.category)<0) kat.push(x.category); });
+  v=v||{category:kat[0]||'',name:'',description:'',price:'',duration_min:30,sort_order:(NS.svc.length+1)*10,requires_base:false,is_base:true,gap_after_min:null,gap_duration_min:null,active:true};
+  box.innerHTML='<div class="obr-form" style="margin-bottom:.8rem;border:1.5px solid var(--coral)"><div class="d-edit-hd">'+(v.id?'Uredi storitev':'Nova storitev')+'</div>'
+    +'<datalist id="nsKatList">'+kat.map(function(k){return '<option value="'+esc(k)+'">';}).join('')+'</datalist>'
+    +'<div class="obr-row">'+nsInp('nsSvKat','Kategorija (skupina v ceniku)',v.category,'list="nsKatList"')+nsInp('nsSvIme','Ime storitve',v.name)+'</div>'
+    +'<div class="obr-row">'+nsInp('nsSvOpis','Opis (neobvezno)',v.description)+nsInp('nsSvCena','Cena (€)',v.price,'inputmode="decimal"')+'</div>'
+    +'<div class="obr-row">'+nsInp('nsSvTraj','Trajanje (min)',v.duration_min,'inputmode="numeric"')+nsInp('nsSvVr','Vrstni red',v.sort_order,'inputmode="numeric"')+'</div>'
+    +'<div class="obr-row">'+nsInp('nsSvGa','Vrzel: po koliko min (neobvezno)',v.gap_after_min,'inputmode="numeric"')+nsInp('nsSvGd','Vrzel: koliko min prosto',v.gap_duration_min,'inputmode="numeric"')+'</div>'
+    +'<div class="obr-row" style="gap:1.2rem">'
+    +'<label style="display:flex;gap:.4rem;align-items:center"><input type="checkbox" id="nsSvDod"'+(v.requires_base?' checked':'')+'> dodatek (samo skupaj z drugo storitvijo)</label>'
+    +'<label style="display:flex;gap:.4rem;align-items:center"><input type="checkbox" id="nsSvAkt"'+(v.active?' checked':'')+'> aktivna (vidna strankam)</label></div>'
+    +'<div class="obr-btns"><button class="act save" id="nsSvSave">Shrani storitev</button><button class="act" id="nsSvPrekl">Prekliči</button></div>'
+    +'<div class="d-edit-msg" id="nsMsgSvc"></div></div>';
+  box.scrollIntoView({behavior:'smooth',block:'start'});
+  document.getElementById('nsSvPrekl').addEventListener('click',function(){ box.innerHTML=''; });
+  document.getElementById('nsSvSave').addEventListener('click',function(){
+    var cena=parseFloat(nsVal('nsSvCena').replace(',','.')), traj=parseInt(nsVal('nsSvTraj')), ga=nsVal('nsSvGa'), gd=nsVal('nsSvGd');
+    if(!nsVal('nsSvKat')||!nsVal('nsSvIme')){ nsMsg('nsMsgSvc','Kategorija in ime sta obvezna.',false); return; }
+    if(isNaN(cena)||cena<0){ nsMsg('nsMsgSvc','Cena mora biti število.',false); return; }
+    if(isNaN(traj)||traj<0){ nsMsg('nsMsgSvc','Trajanje mora biti število minut.',false); return; }
+    var dod=nsChk('nsSvDod');
+    var rec={category:nsVal('nsSvKat'),name:nsVal('nsSvIme'),description:nsVal('nsSvOpis')||null,price:cena,duration_min:traj,
+             sort_order:parseInt(nsVal('nsSvVr'))||0,requires_base:dod,is_base:!dod,
+             gap_after_min:ga===''?null:parseInt(ga),gap_duration_min:gd===''?null:parseInt(gd),active:nsChk('nsSvAkt')};
+    nsMsg('nsMsgSvc','Shranjujem …',true);
+    var q=v.id?sb.from('services').update(rec).eq('id',v.id):sb.from('services').insert([rec]);
+    q.then(function(r){
+      if(r.error){ nsMsg('nsMsgSvc','Napaka: '+r.error.message,false); return; }
+      sb.from('app_kategorije').upsert([{ime:rec.category,sort_order:rec.sort_order}],{onConflict:'salon_id,ime',ignoreDuplicates:true}).then(function(){
+        loadServices(function(){}); loadNastavitve();
+      });
+    });
+  });
+}
+
 
 var loginView=document.getElementById('loginView'),appView=document.getElementById('appView');
 var calScroll=document.getElementById('calScroll'),nujniList=document.getElementById('nujniList'),miniEl=document.getElementById('mini');
@@ -901,7 +1164,8 @@ function nalozDelovniCas(cb){
 }
 
 /* AUTH */
-function showApp(s){loginView.classList.add('hidden');appView.classList.remove('hidden');document.getElementById('whoLabel').textContent=s.user.email;nalozPraznike(function(){nalozDelovniCas(function(){buildMini();loadServices(load);});});}
+function showApp(s){loginView.classList.add('hidden');appView.classList.remove('hidden');document.getElementById('whoLabel').textContent=s.user.email;
+  izberiSalon(s).then(function(ok){ if(!ok) return; nalozPraznike(function(){nalozDelovniCas(function(){buildMini();loadServices(load);});}); });}
 function showLogin(){appView.classList.add('hidden');loginView.classList.remove('hidden');}
 document.getElementById('loginBtn').addEventListener('click',doLogin);
 document.getElementById('password').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
@@ -1173,13 +1437,14 @@ function rangeText(days){
 }
 function load(){
   nastaviMerilo();
-  var lg=document.getElementById('catLegend'); if(lg)lg.style.display=(mode==='stranke'||mode==='blagajna')?'none':'flex';
+  var lg=document.getElementById('catLegend'); if(lg)lg.style.display=(mode==='stranke'||mode==='blagajna'||mode==='izdelki'||mode==='narocila'||mode==='nastavitve')?'none':'flex';
   if(isMobile()&&MINI_BUILT){buildMini();}else{updateMiniSel();}
   if(mode==='nujni'){loadNujni();return;}
   if(mode==='stranke'){loadStranke();return;}
   if(mode==='blagajna'){loadBlagajna();return;}
   if(mode==='izdelki'){loadIzdelki();return;}
   if(mode==='narocila'){loadNarocila();return;}
+  if(mode==='nastavitve'){loadNastavitve();return;}
   if(mode==='month'){loadMonth();return;}
   calScroll.classList.remove('hidden');nujniList.classList.add('hidden');document.getElementById('strankeView').classList.add('hidden');skrijBlagajno();
   var days=daysForMode();
@@ -1465,7 +1730,7 @@ function uvozShrani(R,btn){
   })();
 }
 
-function skrijBlagajno(){["blagajnaView","izdelkiView","narocilaView"].forEach(function(id){var b=document.getElementById(id);if(b)b.classList.add("hidden");});}
+function skrijBlagajno(){["blagajnaView","izdelkiView","narocilaView","nastavitveView"].forEach(function(id){var b=document.getElementById(id);if(b)b.classList.add("hidden");});}
 /* ── BLAGAJNA: obracun opravljenih storitev ───────────────────── */
 var NACINI=[['gotovina','💶 Gotovina'],['kartica','💳 Kartica'],['nakazilo','🏦 Nakazilo']];
 function nacinIme(n){for(var i=0;i<NACINI.length;i++){if(NACINI[i][0]===n)return NACINI[i][1];}return n;}
