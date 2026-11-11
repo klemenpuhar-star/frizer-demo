@@ -26,11 +26,11 @@ a{ color:var(--navy); text-decoration-color:var(--coral); text-underline-offset:
 <div class="wrap">
   <a class="nazaj" data-app="domov" href="/">← Nazaj na naročanje</a>
   <div class="card">
-    <!-- PREDLOGA: rumeno označena mesta zamenjajte s svojimi podatki in besedilo preverite
-         (po potrebi s pravnim svetovalcem). Seznam ponudnikov v 4. točki uskladite s tem,
-         katere storitve res uporabljate (SMS, e-pošta, Telegram). -->
+    <!-- Podatki upravljavca (salona) se preberejo iz baze: ime, naslov in davčna iz »Podjetje« v superadminu,
+         telefon in e-pošta iz Nastavitev salona. Ponudnika platforme vpišete v nastavitve.js (obdelovalec).
+         Besedilo naj preveri pravni svetovalec. -->
     <h1>Pravilnik o zasebnosti</h1>
-    <p class="sub"><span data-app="ime"></span> · Zadnja sprememba: <span class="izpolni">[DATUM]</span></p>
+    <p class="sub"><span data-app="ime"></span> · Zadnja sprememba: 11. 11. 2026</p>
 
     <p>Spoštujemo vašo zasebnost. V tem pravilniku pojasnjujemo, katere osebne podatke zbiramo ob spletnem
        naročanju, zakaj, kako dolgo jih hranimo in katere pravice imate. Podatke obdelujemo skladno s Splošno
@@ -38,12 +38,15 @@ a{ color:var(--navy); text-decoration-color:var(--coral); text-underline-offset:
 
     <h2>1. Upravljavec podatkov</h2>
     <table>
-      <tr><th>Upravljavec</th><td><span class="izpolni">[NAZIV PODJETJA / s.p.]</span></td></tr>
-      <tr><th>Naslov</th><td><span class="izpolni">[NASLOV]</span></td></tr>
-      <tr><th>Davčna številka</th><td><span class="izpolni">[DAVČNA ŠTEVILKA]</span></td></tr>
+      <tr><th>Upravljavec</th><td data-z="naziv">–</td></tr>
+      <tr><th>Naslov</th><td data-z="naslov">–</td></tr>
+      <tr><th>Davčna številka</th><td data-z="davcna">–</td></tr>
       <tr><th>Telefon</th><td><a data-app="tel" href="#"></a></td></tr>
-      <tr><th>E-pošta</th><td><span class="izpolni">[E-NASLOV]</span></td></tr>
+      <tr><th>E-pošta</th><td data-z="email">–</td></tr>
     </table>
+    <p>Spletno naročanje za upravljavca zagotavlja ponudnik platforme <span data-z="obdelovalec">za spletno naročanje</span>
+       kot obdelovalec osebnih podatkov po pogodbi o obdelavi (člen 28 GDPR). Obdelovalec podatkov ne uporablja
+       za svoje namene in jih ne posreduje tretjim osebam, razen ponudnikom iz 4. točke.</p>
 
     <h2>2. Katere podatke zbiramo</h2>
     <p>Ob spletni rezervaciji: ime in priimek, telefonsko številko (za stik in SMS obvestila o terminu),
@@ -65,11 +68,12 @@ a{ color:var(--navy); text-decoration-color:var(--coral); text-underline-offset:
     <h2>4. Komu podatke posredujemo</h2>
     <table>
       <tr><th>Ponudnik</th><th>Namen</th><th>Lokacija</th></tr>
-      <tr><td>Supabase</td><td>Baza rezervacij</td><td>EU</td></tr>
+      <tr><td data-z="obdelovalec-vrsta">Ponudnik platforme</td><td>Delovanje sistema za naročanje (obdelovalec)</td><td>Slovenija (EU)</td></tr>
+      <tr><td>Supabase</td><td>Baza rezervacij</td><td>EU (Frankfurt)</td></tr>
       <tr><td>Lertify</td><td>Pošiljanje SMS obvestil</td><td>Slovenija (EU)</td></tr>
       <tr><td>Resend</td><td>Pošiljanje e-poštnih potrditev</td><td>ZDA</td></tr>
-      <tr><td>Telegram</td><td>Obvestilo lastniku o rezervaciji</td><td>Izven EU</td></tr>
-      <tr><td>GitHub Pages</td><td>Gostovanje spletne strani</td><td>ZDA</td></tr>
+      <tr><td>Telegram</td><td>Obvestilo salonu in zaposlenemu o rezervaciji</td><td>Izven EU</td></tr>
+      <tr><td>Cloudflare</td><td>Gostovanje spletne strani</td><td>Omrežje strežnikov (ZDA)</td></tr>
       <tr><td>jsDelivr</td><td>Nalaganje programskih knjižnic</td><td>Omrežje strežnikov</td></tr>
     </table>
     <p>Pri ponudnikih izven EU prenos poteka na podlagi ustreznih zaščitnih ukrepov iz poglavja V GDPR
@@ -87,5 +91,22 @@ a{ color:var(--navy); text-decoration-color:var(--coral); text-underline-offset:
        (Dunajska cesta 22, 1000 Ljubljana, <a href="https://www.ip-rs.si">www.ip-rs.si</a>).</p>
   </div>
 </div>
+<script>
+/* podatki upravljavca (salona) iz baze; ponudnik platforme iz nastavitve.js */
+(function(){
+  function vpisi(k,v){ document.querySelectorAll('[data-z="'+k+'"]').forEach(function(e){ e.textContent=v; }); }
+  APP.ready.then(function(){
+    if(APP.obdelovalec){ vpisi('obdelovalec', APP.obdelovalec); vpisi('obdelovalec-vrsta', APP.obdelovalec); }
+    if(!APP.slug){ vpisi('naziv','salon, pri katerem ste se naročili (podatki so na strani salona)'); return; }
+    fetch(APP.supabaseUrl+'/rest/v1/rpc/app_salon_upravljavec',{method:'POST',
+      headers:{apikey:APP.supabaseKey,'Content-Type':'application/json'},body:JSON.stringify({p_slug:APP.slug})})
+    .then(function(r){ return r.ok?r.json():null; }).then(function(d){
+      if(!d) return;
+      vpisi('naziv', d.naziv||APP.ime||'–'); vpisi('naslov', d.naslov||'–'); vpisi('davcna', d.davcna||'–');
+      if(d.email){ var td=document.querySelector('[data-z="email"]'); td.innerHTML=''; var a=document.createElement('a'); a.href='mailto:'+d.email; a.textContent=d.email; td.appendChild(a); }
+    }).catch(function(){});
+  });
+})();
+</script>
 </body>
 </html>

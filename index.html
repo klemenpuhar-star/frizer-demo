@@ -1596,6 +1596,7 @@ function submitBooking(btn){
       else if(r.napaka==='zaposleni-ne-opravlja' || r.napaka==='neveljaven-zaposleni' || r.napaka==='izberi-zaposlenega')
                                             t = 'Izbrani zaposleni tega termina ne more prevzeti. Vrnite se in izberite drugega.';
       else if(r.napaka==='predalec')        t = 'Termin je predaleč vnaprej. Izberite bližji datum.';
+      else if(r.napaka==='prevec-zahtev')   t = 'Z vaše številke smo pravkar prejeli več naročil. Če želite še en termin, nas pokličite na '+APP.telefon+'.';
       else if(res.error)                    t = 'Prišlo je do napake: '+res.error.message+'. Pokličite nas na '+APP.telefon+'.';
       var errEl = document.getElementById('bkErr2');
       if(errEl){ errEl.textContent = t; errEl.classList.add('show'); }
