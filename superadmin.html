@@ -36,6 +36,13 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
 .salon .levo{flex:1 1 320px;min-width:0}
 .salon b{font-size:1rem}
 .salon .meta{font-size:.8rem;color:var(--siva);margin-top:2px;word-break:break-word}
+.clani-sez{margin-top:8px;border:1px solid var(--rob);border-radius:10px;overflow:hidden}
+.clan-vr{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:6px 10px;border-top:1px solid var(--rob);font-size:.84rem}
+.clan-vr:first-child{border-top:none}
+.clan-vr .gumb{padding:.3rem .8rem;font-size:.78rem}
+.clan-vr .caka{color:#8a5a00}
+.rac-forma{padding:8px 10px;background:#faf8f5;border-top:1px dashed var(--rob);font-size:.82rem}
+.rac-forma input{font:inherit;padding:.35rem .5rem;border:1.5px solid var(--rob);border-radius:8px;width:12rem;max-width:100%}
 .znacka{display:inline-block;font-size:.72rem;padding:1px 8px;border-radius:999px;background:#e7f2ef;color:var(--poudarek);margin-left:6px;vertical-align:1px}
 .znacka.off{background:#fdf0d5;color:#8a5a00}
 .salon .desno{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
@@ -303,14 +310,14 @@ function nalozi2(){
         +'<div class="meta">'+esc(TIPI[s.tip]||'drugo')+' · <a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(url)+'</a></div>'
         +'<div class="meta">Storitev: '+s.st_storitev+' · Rezervacij: '+s.st_rezervacij+' · Ustvarjen: '+new Date(s.created_at).toLocaleDateString('sl-SI')+'</div>'
         +(ZAP_SALON[s.id]?'<div class="meta">Zaposleni: '+ZAP_SALON[s.id].aktivni+' aktivnih, '+ZAP_SALON[s.id].s_prijavo+' s prijavo</div>':'')
-        +'<div class="meta">Člani: '+esc(s.clani||'—')+'</div>'
-        +(s.povabila?'<div class="meta" style="color:#8a5a00">Čaka na račun: '+esc(s.povabila)+'</div>':'')
+        +'<div class="clani-sez" data-clani="'+s.id+'"><div class="clan-vr namig">Nalagam člane …</div></div>'
         +'<div class="clan"><input type="email" placeholder="e-pošta novega člana" data-clan-email="'+s.id+'">'
         +'<select data-clan-vloga="'+s.id+'"><option value="lastnik">lastnik</option><option value="admin" selected>admin</option><option value="recepcija">recepcija</option><option value="zaposleni">zaposleni</option></select>'
         +'<button class="gumb svetel" data-clan="'+s.id+'">Dodaj člana</button></div>'
         +'<div class="sporocilo" id="sp-'+s.id+'"></div></div>'
         +'<div class="desno"><button class="gumb svetel" data-aktiven="'+s.id+'" data-vrednost="'+(s.aktiven?'0':'1')+'">'+(s.aktiven?'Izklopi':'Vklopi')+'</button></div></div>';
     }).join('');
+    v.forEach(function(s){ naloziClane(s.id); });
     box.querySelectorAll('[data-aktiven]').forEach(function(b){
       b.addEventListener('click', function(){
         var vklop=b.getAttribute('data-vrednost')==='1';
@@ -339,6 +346,58 @@ function nalozi2(){
   });
 }
 
+/* člani salona z gumboma »Ustvari račun« (povabila) in »Novo geslo« (edge funkcija ustvari-racun) */
+var VLOGE_SA={lastnik:'lastnik',admin:'admin',recepcija:'recepcija',zaposleni:'zaposleni'};
+function predlogGesla(){
+  var z='abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789', a=new Uint32Array(10), g='';
+  try{ crypto.getRandomValues(a); }catch(e){ for(var i=0;i<10;i++) a[i]=Math.floor(Math.random()*1e9); }
+  for(var j=0;j<10;j++) g+=z.charAt(a[j]%z.length);
+  return g;
+}
+function naloziClane(sid){
+  var box=document.querySelector('[data-clani="'+sid+'"]'); if(!box) return;
+  sb.rpc('app_clani_salona',{s:sid}).then(function(r){
+    if(r.error){ box.innerHTML='<div class="clan-vr sporocilo err">Napaka: '+esc(r.error.message)+'</div>'; return; }
+    var cl=r.data||[];
+    if(!cl.length){ box.innerHTML='<div class="clan-vr namig">Salon še nima članov – dodajte lastnika spodaj.</div>'; return; }
+    box.innerHTML=cl.map(function(c,i){
+      return '<div class="clan-vr"><span><b style="font-size:.86rem">'+esc(c.email||'')+'</b> · '+esc(VLOGE_SA[c.vloga]||c.vloga)
+        +(c.zaposleni?' ('+esc(c.zaposleni)+')':'')+(c.povabilo?' · <span class="caka">čaka na račun</span>':'')+'</span>'
+        +'<span><button type="button" class="gumb svetel" data-rac="'+i+'">'+(c.povabilo?'Ustvari račun':'Novo geslo')+'</button></span></div>';
+    }).join('');
+    box.querySelectorAll('[data-rac]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var c=cl[+btn.getAttribute('data-rac')], vr=btn.closest('.clan-vr');
+        var st=vr.nextElementSibling; if(st&&st.classList.contains('rac-forma')){ st.remove(); return; }
+        var f=document.createElement('div'); f.className='rac-forma';
+        f.innerHTML=(c.povabilo?'Nov račun za ':'Novo geslo za ')+'<b>'+esc(c.email)+'</b> – začasno geslo: '
+          +'<input type="text" class="rf-g" value="'+predlogGesla()+'" autocomplete="off" spellcheck="false"> '
+          +'<button type="button" class="gumb svetel" data-rf="nov">Drugo</button> '
+          +'<button type="button" class="gumb" data-rf="ok">'+(c.povabilo?'Ustvari račun':'Nastavi geslo')+'</button>'
+          +'<div class="namig" style="margin-top:4px">Geslo si zapišite in ga sporočite osebno; po prijavi ga zamenja z gumbom »Geslo«.</div>'
+          +'<div class="sporocilo rf-sp"></div>';
+        vr.parentNode.insertBefore(f,vr.nextSibling);
+        f.querySelector('[data-rf="nov"]').onclick=function(){ f.querySelector('.rf-g').value=predlogGesla(); };
+        f.querySelector('[data-rf="ok"]').onclick=function(){
+          var g=f.querySelector('.rf-g').value, ok=this, sp=f.querySelector('.rf-sp');
+          if(g.length<8){ sp.textContent='Geslo naj ima vsaj 8 znakov.'; sp.className='sporocilo rf-sp err'; return; }
+          ok.disabled=true; sp.textContent='Pošiljam …'; sp.className='sporocilo rf-sp ok';
+          sb.functions.invoke('ustvari-racun',{body:{salon_id:sid,email:c.email,geslo:g,akcija:c.povabilo?'ustvari':'geslo'}}).then(function(x){
+            var obdelaj=function(d){
+              ok.disabled=false;
+              if(d&&d.ok){ sp.textContent=c.povabilo?'Račun je ustvarjen in povezan s salonom.':'Geslo je nastavljeno.'; sp.className='sporocilo rf-sp ok';
+                f.querySelector('.rf-g').readOnly=true; ok.remove(); if(c.povabilo) setTimeout(function(){ naloziClane(sid); },2500); return; }
+              sp.textContent=(d&&d.napaka)||'Ni uspelo.'; sp.className='sporocilo rf-sp err';
+            };
+            if(x.error&&x.error.context&&typeof x.error.context.json==='function') x.error.context.json().then(obdelaj,function(){ obdelaj(null); });
+            else obdelaj(x.data);
+          });
+        };
+      });
+    });
+  });
+}
+
 $('gUstvari').addEventListener('click', function(){
   var b=this, ime=$('nIme').value.trim(), slug=$('nSlug').value.trim(), email=$('nEmail').value.trim();
   $('rezUstvari').innerHTML='';
@@ -357,7 +416,7 @@ $('gUstvari').addEventListener('click', function(){
       +'Stran za naročanje: <a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(url)+'</a><br>'
       +'Administracija: <a href="'+esc(location.origin)+'/admin" target="_blank" rel="noopener">'+esc(location.origin)+'/admin</a><br>';
     if(d.lastnik==='povezan') h+='Lastnik <b>'+esc(email)+'</b> že ima račun in se lahko takoj prijavi.';
-    else if(d.lastnik==='povabljen') h+='<b>Še en korak:</b> lastnik '+esc(email)+' še nima računa. V Supabase odprite Authentication → Users → <b>Add user → Create new user</b>, vpišite '+esc(email)+' in začasno geslo, označite <b>Auto Confirm User</b>. Račun bo samodejno povezan s salonom. Geslo sporočite lastniku osebno.';
+    else if(d.lastnik==='povabljen') h+='<b>Še en korak:</b> lastnik '+esc(email)+' še nima računa. V seznamu »Vsi saloni« pri tem salonu kliknite <b>»Ustvari račun«</b> in določite začasno geslo. Geslo sporočite lastniku osebno.';
     else h+='Salon še nima lastnika. Dodajte ga spodaj v seznamu (»Dodaj člana«).';
     $('rezUstvari').innerHTML=h+'</div>';
     $('nIme').value=''; $('nSlug').value=''; $('nEmail').value=''; $('nTel').value=''; $('nTip').value='-'; slugRocno=false; namigSlug();
