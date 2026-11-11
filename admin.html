@@ -220,6 +220,7 @@ header .who{font-size:.74rem;opacity:.65}
 .zap-filter{font:inherit;font-size:.82rem;padding:.4rem .7rem;border-radius:999px;border:1.5px solid rgba(28,26,25,.18);background:#fff;color:var(--navy);max-width:12rem}
 .dayhead .zap-ime{font-weight:600;letter-spacing:.02em;text-transform:none}
 .ev.zap-tuj{opacity:.6;border-left-style:dashed}
+body.vloga-recepcija #uvozBtn,body.vloga-recepcija #blExp,body.vloga-recepcija .bl-del,body.vloga-recepcija .bl-mesec{display:none!important}
 .ev .ev-n{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ev .ev-s{opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ev.potrjeno{background:#e6f0e9;border-left-color:#3f8f5b}
@@ -668,7 +669,7 @@ header .brand .brand-tag[style]{ opacity:.55 !important }   /* oznaka razlicice 
 
 <div id="appView" class="hidden">
   <header>
-    <div class="brand"><img data-app="logo" alt="" class="logo-img" onerror="this.style.display='none'" /><span class="brand-tag">admin</span><span class="brand-tag" style="opacity:.32;letter-spacing:.05em">v56 · 10.11.</span></div>
+    <div class="brand"><img data-app="logo" alt="" class="logo-img" onerror="this.style.display='none'" /><span class="brand-tag">admin</span><span class="brand-tag" style="opacity:.32;letter-spacing:.05em">v57 · 11.11.</span></div>
     <div class="right"><span class="who" id="whoLabel"></span><button class="btn-ghost" id="pwdBtn">Geslo</button><button class="btn-ghost" id="logoutBtn">Odjava</button></div>
   </header>
 
@@ -919,6 +920,9 @@ function izrisiNastavitve(box){
     +'<div class="obr-btns"><button class="act save" id="nsSaveDc">Shrani delovni čas</button></div>'
     +'<div class="d-edit-msg" id="nsMsgDc"></div></div>';
 
+  /* dostopi (samo lastnik) */
+  if(SALON_VLOGA==='lastnik') h+='<div class="obr-form" style="margin-bottom:1rem"><div class="d-edit-hd">Dostopi do admina</div><div id="nsDostopBox"></div></div>';
+
   /* zaposleni */
   if(jeUpr()) h+='<div class="obr-form" style="margin-bottom:1rem"><div class="d-edit-hd">Zaposleni</div><div id="nsZapBox"></div></div>';
 
@@ -955,6 +959,7 @@ function izrisiNastavitve(box){
 
   box.innerHTML=h;
   izrisiZaposleneNastavitve();
+  izrisiDostope();
 
   ['nsB1','nsB2','nsB3','nsB4'].forEach(function(id){ var el=document.getElementById(id); el.addEventListener('input',function(){ document.getElementById(id+'Hex').textContent=el.value; }); });
   document.getElementById('nsSaveSalon').addEventListener('click',shraniSalon);
@@ -1065,7 +1070,9 @@ function storitevForma(v){
 var ZAP=[], ZAPMAP={}, ZS={}, URNIK={}, MOJ_ZAP=null, FILTER_Z='';
 var ZAP_PALETA=['#2f5e92','#bd6e28','#3c8c3c','#8a3ea6','#22897a','#bc3f72','#9c8418','#4d52a3','#5b6f7d'];
 function jeUpr(){ return SALON_VLOGA==='lastnik'||SALON_VLOGA==='admin'; }
-function jeZap(){ return !jeUpr() && !!MOJ_ZAP; }
+function jeZap(){ return !jeUpr() && !jeRecepcija() && !!MOJ_ZAP; }
+function jeRecepcija(){ return SALON_VLOGA==='recepcija'; }
+function vidiVse(){ return jeUpr()||jeRecepcija(); }
 function aktivniZap(){ return ZAP.filter(function(z){return z.aktiven;}); }
 function zapIme(id){ var z=ZAPMAP[id]; return z?z.ime:''; }
 function zapBarva(id){ var z=ZAPMAP[id]; return z?z.barva:'#9aa0a6'; }
@@ -1093,9 +1100,13 @@ function nalozZaposlene(){
 function prilagodiVlogi(){
   /* zaposleni: brez strank, blagajne, izdelkov in naročil */
   ['stranke','blagajna','izdelki','narocila'].forEach(function(m){
-    var b=document.querySelector('.seg button[data-mode="'+m+'"]'); if(b) b.classList.toggle('hidden',jeZap());
+    var b=document.querySelector('.seg button[data-mode="'+m+'"]');
+    if(b) b.classList.toggle('hidden',jeZap()||(jeRecepcija()&&(m==='izdelki'||m==='narocila')));
   });
-  var ns=document.querySelector('.seg button[data-mode="nastavitve"]'); if(ns) ns.textContent=jeZap()?'Moj urnik':'Nastavitve';
+  var ns=document.querySelector('.seg button[data-mode="nastavitve"]');
+  if(ns){ ns.textContent=jeZap()?'Moj urnik':'Nastavitve'; ns.classList.toggle('hidden',jeRecepcija()); }
+  /* recepcija (skupni računalnik): brez uvoza/izvoza strank, mesečnega prometa in brisanja obračunov */
+  document.body.classList.toggle('vloga-recepcija',jeRecepcija());
   var f=document.getElementById('zapFilter');
   if(jeZap()){ FILTER_Z=MOJ_ZAP; if(f) f.classList.add('hidden'); }
   else if(f){
@@ -1293,6 +1304,55 @@ function zaposleniForma(z){
     });
   });
 }
+/* ── Nastavitve → Dostopi: kdo se lahko prijavi v admin salona ── */
+var VLOGE_IME={lastnik:'Lastnik – ves dostop',admin:'Admin – ves dostop razen dostopov',recepcija:'Recepcija – koledarji, stranke, današnja blagajna',zaposleni:'Zaposleni – samo svoj koledar'};
+function izrisiDostope(){
+  var box=document.getElementById('nsDostopBox'); if(!box) return;
+  box.innerHTML='<div class="empty">Nalagam …</div>';
+  sb.rpc('app_clani_salona',{s:SALON_ID}).then(function(r){
+    if(r.error){ box.innerHTML='<div class="empty">Napaka: '+esc(r.error.message)+'</div>'; return; }
+    var cl=r.data||[];
+    box.innerHTML='<p class="bl-svc" style="margin:.2rem 0 .7rem"><b>Recepcija</b> je račun za skupni računalnik v salonu: vidi koledarje vseh zaposlenih, vpisuje termine in opravke, '
+      +'išče in ureja stranke ter vnaša današnje obračune. Ne vidi prometa za nazaj, izvoza, nastavitev in zaposlenih. '
+      +'Zaposlene s svojim koledarjem dodate spodaj pod »Zaposleni«.</p>'
+      +'<div class="bl-list">'+cl.map(function(c,i){
+        var ure=!c.povabilo&&(c.vloga==='admin'||c.vloga==='recepcija');
+        return '<div class="bl-row" style="flex-wrap:wrap"><div class="bl-l" style="min-width:0;flex:1 1 14rem"><b>'+esc(c.email||'')+'</b>'
+          +'<div class="bl-svc">'+esc(VLOGE_IME[c.vloga]||c.vloga)+(c.zaposleni?' ('+esc(c.zaposleni)+')':'')
+          +(c.povabilo?' <span class="bl-rn">čaka na račun</span>':'')+'</div></div>'
+          +(ure?'<div class="bl-r"><select data-dv="'+i+'"><option value="admin"'+(c.vloga==='admin'?' selected':'')+'>Admin</option><option value="recepcija"'+(c.vloga==='recepcija'?' selected':'')+'>Recepcija</option></select>'
+            +'<button class="act" data-do="'+i+'">Odstrani</button></div>':'')+'</div>';
+      }).join('')+'</div>'
+      +'<div class="obr-row" style="margin-top:.8rem">'+nsInp('dsEmail','E-pošta novega dostopa','','type="email" placeholder="recepcija@salon.si"')
+      +'<label>Vloga<select id="dsVloga"><option value="recepcija">Recepcija</option><option value="admin">Admin</option></select></label></div>'
+      +'<p class="bl-svc" style="margin:.1rem 0 .3rem">Če račun s to e-pošto še ne obstaja, ga ustvarite v Supabase (Authentication → Users → Add user, Auto Confirm) – samodejno se poveže.</p>'
+      +'<div class="obr-btns"><button class="act save" id="dsDodaj">Dodaj dostop</button></div><div class="d-edit-msg" id="dsMsg"></div>';
+    box.querySelectorAll('[data-dv]').forEach(function(sel){ sel.addEventListener('change',function(){
+      var c=cl[+sel.getAttribute('data-dv')];
+      _sbFrom('app_salon_members').update({vloga:sel.value}).eq('salon_id',SALON_ID).eq('user_id',c.user_id).then(function(x){
+        nsMsg('dsMsg',x.error?'Napaka: '+x.error.message:'Vloga spremenjena.',!x.error); if(!x.error) izrisiDostope();
+      });
+    }); });
+    box.querySelectorAll('[data-do]').forEach(function(btn){ btn.addEventListener('click',function(){
+      var c=cl[+btn.getAttribute('data-do')];
+      if(!confirm('Odstranim dostop za '+c.email+'? Račun ostane, a se v ta salon ne bo več mogel prijaviti.')) return;
+      _sbFrom('app_salon_members').delete().eq('salon_id',SALON_ID).eq('user_id',c.user_id).then(function(x){
+        nsMsg('dsMsg',x.error?'Napaka: '+x.error.message:'Dostop odstranjen.',!x.error); if(!x.error) izrisiDostope();
+      });
+    }); });
+    document.getElementById('dsDodaj').addEventListener('click',function(){
+      var e=nsVal('dsEmail'); if(!e){ nsMsg('dsMsg','Vpišite e-pošto.',false); return; }
+      nsMsg('dsMsg','Shranjujem …',true);
+      sb.rpc('app_dodaj_clana',{s:SALON_ID,p_email:e,p_vloga:nsVal('dsVloga')}).then(function(x){
+        if(x.error||!x.data||!x.data.ok){ nsMsg('dsMsg',(x.error&&x.error.message)||(x.data&&x.data.napaka)||'Ni shranjeno.',false); return; }
+        var rz=x.data.rezultat;
+        nsMsg('dsMsg',rz==='povezan'?'Dostop dodan.':'Povabilo shranjeno – ko bo račun ustvarjen, se samodejno poveže.',true);
+        setTimeout(izrisiDostope,900);
+      });
+    });
+  });
+}
+
 /* zaposleni (vloga 'zaposleni') v Nastavitvah vidi samo svoj urnik */
 function izrisiMojUrnik(box){
   var urnik=URNIK[MOJ_ZAP]||[], lasten=urnik.length>0;
@@ -2272,7 +2332,7 @@ function blPoZaposlenih(dnevni,mesecni,vs){
     +vrst.map(function(v){
       return '<div class="bl-row"><div class="bl-l"><b>'+(v.id?zapPika(v.id):'')+esc(v.ime)+'</b></div>'
         +'<div class="bl-r" style="gap:1.1rem"><span>danes <b>'+eur(za(dnevni,v.id))+'</b> ('+st(dnevni,v.id)+')</span>'
-        +'<span>mesec <b>'+eur(za(mesecni,v.id))+'</b> ('+st(mesecni,v.id)+')</span></div></div>';
+        +(jeRecepcija()?'':'<span>mesec <b>'+eur(za(mesecni,v.id))+'</b> ('+st(mesecni,v.id)+')</span>')+'</div></div>';
     }).join('')+'</div></div>';
 }
 function blProstVnos(){
@@ -3040,7 +3100,7 @@ function edPodpis(arr){ return arr.map(function(s){return s.id+'x'+(s.kol||1);})
 function edZapVal(){ var el=document.getElementById('edZap'); return el?el.value:((EDBK&&EDBK.zaposleni_id)||''); }
 function svcVsiZa(zid,extra){ var l=svcSeznam(zid).slice(); if(zid&&ZAPMAP[zid]){ (extra||[]).forEach(function(id){ if(!l.some(function(x){return String(x.id)===String(id);})){ var sv=SERVICES.filter(function(x){return String(x.id)===String(id);})[0]; if(sv) l.push(sv); } }); } return l; }
 function edZapHtml(b){
-  if(jeUpr()&&ZAP.length){
+  if(vidiVse()&&ZAP.length){
     var opt=ZAP.filter(function(z){return z.aktiven||z.id===b.zaposleni_id;});
     return '<label class="nb-full" style="display:block;margin:.55rem 0 0">Zaposleni<select id="edZap">'+opt.map(function(z){return '<option value="'+z.id+'"'+(z.id===b.zaposleni_id?' selected':'')+'>'+esc(z.ime)+'</option>';}).join('')
       +'<option value=""'+(b.zaposleni_id?'':' selected')+'>— nedodeljeno (zasede vse) —</option></select></label>';
