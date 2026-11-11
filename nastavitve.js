@@ -11,7 +11,7 @@ window.APP = {
   supabaseUrl: 'https://lzbmdmdtycgimqirzknu.supabase.co',
   supabaseKey: 'sb_publishable_Rnf1nx52p7m0Iis_lvRSDA_8GYvbwet',
   platforma:   'Naročanje',          // ime platforme (seznam salonov na prvi strani)
-  obdelovalec: '',                   // vaše podjetje kot ponudnik platforme (pravilnik o zasebnosti), npr. 'Ime Priimek s.p., Ulica 1, 1000 Ljubljana'
+  obdelovalec: 'Frizerski studio Najs, Nataša Markuta s.p.',                   // vaše podjetje kot ponudnik platforme (pravilnik o zasebnosti), npr. 'Ime Priimek s.p., Ulica 1, 1000 Ljubljana'
 
   // privzete vrednosti, dokler se salon ne naloži
   ime: '', kratko: '', telefon: '', logo: '',
