@@ -224,6 +224,14 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
         <label>Naslov strani<input type="text" id="nSlug" placeholder="npr. frizer-ana"><span class="namig" id="nSlugNamig"></span></label>
       </div>
       <div class="vrsta">
+        <label>Ime podjetja (v glavi admina)<input type="text" id="nPodNaziv" placeholder="npr. Brivnica Miha, Miha Novak s.p."></label>
+        <label>Davčna številka<input type="text" id="nPodDavcna" placeholder="npr. SI12345678"></label>
+      </div>
+      <div class="vrsta">
+        <label>Naslov podjetja<input type="text" id="nPodNaslov" placeholder="npr. Glavna ulica 1, 1000 Ljubljana"></label>
+        <label>E-pošta za račune<input type="email" id="nPodEmail" placeholder="racuni@podjetje.si"></label>
+      </div>
+      <div class="vrsta">
         <label>Tip salona<select id="nTip">
           <option value="-" selected disabled>— izberite tip —</option>
           <option value="frizer">Frizerski salon</option>
@@ -292,10 +300,41 @@ function naloziDogodke(){
 $('gPrebrano').addEventListener('click', function(){
   sb.from('app_dogodki_platforme').update({prebrano:true}).eq('prebrano', false).then(naloziDogodke);
 });
-var ZAP_SALON = {};
+var ZAP_SALON = {}, PODJ = {};
 function nalozi(){
   naloziDogodke();
-  sb.rpc('app_superadmin_zaposleni').then(function(z){ ZAP_SALON = {}; ((z && z.data) || []).forEach(function(x){ ZAP_SALON[x.salon_id] = x; }); nalozi2(); });
+  Promise.all([sb.rpc('app_superadmin_zaposleni'), sb.rpc('app_superadmin_podjetja')]).then(function(r){
+    ZAP_SALON = {}; ((r[0] && r[0].data) || []).forEach(function(x){ ZAP_SALON[x.salon_id] = x; });
+    PODJ = {}; ((r[1] && r[1].data) || []).forEach(function(x){ PODJ[x.salon_id] = x.podjetje || {}; });
+    nalozi2();
+  });
+}
+function podjetjeBesedilo(p){
+  p=p||{}; var d=[];
+  if(p.naziv) d.push('<b style="font-size:.82rem">'+esc(p.naziv)+'</b>');
+  if(p.naslov) d.push(esc(p.naslov)); if(p.davcna) d.push('DŠ '+esc(p.davcna)); if(p.email) d.push(esc(p.email));
+  return d.length ? 'Podjetje: '+d.join(' · ') : '<span style="color:#8a5a00">Podatki podjetja niso vpisani</span>';
+}
+function podjetjeForma(sid){
+  var host=document.querySelector('[data-podj-box="'+sid+'"]'); if(!host) return;
+  if(host.innerHTML){ host.innerHTML=''; return; }
+  var p=PODJ[sid]||{};
+  var pol=function(k,l,ph,t){ return '<label>'+l+'<input type="'+(t||'text')+'" data-pf="'+k+'" value="'+esc(p[k]||'')+'" placeholder="'+ph+'"></label>'; };
+  host.innerHTML='<div class="rac-forma" style="border:1px solid var(--rob);border-radius:10px;margin-top:8px">'
+    +'<div class="vrsta">'+pol('naziv','Ime podjetja (v glavi admina)','npr. Brivnica Miha')+pol('davcna','Davčna številka','SI12345678')+'</div>'
+    +'<div class="vrsta">'+pol('naslov','Naslov podjetja','Ulica 1, 1000 Ljubljana')+pol('email','E-pošta za račune','racuni@podjetje.si','email')+'</div>'
+    +'<button type="button" class="gumb" data-pshrani>Shrani podjetje</button> <button type="button" class="gumb svetel" data-pprekl>Prekliči</button>'
+    +'<div class="sporocilo" data-psp></div></div>';
+  host.querySelector('[data-pprekl]').onclick=function(){ host.innerHTML=''; };
+  host.querySelector('[data-pshrani]').onclick=function(){
+    var b=this, pod={}; host.querySelectorAll('[data-pf]').forEach(function(i){ pod[i.getAttribute('data-pf')]=i.value; });
+    var sp=host.querySelector('[data-psp]'); b.disabled=true;
+    sb.rpc('app_superadmin_podjetje',{s:sid, p:pod}).then(function(x){
+      b.disabled=false;
+      if(x.error||!x.data||!x.data.ok){ sp.textContent=(x.error&&x.error.message)||(x.data&&x.data.napaka)||'Ni shranjeno.'; sp.className='sporocilo err'; return; }
+      sp.textContent='Shranjeno.'; sp.className='sporocilo ok'; setTimeout(nalozi,700);
+    });
+  };
 }
 function nalozi2(){
   sb.rpc('app_superadmin_saloni').then(function(r){
@@ -310,14 +349,16 @@ function nalozi2(){
         +'<div class="meta">'+esc(TIPI[s.tip]||'drugo')+' · <a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(url)+'</a></div>'
         +'<div class="meta">Storitev: '+s.st_storitev+' · Rezervacij: '+s.st_rezervacij+' · Ustvarjen: '+new Date(s.created_at).toLocaleDateString('sl-SI')+'</div>'
         +(ZAP_SALON[s.id]?'<div class="meta">Zaposleni: '+ZAP_SALON[s.id].aktivni+' aktivnih, '+ZAP_SALON[s.id].s_prijavo+' s prijavo</div>':'')
+        +'<div class="meta">'+podjetjeBesedilo(PODJ[s.id])+'</div><div data-podj-box="'+s.id+'"></div>'
         +'<div class="clani-sez" data-clani="'+s.id+'"><div class="clan-vr namig">Nalagam člane …</div></div>'
         +'<div class="clan"><input type="email" placeholder="e-pošta novega člana" data-clan-email="'+s.id+'">'
         +'<select data-clan-vloga="'+s.id+'"><option value="lastnik">lastnik</option><option value="admin" selected>admin</option><option value="recepcija">recepcija</option><option value="zaposleni">zaposleni</option></select>'
         +'<button class="gumb svetel" data-clan="'+s.id+'">Dodaj člana</button></div>'
         +'<div class="sporocilo" id="sp-'+s.id+'"></div></div>'
-        +'<div class="desno"><button class="gumb svetel" data-aktiven="'+s.id+'" data-vrednost="'+(s.aktiven?'0':'1')+'">'+(s.aktiven?'Izklopi':'Vklopi')+'</button></div></div>';
+        +'<div class="desno"><button class="gumb svetel" data-podj="'+s.id+'">Podjetje</button><button class="gumb svetel" data-aktiven="'+s.id+'" data-vrednost="'+(s.aktiven?'0':'1')+'">'+(s.aktiven?'Izklopi':'Vklopi')+'</button></div></div>';
     }).join('');
     v.forEach(function(s){ naloziClane(s.id); });
+    box.querySelectorAll('[data-podj]').forEach(function(b){ b.addEventListener('click', function(){ podjetjeForma(b.getAttribute('data-podj')); }); });
     box.querySelectorAll('[data-aktiven]').forEach(function(b){
       b.addEventListener('click', function(){
         var vklop=b.getAttribute('data-vrednost')==='1';
@@ -412,6 +453,13 @@ $('gUstvari').addEventListener('click', function(){
     if(!r.data||!r.data.ok){ sporoci('spUstvari',(r.data&&r.data.napaka)||'Ni uspelo.',false); return; }
     var d=r.data, url=location.origin+'/'+d.slug;
     sporoci('spUstvari','Salon je ustvarjen.',true);
+    var pod={naziv:$('nPodNaziv').value, naslov:$('nPodNaslov').value, davcna:$('nPodDavcna').value, email:$('nPodEmail').value};
+    if(pod.naziv||pod.naslov||pod.davcna||pod.email){
+      sb.rpc('app_superadmin_podjetje',{s:d.id, p:pod}).then(function(x){
+        if(x.error||!x.data||!x.data.ok) sporoci('spUstvari','Salon je ustvarjen, podatki podjetja niso shranjeni: '+((x.error&&x.error.message)||(x.data&&x.data.napaka)||'')+' Popravite jih s »Podjetje« v seznamu.',false);
+        nalozi();
+      });
+    }
     var h='<div class="rezultat'+(d.lastnik==='povabljen'?' opoz':'')+'"><b>'+esc(ime)+'</b> je pripravljen ('+d.storitev+' storitev).<br>'
       +'Stran za naročanje: <a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(url)+'</a><br>'
       +'Administracija: <a href="'+esc(location.origin)+'/admin" target="_blank" rel="noopener">'+esc(location.origin)+'/admin</a><br>';
@@ -419,7 +467,8 @@ $('gUstvari').addEventListener('click', function(){
     else if(d.lastnik==='povabljen') h+='<b>Še en korak:</b> lastnik '+esc(email)+' še nima računa. V seznamu »Vsi saloni« pri tem salonu kliknite <b>»Ustvari račun«</b> in določite začasno geslo. Geslo sporočite lastniku osebno.';
     else h+='Salon še nima lastnika. Dodajte ga spodaj v seznamu (»Dodaj člana«).';
     $('rezUstvari').innerHTML=h+'</div>';
-    $('nIme').value=''; $('nSlug').value=''; $('nEmail').value=''; $('nTel').value=''; $('nTip').value='-'; slugRocno=false; namigSlug();
+    $('nIme').value=''; $('nSlug').value=''; $('nEmail').value=''; $('nTel').value='';
+    ['nPodNaziv','nPodNaslov','nPodDavcna','nPodEmail'].forEach(function(id){ $(id).value=''; }); $('nTip').value='-'; slugRocno=false; namigSlug();
     nalozi();
   });
 });

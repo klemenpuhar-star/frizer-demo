@@ -157,6 +157,10 @@ header .brand .logo-img{height:36px;width:auto;display:block}
 header .brand .brand-tag{font-family:var(--sans);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;opacity:.55}
 header .right{display:flex;align-items:center;gap:.9rem}
 header .who{font-size:.74rem;opacity:.65}
+header .who.z-nazivom{display:flex;flex-direction:column;align-items:flex-end;line-height:1.25;opacity:1}
+header .who .who-naziv{font-size:.86rem;font-weight:600;color:var(--navy);max-width:16rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+header .who .who-mail{opacity:.65}
+@media(max-width:820px){header .who.z-nazivom{display:flex!important}header .who.z-nazivom .who-mail{display:none}header .who .who-naziv{max-width:9.5rem;font-size:.8rem}}
 .btn-ghost{background:#fff;border:1.5px solid rgba(28,26,25,.2);color:var(--navy);padding:.45rem .9rem;font-size:.74rem;border-radius:999px;cursor:pointer}
 .btn-ghost:hover{border-color:var(--coral);color:var(--coral)}
 
@@ -669,7 +673,7 @@ header .brand .brand-tag[style]{ opacity:.55 !important }   /* oznaka razlicice 
 
 <div id="appView" class="hidden">
   <header>
-    <div class="brand"><img data-app="logo" alt="" class="logo-img" onerror="this.style.display='none'" /><span class="brand-tag">admin</span><span class="brand-tag" style="opacity:.32;letter-spacing:.05em">v59 · 11.11.</span></div>
+    <div class="brand"><img data-app="logo" alt="" class="logo-img" onerror="this.style.display='none'" /><span class="brand-tag">admin</span><span class="brand-tag" style="opacity:.32;letter-spacing:.05em">v60 · 11.11.</span></div>
     <div class="right"><span class="who" id="whoLabel"></span><button class="btn-ghost" id="pwdBtn">Geslo</button><button class="btn-ghost" id="logoutBtn">Odjava</button></div>
   </header>
 
@@ -820,10 +824,21 @@ function izberiSalon(s){
     var zelen=new URLSearchParams(location.search).get('s')||lsGet('admin_salon');
     var izbran=MOJI_SALONI.filter(function(x){return x.slug===zelen;})[0]||MOJI_SALONI[0];
     SALON_ID=izbran.id; SALON_VLOGA=izbran.vloga; lsSet('admin_salon',izbran.slug);
+    prikaziNaziv(s.user.email);
     izrisiIzbiroSalona();
     return (APP.slug===izbran.slug?Promise.resolve(true):APP.naloziSalon(izbran.slug)).then(function(){
       APP.vstavi(); document.title=(APP.kratko||APP.ime)+' · Admin'; return true;
     });
+  });
+}
+/* naziv podjetja salona nad e-pošto v glavi (vpiše ga skrbnik platforme v superadminu) */
+function prikaziNaziv(email){
+  var who=document.getElementById('whoLabel'); if(!who) return;
+  sb.rpc('app_salon_naziv',{s:SALON_ID}).then(function(r){
+    var n=(r&&!r.error&&r.data)?String(r.data):'';
+    if(!n){ who.classList.remove('z-nazivom'); who.textContent=email; return; }
+    who.classList.add('z-nazivom'); who.title=n+' · '+email;
+    who.innerHTML='<span class="who-naziv">'+esc(n)+'</span><span class="who-mail">'+esc(email)+'</span>';
   });
 }
 /* skrbnik platforme dobi v glavi povezavo do strani s saloni */
