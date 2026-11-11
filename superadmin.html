@@ -64,7 +64,10 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
 .k-polje{display:grid;grid-template-columns:1fr 90px;gap:8px;align-items:center;margin-bottom:7px;font-size:.86rem}
 .k-polje input,.k-polje select{padding:.35rem .5rem;font-size:.88rem;text-align:right}
 .k-polje select{text-align:left}
-.k-paket{display:grid;grid-template-columns:1fr 66px 62px;gap:6px;margin-bottom:6px}
+.k-paket{display:grid;grid-template-columns:1fr 62px 56px 50px;gap:6px;margin-bottom:6px}
+.opoz-paket{color:#b23b3b;font-weight:600}
+.dogodek{display:flex;gap:10px;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid rgba(0,0,0,.07);font-size:.88rem}
+.dogodek small{color:var(--siva);white-space:nowrap}
 .k-paket input{padding:.35rem .5rem;font-size:.88rem}
 .k-paket input[type=number]{text-align:right}
 .k-leg{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--siva);font-weight:600;margin:14px 0 8px}
@@ -138,10 +141,10 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
       <div class="k-mreza">
         <div class="karta" id="kNast">
           <h2>Predpostavke</h2>
-          <div class="k-leg">Paketi (ime · €/mes · SMS)</div>
-          <div class="k-paket"><input id="p_solo_ime" aria-label="Ime paketa 1"><input id="p_solo_cena" type="number" step="0.5" aria-label="Cena paketa 1"><input id="p_solo_sms" type="number" step="10" aria-label="SMS paketa 1"></div>
-          <div class="k-paket"><input id="p_salon_ime" aria-label="Ime paketa 2"><input id="p_salon_cena" type="number" step="0.5" aria-label="Cena paketa 2"><input id="p_salon_sms" type="number" step="10" aria-label="SMS paketa 2"></div>
-          <div class="k-paket"><input id="p_pro_ime" aria-label="Ime paketa 3"><input id="p_pro_cena" type="number" step="0.5" aria-label="Cena paketa 3"><input id="p_pro_sms" type="number" step="10" aria-label="SMS paketa 3"></div>
+          <div class="k-leg">Paketi (ime · €/mes · SMS · do zaposlenih, 0 = brez omejitve)</div>
+          <div class="k-paket"><input id="p_solo_ime" aria-label="Ime paketa 1"><input id="p_solo_cena" type="number" step="0.5" aria-label="Cena paketa 1"><input id="p_solo_sms" type="number" step="10" aria-label="SMS paketa 1"><input id="p_solo_zap" type="number" step="1" min="0" aria-label="Največ zaposlenih v paketu 1"></div>
+          <div class="k-paket"><input id="p_salon_ime" aria-label="Ime paketa 2"><input id="p_salon_cena" type="number" step="0.5" aria-label="Cena paketa 2"><input id="p_salon_sms" type="number" step="10" aria-label="SMS paketa 2"><input id="p_salon_zap" type="number" step="1" min="0" aria-label="Največ zaposlenih v paketu 2"></div>
+          <div class="k-paket"><input id="p_pro_ime" aria-label="Ime paketa 3"><input id="p_pro_cena" type="number" step="0.5" aria-label="Cena paketa 3"><input id="p_pro_sms" type="number" step="10" aria-label="SMS paketa 3"><input id="p_pro_zap" type="number" step="1" min="0" aria-label="Največ zaposlenih v paketu 3"></div>
           <div class="k-leg">SMS in plačila</div>
           <div class="k-polje"><span>Tvoj strošek SMS (€)</span><input id="k_smsCena" type="number" step="0.01"></div>
           <div class="k-polje"><span>Doplačilo nad paketom (€/SMS)</span><input id="k_smsDoplacilo" type="number" step="0.01"></div>
@@ -157,6 +160,9 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
           <div class="k-leg">Cilj</div>
           <div class="k-polje"><span>Želim zaslužiti (€/mes)</span><input id="k_cilj" type="number" step="100"></div>
           <div class="k-polje"><span>Prag za DDV (€/leto)</span><input id="k_ddvPrag" type="number" step="1000"></div>
+          <div class="k-leg">Obvestila zate</div>
+          <div class="k-polje"><span>Tvoj Telegram chat ID</span><input id="k_tgChat" type="text" inputmode="numeric" placeholder="npr. 123456789"></div>
+          <p class="namig">Ko salon doda ali izklopi zaposlenega, dobiš sporočilo na Telegram (bot platforme).</p>
           <p class="namig">Prispevki so okvirni za 2026. Shrani se samodejno.</p>
           <div class="sporocilo" id="spNast"></div>
         </div>
@@ -197,6 +203,13 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
     </div>
 
     <div id="zSaloni">
+    <div class="karta hidden" id="kartaDogodki">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <h2 style="margin:0">Obvestila</h2>
+        <button class="gumb svetel" id="gPrebrano" type="button">Označi vse kot prebrano</button>
+      </div>
+      <div id="dogodki" style="margin-top:8px"></div>
+    </div>
     <div class="karta">
       <h2>Nov salon</h2>
       <div class="vrsta">
@@ -259,7 +272,25 @@ function zacni(seja){
   });
 }
 
+/* obvestila platforme (npr. salon je dodal zaposlenega) – neprebrana */
+function naloziDogodke(){
+  sb.from('app_dogodki_platforme').select('id,cas,opis').eq('prebrano', false).order('cas', {ascending:false}).limit(50).then(function(r){
+    var v = (r && !r.error && r.data) || [];
+    $('kartaDogodki').classList.toggle('hidden', !v.length);
+    $('dogodki').innerHTML = v.map(function(d){
+      return '<div class="dogodek"><span'+(/PRESEGA/.test(d.opis)?' class="opoz-paket"':'')+'>'+esc(d.opis)+'</span><small>'+new Date(d.cas).toLocaleString('sl-SI',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'})+'</small></div>';
+    }).join('');
+  });
+}
+$('gPrebrano').addEventListener('click', function(){
+  sb.from('app_dogodki_platforme').update({prebrano:true}).eq('prebrano', false).then(naloziDogodke);
+});
+var ZAP_SALON = {};
 function nalozi(){
+  naloziDogodke();
+  sb.rpc('app_superadmin_zaposleni').then(function(z){ ZAP_SALON = {}; ((z && z.data) || []).forEach(function(x){ ZAP_SALON[x.salon_id] = x; }); nalozi2(); });
+}
+function nalozi2(){
   sb.rpc('app_superadmin_saloni').then(function(r){
     var box=$('seznam');
     if(r.error){ box.innerHTML='<p class="sporocilo err">Napaka: '+esc(r.error.message)+'</p>'; return; }
@@ -271,10 +302,11 @@ function nalozi(){
         +(s.aktiven?'<span class="znacka">aktiven</span>':'<span class="znacka off">izklopljen</span>')
         +'<div class="meta">'+esc(TIPI[s.tip]||'drugo')+' · <a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(url)+'</a></div>'
         +'<div class="meta">Storitev: '+s.st_storitev+' · Rezervacij: '+s.st_rezervacij+' · Ustvarjen: '+new Date(s.created_at).toLocaleDateString('sl-SI')+'</div>'
+        +(ZAP_SALON[s.id]?'<div class="meta">Zaposleni: '+ZAP_SALON[s.id].aktivni+' aktivnih, '+ZAP_SALON[s.id].s_prijavo+' s prijavo</div>':'')
         +'<div class="meta">Člani: '+esc(s.clani||'—')+'</div>'
         +(s.povabila?'<div class="meta" style="color:#8a5a00">Čaka na račun: '+esc(s.povabila)+'</div>':'')
         +'<div class="clan"><input type="email" placeholder="e-pošta novega člana" data-clan-email="'+s.id+'">'
-        +'<select data-clan-vloga="'+s.id+'"><option value="lastnik">lastnik</option><option value="admin" selected>admin</option><option value="zaposleni">zaposleni</option></select>'
+        +'<select data-clan-vloga="'+s.id+'"><option value="lastnik">lastnik</option><option value="admin" selected>admin</option><option value="recepcija">recepcija</option><option value="zaposleni">zaposleni</option></select>'
         +'<button class="gumb svetel" data-clan="'+s.id+'">Dodaj člana</button></div>'
         +'<div class="sporocilo" id="sp-'+s.id+'"></div></div>'
         +'<div class="desno"><button class="gumb svetel" data-aktiven="'+s.id+'" data-vrednost="'+(s.aktiven?'0':'1')+'">'+(s.aktiven?'Izklopi':'Vklopi')+'</button></div></div>';
@@ -350,13 +382,14 @@ var EUR0 = new Intl.NumberFormat('sl-SI',{style:'currency',currency:'EUR',maximu
 var STATUSI = {poskus:'Poskus (brezplačno)', ustanovna:'Ustanovna cena', placuje:'Plačuje', neaktiven:'Neaktiven'};
 var PAKETI = ['solo','salon','pro'];
 var K_PRIVZETO = {
-  paketi:{solo:{ime:'Solo',cena:15,sms:0}, salon:{ime:'Salon',cena:25,sms:150}, pro:{ime:'Pro',cena:39,sms:400}},
+  paketi:{solo:{ime:'Solo',cena:15,sms:0,zap:1}, salon:{ime:'Salon',cena:25,sms:150,zap:3}, pro:{ime:'Pro',cena:39,sms:400,zap:0}}, tgChat:'',
   smsCena:0.06, smsDoplacilo:0.10, provizija:0.5, davek:4,
   prispevkiTip:'93', prispevki:93, tech:45, racunovodstvo:60, banka:10,
   cilj:1000, ddvPrag:60000, useLive:false
 };
 var K_POLJA = ['smsCena','smsDoplacilo','provizija','davek','prispevki','tech','racunovodstvo','banka','cilj','ddvPrag'];
-var KS = JSON.parse(JSON.stringify(K_PRIVZETO)), kNar = [], kPoraba = {}, kSaloni = {}, kNalozeno = false;
+var KS = JSON.parse(JSON.stringify(K_PRIVZETO)), kNar = [], kPoraba = {}, kSaloni = {}, kZap = {}, kNalozeno = false;
+function kMejaZap(paket){ var p = KS.paketi[paket] || KS.paketi.salon; var m = p.zap; if(m === undefined || m === null || m === '') m = (K_PRIVZETO.paketi[paket]||{}).zap; return +m || 0; }
 
 function kst(v, d){ var x = parseFloat(String(v).replace(',','.')); return isFinite(x) ? x : d; }
 function kOpcije(sel, obj, val){
@@ -369,8 +402,10 @@ function kPaketiOpc(){ var o={}; PAKETI.forEach(function(k){ o[k]=KS.paketi[k].i
 function kVObrazec(){
   PAKETI.forEach(function(k){
     $('p_'+k+'_ime').value = KS.paketi[k].ime; $('p_'+k+'_cena').value = KS.paketi[k].cena; $('p_'+k+'_sms').value = KS.paketi[k].sms;
+    $('p_'+k+'_zap').value = kMejaZap(k);
   });
   K_POLJA.forEach(function(f){ $('k_'+f).value = KS[f]; });
+  $('k_tgChat').value = KS.tgChat || '';
   $('k_prispevkiTip').value = KS.prispevkiTip; $('k_useLive').checked = !!KS.useLive;
   kOpcije($('aPaket'), kPaketiOpc(), 'salon'); kOpcije($('aStatus'), STATUSI, 'poskus');
 }
@@ -378,8 +413,10 @@ function kIzObrazca(){
   PAKETI.forEach(function(k){
     KS.paketi[k].ime = $('p_'+k+'_ime').value || KS.paketi[k].ime;
     KS.paketi[k].cena = kst($('p_'+k+'_cena').value, 0); KS.paketi[k].sms = kst($('p_'+k+'_sms').value, 0);
+    KS.paketi[k].zap = Math.max(0, Math.round(kst($('p_'+k+'_zap').value, 0)));
   });
   K_POLJA.forEach(function(f){ KS[f] = kst($('k_'+f).value, 0); });
+  KS.tgChat = $('k_tgChat').value.trim();
   KS.useLive = $('k_useLive').checked;
 }
 
@@ -409,7 +446,8 @@ function kNalozi(){
     sb.from('app_platforma').select('nastavitve').eq('id',1).maybeSingle(),
     sb.from('app_narocnine').select('*').eq('arhiviran', false).order('created_at'),
     sb.rpc('app_superadmin_poraba'),
-    sb.rpc('app_superadmin_saloni')
+    sb.rpc('app_superadmin_saloni'),
+    sb.rpc('app_superadmin_zaposleni')
   ]).then(function(r){
     var err = r.map(function(x){ return x.error; }).filter(Boolean)[0];
     if(err){ $('kVrstice').innerHTML = '<tr><td colspan="9" class="sporocilo err">Napaka: '+esc(err.message)+'</td></tr>'; return; }
@@ -419,6 +457,7 @@ function kNalozi(){
     kNar = r[1].data || [];
     kPoraba = {}; (r[2].data || []).forEach(function(p){ kPoraba[p.salon_id] = p; });
     kSaloni = {}; (r[3].data || []).forEach(function(s){ kSaloni[s.id] = s; });
+    kZap = {}; (r[4].data || []).forEach(function(z){ kZap[z.salon_id] = z; });
     kNalozeno = true;
     kVObrazec(); kIzris();
   });
@@ -480,7 +519,16 @@ function kVrstica(n, c){
   var deli = [TIPI[(s && s.tip) || n.tip] || 'drugo'];
   if(s) deli.push('/' + s.slug + (s.aktiven ? '' : ' · izklopljen')); else deli.push('ročno dodan');
   if(c.por) deli.push(c.por.termini_30d + ' terminov v 30 dneh');
-  sm.textContent = deli.join(' · '); td.appendChild(sm); tr.appendChild(td);
+  var zz = n.salon_id ? kZap[n.salon_id] : null, nz = zz ? zz.aktivni : 0;
+  if(n.salon_id) deli.push(nz + (nz === 1 ? ' zaposleni' : (nz === 2 ? ' zaposlena' : (nz === 3 || nz === 4 ? ' zaposleni' : ' zaposlenih'))));
+  sm.textContent = deli.join(' · '); td.appendChild(sm);
+  var meja = kMejaZap(n.paket);
+  if(n.salon_id && meja > 0 && nz > meja){
+    var op = document.createElement('small'); op.className = 'opoz-paket';
+    op.textContent = '⚠ presega paket ' + (KS.paketi[n.paket]||KS.paketi.salon).ime + ' (do ' + meja + ' zaposlenih)';
+    td.appendChild(op);
+  }
+  tr.appendChild(td);
 
   td = document.createElement('td'); var st = document.createElement('select'); st.setAttribute('aria-label','Status');
   kOpcije(st, STATUSI, n.status); st.onchange = function(){ kPopravi(n, {status: st.value}); }; td.appendChild(st); tr.appendChild(td);
