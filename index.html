@@ -292,6 +292,11 @@
       font-family: var(--sans);
     }
     .bk-day-card:hover:not(.disabled) { border-color: var(--coral); }
+    .bk-zap { display:flex; flex-wrap:wrap; gap:.45rem; margin:0 0 1rem; }
+    .bk-zap-lbl { width:100%; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; opacity:.7; margin-bottom:.1rem; }
+    .bk-zap-btn { font:inherit; font-size:.86rem; padding:.5rem 1rem; border-radius:999px; border:1.5px solid rgba(0,0,0,.16); background:#fff; color:var(--navy); cursor:pointer; display:inline-flex; align-items:center; gap:.4rem; }
+    .bk-zap-btn .pika { width:.6rem; height:.6rem; border-radius:50%; display:inline-block; }
+    .bk-zap-btn.selected { background:var(--navy); color:#fff; border-color:var(--navy); }
     .bk-day-card.selected { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(28,26,25,.12); }
     .bk-day-card.disabled { opacity: .38; cursor: not-allowed; }
 
@@ -701,7 +706,7 @@ var stepBar = document.getElementById('bkStepBar');
 
 function openModal(){
   if(!APP.salonId){ APP.ready.then(function(ok){ if(ok) openModal(); }); return; }
-  state = { step:1, totalSteps:4, service:null, date:null, slot:null, customer:{}, isNujni:false, nujniNote:'', selectedIds:{}, selectedServices:[], allServices:[], qty:{} };
+  state = { step:1, totalSteps:4, service:null, date:null, slot:null, customer:{}, isNujni:false, nujniNote:'', selectedIds:{}, selectedServices:[], allServices:[], qty:{}, zap:null };
   overlay.classList.add('open');
   document.body.style.overflow='hidden';
   renderStep();
@@ -984,7 +989,111 @@ function nalozDelovniCas(){
     });
   }catch(e){ /* ob napaki ostanejo zasilne vrednosti */ }
 }
-APP.ready.then(function(ok){ if(ok) nalozDelovniCas(); });
+APP.ready.then(function(ok){ if(ok){ nalozDelovniCas(); nalozZaposlene(); } });
+
+/* ── ZAPOSLENI ─────────────────────────────────────────────
+   Če ima salon zaposlene, stranka v koraku 2 izbere, pri kom želi termin
+   (ali »kdorkoli prost«, če salon to dovoli). Prosti termini se računajo po
+   urniku, odsotnostih, trajanju in cenah izbranega zaposlenega. */
+var ZAP = [], ZS = {}, URN = {};
+function nalozZaposlene(){
+  try{
+    return sb.from('app_zaposleni').select('id,ime,barva,sort_order').eq('salon_id', APP.salonId).eq('aktiven', true)
+      .order('sort_order',{ascending:true}).order('ime',{ascending:true}).then(function(res){
+        if(res.error || !res.data || !res.data.length){ ZAP=[]; return; }
+        ZAP = res.data; var ids = ZAP.map(function(z){ return z.id; });
+        return Promise.all([
+          sb.from('app_zaposleni_storitve').select('zaposleni_id,service_id,cena,trajanje_min').in('zaposleni_id', ids),
+          sb.from('app_urnik_zaposlenih').select('zaposleni_id,dan,teden,nacin,od,do_').in('zaposleni_id', ids)
+        ]).then(function(r){
+          ZS={}; URN={};
+          ((r[0]&&r[0].data)||[]).forEach(function(x){ (ZS[x.zaposleni_id]=ZS[x.zaposleni_id]||{})[x.service_id]=x; });
+          ((r[1]&&r[1].data)||[]).forEach(function(x){ (URN[x.zaposleni_id]=URN[x.zaposleni_id]||[]).push(x); });
+        });
+      });
+  }catch(e){ ZAP=[]; }
+}
+function imaZap(){ return ZAP.length > 0; }
+function izbiraObvezna(){ return ((APP.pravila||{}).izbira_zaposlenega === 'obvezno'); }
+function zapIme(id){ for(var i=0;i<ZAP.length;i++){ if(ZAP[i].id===id) return ZAP[i].ime; } return ''; }
+/* zaposleni, ki opravljajo vse izbrane storitve */
+function kandidati(){
+  var sel = getSelArrBase();
+  return ZAP.filter(function(z){ return sel.every(function(s){ return ZS[z.id] && ZS[z.id][s.id]; }); });
+}
+function svcZa(s, z){
+  if(!z || !ZS[z] || !ZS[z][s.id]) return s;
+  var o = Object.assign({}, s), x = ZS[z][s.id];
+  if(x.cena !== null && x.cena !== undefined) o.price = x.cena;
+  if(x.trajanje_min !== null && x.trajanje_min !== undefined) o.duration_min = x.trajanje_min;
+  return o;
+}
+function selZa(z){ return getSelArrBase().map(function(s){ return svcZa(s, z); }); }
+function durZa(z){ return sumDur(selZa(z)) || 30; }
+/* delovni čas zaposlenega: lasten urnik ali urnik salona */
+function dcZaZ(ds, z){
+  var rows = z && URN[z];
+  if(!rows || !rows.length) return dcZa(ds);
+  var p=String(ds).split('-'), dow=new Date(+p[0],+p[1]-1,+p[2]).getDay(), par=tedenVrsta(ds);
+  var x = rows.filter(function(r){ return +r.dan===dow && +r.teden===par; })[0] || rows.filter(function(r){ return +r.dan===dow && +r.teden===0; })[0];
+  if(!x) return null;
+  if(x.nacin==='odprto' && x.od && x.do_) return { start:String(x.od).substring(0,5), end:String(x.do_).substring(0,5) };
+  if(x.nacin==='dogovor') return 'dogovor';
+  return null;
+}
+function zasedenoRpc(ds){
+  return imaZap() ? sb.rpc('app_zasedenost',{p_slug:APP.slug, izbrani_datum:ds})
+                  : sb.rpc('app_zasedeni_intervali',{p_slug:APP.slug, izbrani_datum:ds});
+}
+/* prosti termini: [{t, dur, z}] – brez zaposlenih kot doslej, sicer po zaposlenih */
+function prostiTermini(ds, dow, rows){
+  if(!imaZap()){
+    var dur = getTotalDur();
+    return calcFreeSlots(ds, dow, rows, dur).map(function(t){ return {t:t, dur:dur, z:null}; });
+  }
+  if(state.zap === null || state.zap === undefined) return [];
+  var kand = state.zap ? kandidati().filter(function(z){ return z.id===state.zap; }) : kandidati();
+  var po = {};
+  kand.forEach(function(z){
+    var d = durZa(z.id);
+    var moji = rows.filter(function(b){ return !b.zaposleni_id || b.zaposleni_id===z.id; });
+    calcFreeSlots(ds, dow, moji, d, dcZaZ(ds, z.id)).forEach(function(t){ if(!po[t]) po[t] = {t:t, dur:d, z:z.id}; });
+  });
+  return Object.keys(po).map(function(k){ return po[k]; }).sort(function(a,b){ return a.t-b.t; });
+}
+function cenaBesedilo(){
+  if(!imaZap() || state.zap){ var tp=getTotalPrice(); return tp>0 ? tp.toFixed(2).replace('.',',')+' €' : ''; }
+  var c = kandidati().map(function(z){ return sumPrice(selZa(z.id)); });
+  if(!c.length) return '';
+  var mn=Math.min.apply(null,c), mx=Math.max.apply(null,c);
+  if(mx<=0) return '';
+  return (mn===mx ? '' : 'od ')+mn.toFixed(2).replace('.',',')+' €';
+}
+function renderZapIzbira(){
+  var box = document.getElementById('zapIzbira'); if(!box) return;
+  if(!imaZap()){ box.style.display='none'; return; }
+  var kand = kandidati();
+  if(!kand.length){
+    box.innerHTML = '<div class="bk-slot-msg" style="width:100%">Izbranih storitev ne opravlja isti zaposleni. Vrnite se in izberite manj storitev ali nas pokličite na <a href="tel:'+APP.telefonIntl+'" style="color:var(--coral)">'+esc(APP.telefon)+'</a>.</div>';
+    return;
+  }
+  if(state.zap && !kand.some(function(z){ return z.id===state.zap; })) state.zap = null;
+  if((state.zap===null||state.zap===undefined) && kand.length===1) state.zap = kand[0].id;
+  if((state.zap===null||state.zap===undefined) && !izbiraObvezna()) state.zap = '';
+  var h = '<div class="bk-zap-lbl">Pri kom želite termin?</div>';
+  if(!izbiraObvezna() && kand.length>1) h += '<button type="button" class="bk-zap-btn'+(state.zap===''?' selected':'')+'" data-z="">Kdorkoli prost</button>';
+  kand.forEach(function(z){
+    h += '<button type="button" class="bk-zap-btn'+(state.zap===z.id?' selected':'')+'" data-z="'+z.id+'">'
+       + (z.barva ? '<span class="pika" style="background:'+esc(z.barva)+'"></span>' : '') + esc(z.ime) + '</button>';
+  });
+  box.innerHTML = h;
+  box.querySelectorAll('.bk-zap-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      state.zap = b.getAttribute('data-z'); state.slot = null; dayStatusCache = {};
+      renderZapIzbira(); renderSummaryPanel(); buildStrip(); loadSlotList(); renderFoot2();
+    });
+  });
+}
 
 /* Slovenski dela prosti prazniki (datum -> naziv). Prebrano iz tabele prazniki;
    dokler se ne naloži, PRAZNIKI ostane prazen (koncno varovalko vedno izvede
@@ -1015,10 +1124,14 @@ function renderStep2(){
   renderSchedView();
 }
 
-function getSelArr(){
+function getSelArrBase(){
   return (state.selectedServices && state.selectedServices.length)
     ? state.selectedServices
     : (state.service ? [state.service] : []);
+}
+function getSelArr(){
+  var z = (typeof state.zap === 'string' && state.zap) ? state.zap : null;
+  return z ? getSelArrBase().map(function(s){ return svcZa(s, z); }) : getSelArrBase();
 }
 function qtyOf(s){ return (state.qty && state.qty[s.id]) ? state.qty[s.id] : 1; }
 function isChildSvc(s){ return APP.katVecOseb(s.category||''); }
@@ -1036,7 +1149,8 @@ function renderSchedView(){
   body.innerHTML =
     '<div class="bk-step-label">Korak 2</div>'
     +'<div class="bk-step-title" style="margin-bottom:.9rem">Izbira termina</div>'
-    +'<div class="bk-day-nav">'
+    +'<div class="bk-zap" id="zapIzbira"></div>'
+    +'<div class="bk-day-nav" id="dayNav">'
     +'<button class="bk-day-nav-btn" id="stripPrev">‹</button>'
     +'<div class="bk-day-strip-outer"><div class="bk-day-strip" id="dayStrip"></div></div>'
     +'<button class="bk-day-nav-btn" id="stripNext">›</button>'
@@ -1048,6 +1162,7 @@ function renderSchedView(){
     +'<div class="bk-sched-right" id="schedSummary"></div>'
     +'</div>';
 
+  renderZapIzbira();
   renderSummaryPanel();
   buildStrip();
   renderFoot2();
@@ -1066,6 +1181,9 @@ function buildStrip(){
   var strip  = document.getElementById('dayStrip');
   var prevBtn = document.getElementById('stripPrev');
   if(!strip) return;
+  var nav = document.getElementById('dayNav'), brezIzbire = imaZap() && (state.zap===null || state.zap===undefined);
+  if(nav) nav.style.display = brezIzbire ? 'none' : '';
+  if(brezIzbire){ var sa=document.getElementById('slotArea'); if(sa && kandidati().length) sa.innerHTML='<div class="bk-slot-msg">Najprej izberite, pri kom želite termin.</div>'; return; }
   if(prevBtn) prevBtn.disabled = (stripOffset <= 0);
 
   var today = new Date(); today.setHours(0,0,0,0);
@@ -1092,13 +1210,10 @@ function buildStrip(){
     else if(dcZa(ds)==='dogovor'){ statusHtml='<div class="bk-day-status closed">po dogovoru</div>'; disClass='disabled'; }
     else if(status==='all'){ statusHtml='<div class="bk-day-status busy">vse zasedeno</div>'; disClass='disabled'; }
     else if(status==='free'){
-      var tp = getTotalPrice();
-      statusHtml='<div class="bk-day-status avail">'+(tp>0? tp.toFixed(2).replace('.',',')+ ' €' : 'na voljo')+'</div>';
+      statusHtml='<div class="bk-day-status avail">'+(cenaBesedilo()||'na voljo')+'</div>';
     } else {
       // Neznano – pokaži za zdaj nevtralno, naloži asinhrono
-      var tp2 = getTotalPrice();
-      statusHtml='<div class="bk-day-status avail" id="dstat-'+ds+'">'
-        +(tp2>0? tp2.toFixed(2).replace('.',',')+ ' €' : 'na voljo')+'</div>';
+      statusHtml='<div class="bk-day-status avail" id="dstat-'+ds+'">'+(cenaBesedilo()||'na voljo')+'</div>';
       prefetchDayStatus(ds, dow, d >= today);
     }
 
@@ -1136,11 +1251,11 @@ function buildStrip(){
 }
 
 function prefetchDayStatus(ds, dow, isFuture){
-  if(!isFuture || PRAZNIKI[ds] || dcZa(ds)==='dogovor' || !dcZa(ds)) return;
-  var dur = getTotalDur();
-  sb.rpc('app_zasedeni_intervali',{p_slug:APP.slug, izbrani_datum:ds}).then(function(res){
-    if(res.error) return;
-    var slots = calcFreeSlots(ds, dow, res.data||[], dur);
+  if(!isFuture || PRAZNIKI[ds] || dcZa(ds)==='dogovor' || (!imaZap() && !dcZa(ds))) return;
+  var zapOb = state.zap;
+  zasedenoRpc(ds).then(function(res){
+    if(res.error || zapOb !== state.zap) return;
+    var slots = prostiTermini(ds, dow, res.data||[]);
     var status = slots.length ? 'free' : 'all';
     dayStatusCache[ds] = status;
     var el = document.getElementById('dstat-'+ds);
@@ -1155,9 +1270,9 @@ function prefetchDayStatus(ds, dow, isFuture){
   });
 }
 
-function calcFreeSlots(ds, dow, busyRaw, dur){
+function calcFreeSlots(ds, dow, busyRaw, dur, dcIzbran){
   if(PRAZNIKI[ds]) return [];
-  var dc = dcZa(ds);
+  var dc = (dcIzbran === undefined) ? dcZa(ds) : dcIzbran;
   if(!dc || dc==='dogovor') return [];
   var wS = timeToMin(dc.start), wE = timeToMin(dc.end);
   var busy = [];
@@ -1218,16 +1333,18 @@ function loadSlotList(){
     return;
   }
 
+  if(imaZap() && (state.zap===null || state.zap===undefined)){ area.innerHTML='<div class="bk-slot-msg">Najprej izberite, pri kom želite termin.</div>'; return; }
   area.innerHTML='<div class="bk-slot-loading">Preverjam termine…</div>';
-  var dur = getTotalDur();
   var tp  = getTotalPrice();
+  var zapOb = state.zap;
 
-  sb.rpc('app_zasedeni_intervali',{p_slug:APP.slug, izbrani_datum:ds}).then(function(res){
+  zasedenoRpc(ds).then(function(res){
+    if(zapOb !== state.zap) return;
     if(res.error){
       area.innerHTML='<div class="bk-error show">Napaka: '+esc(res.error.message)+'</div>';
       return;
     }
-    var slots = calcFreeSlots(ds, dow, res.data||[], dur);
+    var slots = prostiTermini(ds, dow, res.data||[]);
     dayStatusCache[ds] = slots.length ? 'free' : 'all';
 
     // Posodobi status kartice v traku
@@ -1248,10 +1365,10 @@ function loadSlotList(){
 
     var h='<div class="bk-slot-list">';
     var first=true;
-    slots.forEach(function(t){
-      var ts=minToTime(t);
+    slots.forEach(function(o){
+      var t=o.t, ts=minToTime(t);
       var sel=state.slot&&state.slot.start===ts;
-      h+='<div class="bk-slot-row'+(sel?' selected':'')+'" data-s="'+ts+'" data-e="'+minToTime(t+dur)+'">'
+      h+='<div class="bk-slot-row'+(sel?' selected':'')+'" data-s="'+ts+'" data-e="'+minToTime(t+o.dur)+'">'
         +'<span class="bk-slot-time">'+ts+'</span>'
         +'</div>';
       first=false;
@@ -1285,12 +1402,14 @@ function renderSummaryPanel(){
 
   var h='<div class="bk-sum-hd">Povzetek</div>';
   h+='<div class="bk-sum-date">'+(dateStr||'<span style="opacity:.75">Termin ni izbran</span>')+'</div>';
+  if(imaZap() && state.zap!==null && state.zap!==undefined) h+='<div class="bk-sum-svc"><span>'+(state.zap?'Pri: '+esc(zapIme(state.zap)):'Kdorkoli prost')+'</span></div>';
   selArr.forEach(function(sv){
     h+='<div class="bk-sum-svc"><span>'+esc(sv.name)+'</span>'
       +(sv.price?'<span>'+parseFloat(sv.price).toFixed(2).replace('.',',')+'€</span>':'')
       +'</div>';
   });
-  if(tp>0) h+='<div class="bk-sum-total"><span>Skupaj</span><span>'+tp.toFixed(2).replace('.',',')+'€</span></div>';
+  var ctxt=cenaBesedilo();
+  if(tp>0) h+='<div class="bk-sum-total"><span>Skupaj</span><span>'+(ctxt||(tp.toFixed(2).replace('.',',')+' €'))+'</span></div>';
   panel.innerHTML=h;
 }
 
@@ -1391,9 +1510,10 @@ function renderStepConfirm(){
   var rows='';
   var allNames = (state.selectedServices&&state.selectedServices.length ? state.selectedServices : [sv]).map(function(s){ return svcLabel(s); }).join(' + ');
   rows+='<div class="bk-sum-row"><span class="bk-sum-key">Storitev</span><span class="bk-sum-val">'+esc(allNames)+'</span></div>';
-  var selArr2 = (state.selectedServices&&state.selectedServices.length) ? state.selectedServices : [sv];
+  var selArr2 = state.isNujni ? getSelArrBase() : getSelArr();
   var totalPrice2 = sumPrice(selArr2);
-  if(totalPrice2>0) rows+='<div class="bk-sum-row"><span class="bk-sum-key">Cena</span><span class="bk-sum-val">'+totalPrice2.toFixed(2).replace('.',',')+' €</span></div>';
+  if(totalPrice2>0) rows+='<div class="bk-sum-row"><span class="bk-sum-key">Cena</span><span class="bk-sum-val">'+((!state.isNujni&&cenaBesedilo())||(totalPrice2.toFixed(2).replace('.',',')+' €'))+'</span></div>';
+  if(!state.isNujni && imaZap()) rows+='<div class="bk-sum-row"><span class="bk-sum-key">Pri</span><span class="bk-sum-val">'+(state.zap?esc(zapIme(state.zap)):'kdorkoli prost')+'</span></div>';
   if(state.isNujni){
     rows+='<div class="bk-sum-row"><span class="bk-sum-key">Termin</span><span class="bk-sum-val">Po dogovoru</span></div>';
     rows+='<div class="bk-sum-row"><span class="bk-sum-key">Želja</span><span class="bk-sum-val">'+esc(state.nujniNote)+'</span></div>';
@@ -1459,8 +1579,10 @@ function submitBooking(btn){
     nujni:    !!state.isNujni,
     p_slug:   APP.slug
   };
+  var fn = 'app_oddaj_narocilo';
+  if(imaZap() && !state.isNujni){ fn = 'app_oddaj_termin'; rpcArgs.p_zaposleni = state.zap || null; }
 
-  sb.rpc('app_oddaj_narocilo', rpcArgs).then(function(res){
+  sb.rpc(fn, rpcArgs).then(function(res){
     var r = res.data || {};
     if(res.error || !r.ok){
       var t = 'Prišlo je do napake. Pokličite nas na '+APP.telefon+'.';
@@ -1471,6 +1593,9 @@ function submitBooking(btn){
       else if(r.napaka==='manjkajo-podatki') t = 'Prosimo, vnesite ime in telefonsko številko.';
       else if(r.napaka==='ni-storitev' || r.napaka==='neveljavna-storitev')
                                             t = 'Prišlo je do napake pri izbiri storitve. Poskusite znova.';
+      else if(r.napaka==='zaposleni-ne-opravlja' || r.napaka==='neveljaven-zaposleni' || r.napaka==='izberi-zaposlenega')
+                                            t = 'Izbrani zaposleni tega termina ne more prevzeti. Vrnite se in izberite drugega.';
+      else if(r.napaka==='predalec')        t = 'Termin je predaleč vnaprej. Izberite bližji datum.';
       else if(res.error)                    t = 'Prišlo je do napake: '+res.error.message+'. Pokličite nas na '+APP.telefon+'.';
       var errEl = document.getElementById('bkErr2');
       if(errEl){ errEl.textContent = t; errEl.classList.add('show'); }
@@ -1486,7 +1611,7 @@ function submitBooking(btn){
       + '<div class="bk-success-title">Naročeni ste!</div>'
       + '<p class="bk-success-sub">'+(state.isNujni
           ? 'Vaša zahteva je bila sprejeta. Pokličemo vas za potrditev termina.'
-          : 'Vaše naročilo je potrjeno. Vidimo se '+fmtDate(state.date)+' ob '+state.slot.start+'.')+'</p>'
+          : 'Vaše naročilo je potrjeno. Vidimo se '+fmtDate(state.date)+' ob '+state.slot.start+(r.zaposleni?' (pri: '+esc(r.zaposleni)+')':'')+'.')+'</p>'
       + ((state.isNujni || !(c.email)) ? '' :
           '<p class="bk-success-sub" style="font-size:.82rem">Na e-pošto ste prejeli potrditev s povezavo, prek katere lahko termin <strong>spremenite ali prekličete</strong>.</p>')
       + '<br/><p class="bk-success-sub" style="font-size:.8rem">V primeru vprašanj pokličite <a class="bk-tel-povezava" href="tel:'+APP.telefonIntl+'">'+APP.telefon+'</a>.</p>'
