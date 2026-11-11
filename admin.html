@@ -673,7 +673,7 @@ header .brand .brand-tag[style]{ opacity:.55 !important }   /* oznaka razlicice 
 
 <div id="appView" class="hidden">
   <header>
-    <div class="brand"><img data-app="logo" alt="" class="logo-img" onerror="this.style.display='none'" /><span class="brand-tag">admin</span><span class="brand-tag" style="opacity:.32;letter-spacing:.05em">v60 · 11.11.</span></div>
+    <div class="brand"><img data-app="logo" alt="" class="logo-img" onerror="this.style.display='none'" /><span class="brand-tag">admin</span><span class="brand-tag" style="opacity:.32;letter-spacing:.05em">v61 · 11.11.</span></div>
     <div class="right"><span class="who" id="whoLabel"></span><button class="btn-ghost" id="pwdBtn">Geslo</button><button class="btn-ghost" id="logoutBtn">Odjava</button></div>
   </header>
 
@@ -843,6 +843,7 @@ function prikaziNaziv(email){
 }
 /* skrbnik platforme dobi v glavi povezavo do strani s saloni */
 function povezavaSuperadmin(){
+  var stara=document.getElementById('povSuperadmin'); if(stara) stara.remove();   /* nikoli ne ostane od prejšnje prijave */
   sb.rpc('app_je_superadmin').then(function(r){
     if(r.error||r.data!==true||document.getElementById('povSuperadmin')) return;
     var who=document.getElementById('whoLabel'); if(!who) return;
@@ -1591,7 +1592,8 @@ function doLogin(){
     showApp(res.data.session);
   });
 }
-document.getElementById('logoutBtn').addEventListener('click',function(){sb.auth.signOut().then(showLogin);});
+/* odjava: stran se naloži na novo, da od prejšnjega uporabnika ne ostane nič (salon, povezave, zaposleni) */
+document.getElementById('logoutBtn').addEventListener('click',function(){sb.auth.signOut().then(function(){ location.href='/admin'; });});
 
 /* GESLO: sprememba (prijavljen) + pozabljeno (ponastavitev) */
 var pwdRecovery=false, pwdOverlay=document.getElementById('pwdOverlay');
