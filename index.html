@@ -1587,7 +1587,7 @@ function submitBooking(btn){
     if(res.error || !r.ok){
       var t = 'Prišlo je do napake. Pokličite nas na '+APP.telefon+'.';
       if(r.napaka==='zasedeno')             t = 'Ta termin je bil pravkar zaseden. Prosimo, izberite drug termin.';
-      else if(r.napaka==='prepozno')        t = 'Termin je premalo vnaprej. Naročanje je možno najmanj 4 ure vnaprej.';
+      else if(r.napaka==='prepozno')        t = 'Termin je premalo vnaprej. Naročanje je možno najmanj '+(Math.round(MIN_LEAD_MIN/6)/10).toString().replace('.',',')+' h vnaprej.';
       else if(r.napaka==='izven-delovnega-casa' || r.napaka==='zaprto')
                                             t = 'Izbrani termin je izven delovnega časa. Prosimo, izberite drug termin.';
       else if(r.napaka==='manjkajo-podatki') t = 'Prosimo, vnesite ime in telefonsko številko.';
