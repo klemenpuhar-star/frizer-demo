@@ -159,6 +159,17 @@ window.APP = {
     if (!ok && STRAN === 'narocanje') { if (slug) prikaziNiSalona(); else prikaziSeznam(); return false; }
     if (!ok && STRAN === 'admin') { A.ime = A.platforma; A.kratko = A.platforma; }
     vstavi();
+    if (ok && STRAN === 'narocanje' && A.pravila && A.pravila.demo) demoPasica();
     return ok;
   });
+
+  /* Primer salona (pravila.demo = true): pasica nad stranjo */
+  function demoPasica() {
+    var o = document.createElement('div');
+    o.setAttribute('role', 'note');
+    o.style.cssText = 'position:relative;z-index:100000;background:#1c1a19;color:#fff;padding:10px 16px;font:14px/1.45 system-ui,-apple-system,Segoe UI,Arial,sans-serif;text-align:center';
+    o.innerHTML = '<b>Primer salona za predstavitev ' + String(A.platforma).replace(/</g, '&lt;') + '.</b> Termini niso pravi. '
+      + 'Naročilo lahko preizkusite – prejeli boste potrditev po SMS, salon pa vas ne bo pričakoval.';
+    document.body.insertBefore(o, document.body.firstChild);
+  }
 })(window.APP);
