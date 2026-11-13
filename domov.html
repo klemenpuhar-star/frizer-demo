@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slotbee – spletno naročanje za salone in storitvene dejavnosti</title>
+<meta name="description" content="Slotbee je preprosto spletno naročanje za frizerje, brivce, kozmetičarke, pasje frizerje, vulkanizerje in avtomehanike. Koledar po zaposlenih, SMS opomniki in osebna podpora v slovenščini.">
+<meta property="og:title" content="Slotbee – termini, ki se naročijo sami">
+<meta property="og:description" content="Spletno naročanje za storitvene dejavnosti. SMS opomniki, koledar po zaposlenih, podatki v EU.">
+<meta property="og:url" content="https://slotbee.si/">
+<meta name="theme-color" content="#FBF8F3">
+<link rel="canonical" href="https://slotbee.si/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25z' fill='%2316181D'/%3E%3Crect x='10' y='14' width='12' height='4.5' rx='2.25' fill='%23E5A82B'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#FBF8F3;
+  --bg-2:#F4EEE4;
+  --surface:#FFFFFF;
+  --ink:#16181D;
+  --ink-2:#2B2F38;
+  --muted:#5F6470;
+  --line:#E6DFD3;
+  --line-2:#EFE9DF;
+  --honey:#E5A82B;
+  --honey-deep:#A8720A;
+  --honey-soft:#FBEFD3;
+  --deep:#17191F;
+  --deep-2:#22252D;
+  --sage:#DCE7DF;
+  --rose:#F3DCD6;
+  --sky:#DCE4F1;
+  --radius:18px;
+  --shadow:0 1px 2px rgba(22,24,29,.04),0 8px 24px -8px rgba(22,24,29,.10);
+  --shadow-lg:0 2px 4px rgba(22,24,29,.04),0 30px 60px -20px rgba(22,24,29,.22);
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --max:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html{overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:clip}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+@media (max-width:640px){.wrap{padding:0 16px}}
+
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.02em;line-height:1.08;margin:0;font-variation-settings:"opsz" 144}
+h1{font-size:clamp(2.6rem,6.2vw,4.6rem)}
+h2{font-size:clamp(2rem,4.2vw,3.1rem)}
+h3{font-size:1.35rem;letter-spacing:-.01em;line-height:1.2}
+em.accent{font-style:italic;color:var(--honey-deep)}
+p{margin:0}
+.lead{font-size:clamp(1.05rem,1.6vw,1.2rem);color:var(--muted);max-width:36em}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:.78rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--honey-deep)}
+.eyebrow::before{content:"";width:22px;height:1.5px;background:currentColor}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:52px;padding:0 26px;border-radius:999px;font-weight:600;font-size:.98rem;border:1px solid transparent;cursor:pointer;transition:transform .2s ease,background .2s ease,box-shadow .2s ease,border-color .2s ease;white-space:nowrap}
+.btn:active{transform:scale(.98)}
+.btn-dark{background:var(--ink);color:#fff;box-shadow:0 10px 24px -10px rgba(22,24,29,.5)}
+.btn-dark:hover{background:#000;transform:translateY(-1px)}
+.btn-ghost{border-color:var(--line);background:rgba(255,255,255,.6)}
+.btn-ghost:hover{border-color:var(--ink)}
+.btn-honey{background:var(--honey);color:var(--ink)}
+.btn-honey:hover{background:#F0B53A;transform:translateY(-1px)}
+.btn svg{width:18px;height:18px}
+:focus-visible{outline:2px solid var(--honey-deep);outline-offset:3px;border-radius:8px}
+
+/* ---------- Nav ---------- */
+.nav{position:sticky;top:0;z-index:50;background:rgba(251,248,243,.82);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid transparent;transition:border-color .3s}
+.nav.scrolled{border-bottom-color:var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:1.22rem;letter-spacing:-.02em}
+.logo svg{width:30px;height:30px}
+.nav-links{display:flex;gap:34px;font-size:.95rem;color:var(--ink-2)}
+.nav-links a{position:relative}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:-4px;width:100%;height:1.5px;background:var(--honey);transform:scaleX(0);transform-origin:left;transition:transform .25s}
+.nav-links a:hover::after{transform:scaleX(1)}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.nav-cta .btn{height:42px;padding:0 20px;font-size:.9rem}
+.login{font-size:.92rem;color:var(--muted);padding:0 8px}
+.login:hover{color:var(--ink)}
+.menu-btn{display:none;width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--surface);align-items:center;justify-content:center;cursor:pointer}
+.mobile-menu{display:none}
+@media (max-width:900px){
+  .nav-links,.nav-cta .login,.nav-cta .btn{display:none}
+  .menu-btn{display:flex}
+  .mobile-menu{position:fixed;inset:72px 0 auto 0;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 16px 24px;display:none;flex-direction:column;gap:4px;z-index:49}
+  .mobile-menu.open{display:flex}
+  .mobile-menu a:not(.btn){padding:14px 4px;border-bottom:1px solid var(--line-2);font-size:1.05rem}
+  .mobile-menu .btn{margin-top:14px}
+}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;padding:72px 0 40px}
+.hero::before{content:"";position:absolute;inset:-120px 0 auto auto;width:min(720px,100%);height:720px;background:radial-gradient(closest-side,rgba(229,168,43,.20),transparent 70%);pointer-events:none;z-index:-1}
+.hero-grid{display:grid;grid-template-columns:1.02fr 1fr;gap:56px;align-items:center}
+.hero h1{margin:22px 0 22px}
+.hero .lead{margin-bottom:34px}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.hero-note{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:34px;font-size:.88rem;color:var(--muted)}
+.hero-note span{display:inline-flex;align-items:center;gap:8px}
+.hero-note svg{width:16px;height:16px;color:var(--honey-deep)}
+
+/* Mockups */
+.stage{position:relative;height:560px}
+.cal{position:absolute;right:0;top:20px;width:92%;background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow-lg);overflow:hidden}
+.cal-top{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line-2)}
+.cal-top b{font-weight:600;font-size:.95rem}
+.cal-top small{color:var(--muted);font-size:.78rem}
+.dots{display:flex;gap:6px}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.cal-body{display:grid;grid-template-columns:46px 1fr 1fr 1fr;font-size:.72rem}
+.cal-head{display:contents}
+.cal-head div{padding:10px 8px;border-bottom:1px solid var(--line-2);font-weight:600;color:var(--ink-2);display:flex;align-items:center;gap:7px}
+.av{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font-size:.6rem;font-weight:700;color:var(--ink)}
+.times{grid-row:2/span 1;display:flex;flex-direction:column}
+.times span{height:52px;padding:4px 8px 0;color:var(--muted);font-size:.66rem;border-right:1px solid var(--line-2)}
+.col{position:relative;border-right:1px solid var(--line-2);background:repeating-linear-gradient(to bottom,transparent 0,transparent 51px,var(--line-2) 51px,var(--line-2) 52px)}
+.col:last-child{border-right:0}
+.ev{position:absolute;left:5px;right:5px;border-radius:9px;padding:6px 8px;line-height:1.25;overflow:hidden}
+.ev b{display:block;font-size:.7rem;font-weight:600}
+.ev span{font-size:.64rem;opacity:.75}
+.ev.h{background:var(--honey-soft);border-left:3px solid var(--honey)}
+.ev.s{background:var(--sage);border-left:3px solid #6E9C7D}
+.ev.r{background:var(--rose);border-left:3px solid #C98676}
+.ev.k{background:var(--sky);border-left:3px solid #6C86B5}
+.ev.block{background:repeating-linear-gradient(135deg,#F3EFE8 0,#F3EFE8 6px,#ECE6DC 6px,#ECE6DC 12px);color:var(--muted)}
+.ev.new{box-shadow:0 0 0 2px var(--honey),0 8px 18px -6px rgba(229,168,43,.6);animation:pop 3.6s ease-in-out infinite}
+@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+
+.phone{position:absolute;left:0;bottom:0;width:250px;background:var(--ink);border-radius:38px;padding:9px;box-shadow:var(--shadow-lg)}
+.screen{background:var(--bg);border-radius:30px;overflow:hidden;padding:18px 16px 16px;font-size:.74rem}
+.notch{width:84px;height:20px;background:var(--ink);border-radius:0 0 14px 14px;margin:-18px auto 12px}
+.ph-salon{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ph-salon .lg{width:34px;height:34px;border-radius:10px;background:var(--deep);color:var(--honey);display:grid;place-items:center;font-family:var(--serif);font-size:1rem}
+.ph-salon b{display:block;font-size:.82rem}
+.ph-salon small{color:var(--muted);font-size:.66rem}
+.ph-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600;margin:12px 0 7px}
+.ph-svc{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 11px}
+.ph-svc b{font-size:.74rem;font-weight:600}
+.ph-svc small{display:block;color:var(--muted);font-size:.62rem}
+.ph-svc em{font-style:normal;font-weight:600}
+.ph-staff{display:flex;gap:6px}
+.ph-staff span{flex:1;text-align:center;padding:7px 4px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:.66rem}
+.ph-staff span.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.ph-days{display:flex;gap:5px}
+.ph-days span{flex:1;text-align:center;border-radius:10px;padding:6px 0;background:var(--surface);border:1px solid var(--line);font-size:.6rem;color:var(--muted);line-height:1.2}
+.ph-days span b{display:block;color:var(--ink);font-size:.8rem}
+.ph-days span.on{background:var(--honey);border-color:var(--honey);color:var(--ink)}
+.ph-days span.on b{color:var(--ink)}
+.ph-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.ph-slots span{text-align:center;padding:6px 0;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-size:.68rem;font-weight:500}
+.ph-slots span.off{color:#C4BDB0;text-decoration:line-through;background:transparent}
+.ph-slots span.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ph-btn{margin-top:13px;background:var(--ink);color:#fff;text-align:center;border-radius:12px;padding:10px;font-weight:600;font-size:.74rem}
+
+.sms{position:absolute;right:-6px;bottom:42px;width:270px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:12px 14px;box-shadow:var(--shadow-lg);font-size:.76rem;animation:float 6s ease-in-out infinite}
+.sms-top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.sms-top .ic{width:22px;height:22px;border-radius:7px;background:#35C759;display:grid;place-items:center}
+.sms-top .ic svg{width:13px;height:13px;color:#fff}
+.sms-top b{font-size:.7rem;letter-spacing:.04em}
+.sms-top small{margin-left:auto;color:var(--muted);font-size:.66rem}
+.sms p{color:var(--ink-2);line-height:1.45}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+@media (max-width:1020px){
+  .hero-grid{grid-template-columns:1fr;gap:40px}
+  .stage{height:540px;max-width:620px;width:100%;margin:0 auto}
+}
+@media (max-width:640px){
+  .hero{padding:44px 0 24px}
+  .stage{height:auto;display:flex;flex-direction:column;align-items:center;gap:0;padding-bottom:10px}
+  .cal{display:none}
+  .phone{position:relative;left:auto;bottom:auto;width:262px}
+  .sms{position:relative;right:auto;bottom:auto;margin-top:-56px;width:calc(100% - 24px);max-width:320px}
+  .hero-ctas .btn{flex:1 1 100%}
+}
+
+/* ---------- Industries ---------- */
+.industries{padding:36px 0 20px}
+.industries p{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:18px}
+.marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
+.track{display:flex;gap:12px;width:max-content;animation:scroll 46s linear infinite}
+.marquee:hover .track{animation-play-state:paused}
+.chip{display:inline-flex;align-items:center;gap:10px;padding:11px 18px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:.94rem;white-space:nowrap}
+.chip svg{width:18px;height:18px;color:var(--honey-deep)}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+/* ---------- Sections ---------- */
+section{scroll-margin-top:80px}
+.sec{padding:110px 0}
+.sec-head{max-width:760px;margin-bottom:56px}
+.sec-head h2{margin:16px 0 18px}
+.center{text-align:center;margin-left:auto;margin-right:auto}
+.center .lead{margin:0 auto}
+@media (max-width:640px){.sec{padding:76px 0}.sec-head{margin-bottom:38px}}
+
+/* Steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;counter-reset:s}
+.step{position:relative;padding:34px 30px 32px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.step .num{font-family:var(--serif);font-size:3.2rem;line-height:1;color:var(--honey);font-style:italic;margin-bottom:22px}
+.step h3{margin-bottom:10px}
+.step p{color:var(--muted);font-size:.98rem}
+.url{display:inline-flex;margin-top:16px;padding:8px 14px;border-radius:10px;background:var(--bg-2);font-size:.88rem;font-weight:500}
+.url b{color:var(--honey-deep);font-weight:600}
+@media (max-width:860px){.steps{grid-template-columns:1fr}}
+
+/* Bento */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:32px;display:flex;flex-direction:column;gap:12px;overflow:hidden;position:relative}
+.card h3{font-size:1.28rem}
+.card p{color:var(--muted);font-size:.97rem}
+.card .ico{width:44px;height:44px;border-radius:12px;background:var(--honey-soft);display:grid;place-items:center;color:var(--honey-deep);margin-bottom:6px}
+.card .ico svg{width:22px;height:22px}
+.c-4{grid-column:span 4}.c-2{grid-column:span 2}.c-3{grid-column:span 3}
+.card.dark{background:var(--deep);color:#F4EFE6;border-color:var(--deep)}
+.card.dark p{color:#A8ABB4}
+.card.dark .ico{background:rgba(229,168,43,.14);color:var(--honey)}
+@media (max-width:960px){.c-4,.c-2,.c-3{grid-column:span 6}}
+
+.mini-staff{display:flex;gap:10px;margin-top:auto;padding-top:18px;flex-wrap:wrap}
+.mini-staff div{flex:1;min-width:120px;border:1px solid var(--line-2);border-radius:14px;padding:12px;background:var(--bg)}
+.mini-staff b{display:flex;align-items:center;gap:8px;font-size:.84rem;margin-bottom:10px}
+.mini-staff i{display:block;height:8px;border-radius:5px;margin-bottom:6px;background:var(--line)}
+
+.roles{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:14px}
+.roles span{font-size:.8rem;padding:6px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);color:#E8E2D6}
+.roles span:first-child{background:var(--honey);color:var(--ink);border-color:var(--honey)}
+
+/* Spotlight */
+.spot{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.spot-list{list-style:none;padding:0;margin:30px 0 0;display:grid;gap:18px}
+.spot-list li{display:flex;gap:14px;align-items:flex-start}
+.spot-list li svg{flex:none;width:22px;height:22px;color:var(--honey-deep);margin-top:2px}
+.spot-list b{display:block;font-weight:600}
+.spot-list span{color:var(--muted);font-size:.96rem}
+.chat{background:var(--bg-2);border-radius:28px;padding:40px 34px;display:flex;flex-direction:column;gap:14px;border:1px solid var(--line)}
+.bubble{max-width:88%;padding:14px 16px;border-radius:18px;font-size:.93rem;line-height:1.45;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.bubble small{display:block;font-size:.72rem;color:var(--muted);margin-bottom:4px;font-weight:600;letter-spacing:.04em}
+.bubble.me{align-self:flex-end;background:var(--ink);color:#fff;border-color:var(--ink)}
+.bubble.me small{color:#9A9DA6}
+.chat-time{text-align:center;font-size:.74rem;color:var(--muted)}
+@media (max-width:900px){.spot{grid-template-columns:1fr;gap:44px}.chat{padding:26px 18px}}
+
+/* Trust */
+.trust{background:var(--deep);color:#F4EFE6;border-radius:32px;padding:80px 64px;position:relative;overflow:hidden}
+.trust::after{content:"";position:absolute;right:-160px;top:-160px;width:480px;height:480px;background:radial-gradient(closest-side,rgba(229,168,43,.18),transparent 70%)}
+.trust .eyebrow{color:var(--honey)}
+.trust .lead{color:#A8ABB4}
+.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-top:52px;position:relative;z-index:1}
+.trust-grid div{border-top:1px solid rgba(255,255,255,.12);padding-top:22px}
+.trust-grid svg{width:26px;height:26px;color:var(--honey);margin-bottom:16px}
+.trust-grid b{display:block;font-size:1.04rem;margin-bottom:6px;font-weight:600}
+.trust-grid span{color:#A8ABB4;font-size:.94rem}
+@media (max-width:960px){.trust{padding:56px 28px;border-radius:24px}.trust-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.trust{padding:44px 20px;margin:0 -4px}.trust-grid{grid-template-columns:1fr}}
+
+/* Pricing */
+.toggle{display:inline-flex;padding:5px;border-radius:999px;background:var(--bg-2);border:1px solid var(--line);margin-top:28px}
+.toggle button{border:0;background:transparent;padding:10px 20px;border-radius:999px;font-weight:600;font-size:.9rem;cursor:pointer;color:var(--muted)}
+.toggle button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.toggle .save{font-size:.72rem;color:var(--honey-deep);margin-left:6px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:36px 32px;display:flex;flex-direction:column}
+.plan.pop{background:var(--deep);color:#F4EFE6;border-color:var(--deep);box-shadow:var(--shadow-lg);position:relative}
+.plan .tag{position:absolute;top:-13px;left:32px;background:var(--honey);color:var(--ink);font-size:.74rem;font-weight:600;padding:5px 12px;border-radius:999px}
+.plan h3{font-size:1.5rem}
+.plan .for{color:var(--muted);font-size:.94rem;margin-top:6px;min-height:3em}
+.plan.pop .for{color:#A8ABB4}
+.price{display:flex;align-items:baseline;gap:6px;margin:26px 0 4px}
+.price b{font-family:var(--serif);font-size:3.2rem;font-weight:500;letter-spacing:-.03em;line-height:1}
+.price span{color:var(--muted);font-size:.95rem}
+.plan.pop .price span{color:#A8ABB4}
+.billed{font-size:.82rem;color:var(--muted);min-height:1.4em}
+.plan.pop .billed{color:#A8ABB4}
+.plan ul{list-style:none;padding:0;margin:26px 0 30px;display:grid;gap:12px;font-size:.95rem}
+.plan li{display:flex;gap:11px;align-items:flex-start}
+.plan li svg{flex:none;width:18px;height:18px;margin-top:3px;color:var(--honey-deep)}
+.plan.pop li svg{color:var(--honey)}
+.plan .btn{margin-top:auto;width:100%}
+.price-note{text-align:center;margin-top:30px;color:var(--muted);font-size:.9rem}
+.founder{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap;max-width:820px;margin:0 auto 44px;padding:16px 22px;border-radius:16px;background:var(--honey-soft);border:1px solid #F1DDAE;font-size:.95rem;text-align:center}
+.founder b{font-weight:600}
+@media (max-width:960px){.plans{grid-template-columns:1fr;max-width:480px;margin:0 auto}}
+
+/* FAQ */
+.faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:64px}
+.faq details{border-bottom:1px solid var(--line);padding:6px 0}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:20px;padding:20px 0;font-weight:600;font-size:1.06rem}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary i{flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;transition:transform .25s,background .25s}
+.faq summary i svg{width:14px;height:14px}
+.faq details[open] summary i{transform:rotate(45deg);background:var(--ink);color:#fff;border-color:var(--ink)}
+.faq details p{color:var(--muted);padding:0 44px 22px 0}
+@media (max-width:900px){.faq-grid{grid-template-columns:1fr;gap:20px}.faq details p{padding-right:0}}
+
+/* Contact */
+.contact{display:grid;grid-template-columns:1fr 1.05fr;gap:64px;align-items:start}
+.contact-aside{display:grid;gap:20px;margin-top:34px}
+.contact-aside a,.contact-aside div{display:flex;gap:14px;align-items:center;font-weight:500}
+.contact-aside .ci{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);display:grid;place-items:center;background:var(--surface);flex:none}
+.contact-aside .ci svg{width:20px;height:20px;color:var(--honey-deep)}
+.contact-aside small{display:block;color:var(--muted);font-weight:400;font-size:.86rem}
+form.box{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:36px;box-shadow:var(--shadow);display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+.field label{font-size:.84rem;font-weight:600;color:var(--ink-2)}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:13px 14px;font-size:1rem;transition:border-color .2s,box-shadow .2s;min-width:0}
+.field textarea{min-height:110px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:var(--honey-deep);box-shadow:0 0 0 4px rgba(229,168,43,.18);background:#fff}
+form.box .btn{grid-column:1/-1;margin-top:6px}
+.form-note{grid-column:1/-1;font-size:.8rem;color:var(--muted);text-align:center}
+@media (max-width:900px){.contact{grid-template-columns:1fr;gap:36px}}
+@media (max-width:560px){form.box{grid-template-columns:1fr;padding:24px 18px}}
+
+/* CTA band */
+.band{padding:0 0 110px}
+.band-in{border-radius:32px;background:var(--honey);padding:72px 48px;text-align:center;position:relative;overflow:hidden}
+.band-in::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='64' viewBox='0 0 56 64'%3E%3Cpath d='M28 2 52 16v32L28 62 4 48V16z' fill='none' stroke='%2316181D' stroke-opacity='.07' stroke-width='1.5'/%3E%3C/svg%3E");background-size:56px 64px}
+.band-in>*{position:relative}
+.band-in h2{max-width:16em;margin:0 auto 16px}
+.band-in p{max-width:34em;margin:0 auto 30px;color:#3C3320}
+@media (max-width:640px){.band-in{padding:52px 22px;border-radius:24px}.band{padding-bottom:76px}}
+
+/* Footer */
+footer{border-top:1px solid var(--line);padding:60px 0 40px;font-size:.92rem;color:var(--muted)}
+.foot{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px}
+.foot h4{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin:0 0 16px;font-weight:600}
+.foot ul{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.foot a:hover{color:var(--ink)}
+.foot .about p{margin-top:14px;max-width:24em}
+.legal{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:50px;padding-top:24px;border-top:1px solid var(--line);font-size:.82rem}
+@media (max-width:860px){.foot{grid-template-columns:1fr 1fr}.foot .about{grid-column:1/-1}}
+
+/* Obrazec – stanja */
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.form-err{grid-column:1/-1;margin:0;padding:10px 14px;border-radius:12px;background:#FBE9E5;color:#8A2E1D;font-size:.9rem}
+.form-note a{color:var(--ink);border-bottom:1px solid var(--honey)}
+form.box{position:relative}
+.form-ok{position:absolute;inset:0;background:var(--surface);border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:36px;gap:12px}
+.form-ok[hidden]{display:none}
+.form-ok .ok-ic{width:60px;height:60px;border-radius:50%;background:var(--honey-soft);display:grid;place-items:center;color:var(--honey-deep);margin-bottom:6px}
+.form-ok .ok-ic svg{width:28px;height:28px}
+.form-ok p{color:var(--muted);max-width:26em}
+.form-ok a{color:var(--ink);border-bottom:1px solid var(--honey)}
+.btn:disabled{opacity:.6;cursor:wait}
+/* Okno */
+.dlg{border:0;padding:0;border-radius:24px;max-height:calc(100dvh - 32px);overflow:auto;max-width:620px;width:calc(100% - 32px);background:var(--surface);color:var(--ink);box-shadow:var(--shadow-lg)}
+.dlg::backdrop{background:rgba(22,24,29,.45);backdrop-filter:blur(3px)}
+.dlg-in{padding:34px 32px;display:grid;gap:14px;font-size:.95rem}
+.dlg-in p{color:var(--ink-2)}
+.dlg-in .btn{justify-self:start;margin-top:8px;height:46px}
+@media (max-width:560px){.dlg-in{padding:26px 20px}}
+
+/* Reveal */
+.rv{opacity:0;transform:translateY(18px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<!-- SVG simboli -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 3.5V17A2.5 2.5 0 0 1 4 14.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 20c.6-3.4 3.3-5.5 6.5-5.5s5.9 2.1 6.5 5.5"/><path d="M15.5 5.3a3.5 3.5 0 0 1 0 6.4M18 14.8c1.8.8 3.1 2.6 3.5 5.2"/></g></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.1 8.2 7.5 9.5 4.4-1.3 7.5-4.9 7.5-9.5V6z M8.8 12l2.3 2.3 4.2-4.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-eu" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.5 3.5 5.3 3.5 8.5s-1.1 6-3.5 8.5c-2.4-2.5-3.5-5.3-3.5-8.5s1.1-6 3.5-8.5z"/></g></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-4.2A8 8 0 1 1 20 11.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></g></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16M7 16v-4M12 16V8M17 16v-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke-linecap="round"/></g></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></g></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4.5 7 7.5 6 7.5-6"/></g></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.3a10 10 0 0 0 6.2 6.2l1.3-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+  <symbol id="i-scissors" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="6" cy="6.5" r="2.7"/><circle cx="6" cy="17.5" r="2.7"/><path d="M8.2 8.2 20 18M8.2 15.8 20 6"/></g></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5c.6 4.3 2.9 6.6 7.5 7.5-4.6.9-6.9 3.2-7.5 8-.6-4.8-2.9-7.1-7.5-8 4.6-.9 6.9-3.2 7.5-7.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+  <symbol id="i-paw" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="16" rx="4.5" ry="3.8"/><circle cx="6" cy="10.5" r="1.8"/><circle cx="9.5" cy="6.5" r="1.8"/><circle cx="14.5" cy="6.5" r="1.8"/><circle cx="18" cy="10.5" r="1.8"/></g></symbol>
+  <symbol id="i-wheel" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/><path d="M12 3.5V9M12 15v5.5M3.5 12H9M15 12h5.5"/></g></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.5 4.2a4.5 4.5 0 0 0-5.3 6L4 15.4a2 2 0 0 0 2.8 2.8L12 13a4.5 4.5 0 0 0 6-5.3l-2.7 2.7-2.5-.4-.4-2.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5a1.5 1.5 0 0 1 3 0V11m0-5a1.5 1.5 0 0 1 3 0v6.5c0 4.5-2.5 8-6.5 8-3 0-4.4-1.5-6-4.2L3 13a1.5 1.5 0 0 1 2.6-1.5L8 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-13.5 14-14 0 9-5.5 14-14 14zm0 0 7-7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-logo" viewBox="0 0 32 32"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25z" fill="currentColor"/><rect x="10" y="14" width="12" height="4.5" rx="2.25" fill="#E5A82B"/></symbol>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a href="#" class="logo" aria-label="Slotbee – domov"><svg><use href="#i-logo"/></svg>slotbee</a>
+    <nav class="nav-links" aria-label="Glavna navigacija">
+      <a href="#kako">Kako deluje</a>
+      <a href="#funkcije">Funkcije</a>
+      <a href="#cenik">Cenik</a>
+      <a href="#vprasanja">Vprašanja</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="/admin" class="login">Prijava</a>
+      <a href="#kontakt" class="btn btn-dark">Želim predstavitev</a>
+      <button class="menu-btn" id="menuBtn" aria-label="Odpri meni" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#kako">Kako deluje</a>
+    <a href="#funkcije">Funkcije</a>
+    <a href="#cenik">Cenik</a>
+    <a href="#vprasanja">Vprašanja</a>
+    <a href="/admin">Prijava za salone</a>
+    <a href="#kontakt" class="btn btn-dark">Želim predstavitev</a>
+  </div>
+</header>
+
+<main>
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="rv">
+      <span class="eyebrow">Spletno naročanje strank</span>
+      <h1>Termini, ki se <em class="accent">naročijo sami.</em></h1>
+      <p class="lead">Slotbee vašim strankam omogoči, da si termin izberejo kadarkoli, tudi ob 22h, brez klica. Vi dobite urejen koledar po zaposlenih, stranke pa SMS opomnik dan prej.</p>
+      <div class="hero-ctas">
+        <a href="#kontakt" class="btn btn-dark">Želim predstavitev <svg><use href="#i-arrow"/></svg></a>
+        <a href="/studio-velvet" class="btn btn-ghost">Preizkusi kot stranka</a>
+      </div>
+      <div class="hero-note">
+        <span><svg><use href="#i-check"/></svg>Brez aplikacije za stranke</span>
+        <span><svg><use href="#i-check"/></svg>SMS opomniki vključeni</span>
+        <span><svg><use href="#i-check"/></svg>Brez vezave</span>
+      </div>
+    </div>
+
+    <div class="stage rv" aria-hidden="true">
+      <div class="cal">
+        <div class="cal-top">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <b>Četrtek, 19. november</b>
+          <small>12 terminov</small>
+        </div>
+        <div class="cal-body">
+          <div class="cal-head">
+            <div></div>
+            <div><span class="av" style="background:var(--honey-soft)">ŠN</span>Špela</div>
+            <div><span class="av" style="background:var(--sage)">PV</span>Peter</div>
+            <div><span class="av" style="background:var(--sky)">NK</span>Nika</div>
+          </div>
+          <div class="times"><span>8:00</span><span>9:00</span><span>10:00</span><span>11:00</span><span>12:00</span><span>13:00</span><span>14:00</span></div>
+          <div class="col">
+            <div class="ev h" style="top:4px;height:46px"><b>Klasična nega obraza</b><span>Ana K. · 8:00–9:00</span></div>
+            <div class="ev r" style="top:82px;height:62px"><b>Globinsko čiščenje obraza</b><span>Maja P. · 9:30–10:45</span></div>
+            <div class="ev block" style="top:262px;height:46px"><b>Malica</b></div>
+            <div class="ev h" style="top:316px;height:44px"><b>Oblikovanje obrvi</b><span>Nina</span></div>
+          </div>
+          <div class="col">
+            <div class="ev s" style="top:30px;height:44px"><b>Manikura</b><span>Tina · 8:30</span></div>
+            <div class="ev k" style="top:82px;height:44px"><b>Depilacija pazduh</b><span>Eva · 9:30</span></div>
+            <div class="ev s new" style="top:134px;height:70px"><b>Gel lak</b><span>Novo · Lara B.</span></div>
+            <div class="ev s" style="top:238px;height:44px"><b>Manikura</b><span>Sara · 12:30</span></div>
+          </div>
+          <div class="col">
+            <div class="ev k" style="top:4px;height:96px"><b>Pedikura</b><span>Lea · 8:00</span></div>
+            <div class="ev block" style="top:108px;height:104px"><b>Odsoten</b><span>Zdravnik</span></div>
+            <div class="ev h" style="top:264px;height:70px"><b>Depilacija nog</b><span>Mojca · 13:00</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="screen">
+          <div class="notch"></div>
+          <div class="ph-salon"><div class="lg">V</div><div><b>Studio Velvet</b><small>slotbee.si/studio-velvet</small></div></div>
+          <div class="ph-svc"><div><b>Gel lak</b><small>45 min</small></div><em>25 €</em></div>
+          <div class="ph-label">Pri kom?</div>
+          <div class="ph-staff"><span>Kdorkoli</span><span class="on">Peter</span><span>Nika</span></div>
+          <div class="ph-label">Kdaj?</div>
+          <div class="ph-days"><span>sre<b>18</b></span><span class="on">čet<b>19</b></span><span>pet<b>20</b></span><span>sob<b>21</b></span><span>pon<b>23</b></span></div>
+          <div class="ph-slots" style="margin-top:8px"><span class="off">9:30</span><span class="on">10:30</span><span>11:15</span><span>12:00</span><span class="off">12:30</span><span>14:15</span></div>
+          <div class="ph-btn">Potrdi termin</div>
+        </div>
+      </div>
+
+      <div class="sms">
+        <div class="sms-top"><span class="ic"><svg><use href="#i-msg"/></svg></span><b>SLOTBEE</b><small>sreda, 18:00</small></div>
+        <p>Pozdravljeni! Opomnik: jutri ob <b>10:30</b> vas pričakuje Peter v Studiu Velvet. Če ne morete priti, termin odpovejte prek povezave.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INDUSTRIES -->
+<div class="industries">
+  <p>Za vse, ki delajo s termini</p>
+  <div class="marquee">
+    <div class="track" id="track">
+      <span class="chip"><svg><use href="#i-scissors"/></svg>Frizerski saloni</span>
+      <span class="chip"><svg><use href="#i-scissors"/></svg>Brivnice</span>
+      <span class="chip"><svg><use href="#i-spark"/></svg>Kozmetični saloni</span>
+      <span class="chip"><svg><use href="#i-hand"/></svg>Manikura in pedikura</span>
+      <span class="chip"><svg><use href="#i-paw"/></svg>Pasji frizerji</span>
+      <span class="chip"><svg><use href="#i-wheel"/></svg>Vulkanizerji</span>
+      <span class="chip"><svg><use href="#i-wrench"/></svg>Avtomehaniki</span>
+      <span class="chip"><svg><use href="#i-leaf"/></svg>Masaže in wellness</span>
+      <span class="chip"><svg><use href="#i-spark"/></svg>Trepalnice in obrvi</span>
+    </div>
+  </div>
+</div>
+
+<!-- HOW -->
+<section class="sec" id="kako">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Kako deluje</span>
+      <h2>Od klica do klika<br>v enem popoldnevu.</h2>
+      <p class="lead">Ni vam treba ničesar nameščati ali nastavljati sami. Vaš salon postavimo skupaj, vi pa le delite povezavo.</p>
+    </div>
+    <div class="steps">
+      <div class="step rv">
+        <div class="num">01</div>
+        <h3>Uredimo vaš salon</h3>
+        <p>Vpišemo storitve, cene, trajanje, zaposlene in delovni čas. Dodamo vaš logotip in barve.</p>
+      </div>
+      <div class="step rv">
+        <div class="num">02</div>
+        <h3>Delite povezavo</h3>
+        <p>Dobite svoj naslov za naročanje. Dodajte ga na Instagram, Facebook, Google zemljevid ali obstoječo spletno stran.</p>
+        <span class="url">slotbee.si/<b>vas-salon</b></span>
+      </div>
+      <div class="step rv">
+        <div class="num">03</div>
+        <h3>Stranke se naročajo same</h3>
+        <p>Izberejo storitev, osebo in prost termin. Vi prejmete obvestilo, stranka potrditev in opomnik dan prej.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="sec" id="funkcije" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Funkcije</span>
+      <h2>Vse, kar salon potrebuje.<br><em class="accent">Nič odvečnega.</em></h2>
+    </div>
+    <div class="bento">
+      <div class="card c-4 rv">
+        <div class="ico"><svg><use href="#i-cal"/></svg></div>
+        <h3>Koledar po zaposlenih</h3>
+        <p>Vsak zaposleni ima svoj stolpec, svoj urnik in svoje storitve s svojo ceno in trajanjem. Stranka lahko izbere osebo ali »kdorkoli«, Slotbee pa termin dodeli najmanj zasedenemu.</p>
+        <div class="mini-staff" aria-hidden="true">
+          <div><b><span class="av" style="background:var(--honey-soft)">ŠN</span>Špela</b><i style="width:90%;background:var(--honey-soft)"></i><i style="width:60%;background:var(--rose)"></i><i style="width:75%"></i></div>
+          <div><b><span class="av" style="background:var(--sage)">PV</span>Peter</b><i style="width:70%;background:var(--sage)"></i><i style="width:95%;background:var(--sky)"></i><i style="width:40%"></i></div>
+          <div><b><span class="av" style="background:var(--sky)">NK</span>Nika</b><i style="width:50%;background:var(--sky)"></i><i style="width:80%"></i><i style="width:65%;background:var(--honey-soft)"></i></div>
+        </div>
+      </div>
+      <div class="card c-2 dark rv">
+        <div class="ico"><svg><use href="#i-users"/></svg></div>
+        <h3>Vsak vidi, kar mora</h3>
+        <p>Lastnik vidi vse. Recepcija ureja termine, zaposleni pa vidijo svoj urnik.</p>
+        <div class="roles"><span>Lastnik</span><span>Admin</span><span>Recepcija</span><span>Zaposleni</span></div>
+      </div>
+      <div class="card c-2 rv">
+        <div class="ico"><svg><use href="#i-msg"/></svg></div>
+        <h3>SMS in e-pošta</h3>
+        <p>Takojšnja potrditev naročila in opomnik dan pred terminom. Manj pozabljenih terminov.</p>
+      </div>
+      <div class="card c-2 rv">
+        <div class="ico"><svg><use href="#i-clock"/></svg></div>
+        <h3>Odsotnosti in malice</h3>
+        <p>Zaprite uro, dan ali dopust za cel salon ali posameznika. Ti termini se strankam ne prikažejo.</p>
+      </div>
+      <div class="card c-2 rv">
+        <div class="ico"><svg><use href="#i-link"/></svg></div>
+        <h3>Brez aplikacije</h3>
+        <p>Stranke se naročijo v brskalniku, brez prenosa in brez računa. Termin dodajo v svoj koledar z enim klikom.</p>
+      </div>
+      <div class="card c-3 rv">
+        <div class="ico"><svg><use href="#i-users"/></svg></div>
+        <h3>Kartoteka strank</h3>
+        <p>Zgodovina obiskov, opombe in kontakti na enem mestu. Obstoječe stranke lahko uvozimo iz preglednice.</p>
+      </div>
+      <div class="card c-3 rv">
+        <div class="ico"><svg><use href="#i-chart"/></svg></div>
+        <h3>Obračun in promet</h3>
+        <p>Dnevni obračun, prodaja izdelkov ter pregled prometa po mesecih in po zaposlenih.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPOTLIGHT -->
+<section class="sec" style="padding-top:0">
+  <div class="wrap spot">
+    <div class="rv">
+      <span class="eyebrow">Manj izostankov</span>
+      <h2>Stranka ne pozabi.<br>Vi ne izgubite ure.</h2>
+      <p class="lead" style="margin-top:18px">Vsak pozabljen termin je prazna ura v vašem urniku. Slotbee stranko opomni ob pravem času, z vašim imenom in uro termina.</p>
+      <ul class="spot-list">
+        <li><svg><use href="#i-check"/></svg><div><b>Potrditev takoj po naročilu</b><span>po SMS in e-pošti, s povezavo za dodajanje v koledar</span></div></li>
+        <li><svg><use href="#i-check"/></svg><div><b>Opomnik dan pred terminom</b><span>samodejno ob 18:00, brez vašega dela</span></div></li>
+        <li><svg><use href="#i-check"/></svg><div><b>Obvestilo vam in zaposlenemu</b><span>ob vsakem novem naročilu veste, kdo prihaja</span></div></li>
+      </ul>
+    </div>
+    <div class="chat rv" aria-hidden="true">
+      <div class="chat-time">Ponedeljek, 21:47</div>
+      <div class="bubble"><small>SLOTBEE</small>Termin potrjen ✓<br>Studio Velvet, čet 19. 11. ob 10:30 pri Petru. Gel lak, 25 €.</div>
+      <div class="chat-time">Sreda, 18:00</div>
+      <div class="bubble"><small>SLOTBEE</small>Opomnik: jutri ob 10:30 vas pričakuje Peter v Studiu Velvet. Se vidimo!</div>
+      <div class="bubble me"><small>VAŠ TELEFON</small>Novo naročilo: Lara B., čet 10:30, Gel lak (Peter)</div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="sec" style="padding-top:0" id="zaupanje">
+  <div class="wrap">
+    <div class="trust rv">
+      <span class="eyebrow">Zasebnost in zaupanje</span>
+      <h2 style="margin:16px 0 18px;max-width:14em">Vaše stranke so vaše. Pika.</h2>
+      <p class="lead">Podatke vaših strank hranimo varno, v Evropski uniji, in jih ne uporabljamo za nič drugega. Ne prodajamo jih in jih ne delimo z drugimi saloni.</p>
+      <div class="trust-grid">
+        <div><svg><use href="#i-eu"/></svg><b>Podatki v EU</b><span>Strežniki v Frankfurtu, skladno z GDPR.</span></div>
+        <div><svg><use href="#i-lock"/></svg><b>Ločeni saloni</b><span>Vsak salon vidi izključno svoje stranke in termine.</span></div>
+        <div><svg><use href="#i-shield"/></svg><b>Zaščita pred zlorabo</b><span>Omejitve preprečujejo lažna in množična naročila.</span></div>
+        <div><svg><use href="#i-chat"/></svg><b>Podpora v slovenščini</b><span>Pokličete ali pišete osebi, ki Slotbee pozna do zadnjega gumba.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="sec" id="cenik" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head center rv">
+      <span class="eyebrow">Cenik</span>
+      <h2>Jasna cena. Brez provizij.</h2>
+      <p class="lead">Plačujete mesečno naročnino, ne odstotka od termina. Odpoveste lahko kadarkoli.</p>
+      <div class="toggle" role="group" aria-label="Način plačila">
+        <button type="button" class="on" data-bill="m">Mesečno</button>
+        <button type="button" data-bill="y">Letno <span class="save">2 meseca gratis</span></button>
+      </div>
+    </div>
+
+    <div class="founder rv"><span>🐝</span><span><b>Ustanovna ponudba:</b> prvih 20 salonov obdrži začetno ceno, dokler ostane naročenih.</span></div>
+
+    <div class="plans">
+      <div class="plan rv">
+        <h3>Solo</h3>
+        <p class="for">Za samostojne frizerje, kozmetičarke in mojstre.</p>
+        <div class="price"><b data-m="13,90" data-y="11,58">13,90</b><span>€ / mesec</span></div>
+        <div class="billed" data-m="Plačilo mesečno" data-y="139 € letno (10 mesecev)">Plačilo mesečno</div>
+        <ul>
+          <li><svg><use href="#i-check"/></svg>1 koledar (1 zaposleni)</li>
+          <li><svg><use href="#i-check"/></svg>Neomejeno naročil</li>
+          <li><svg><use href="#i-check"/></svg>50 SMS na mesec vključenih</li>
+          <li><svg><use href="#i-check"/></svg>Potrditve in opomniki po SMS in e-pošti</li>
+          <li><svg><use href="#i-check"/></svg>Kartoteka strank</li>
+        </ul>
+        <a href="#kontakt" class="btn btn-ghost" data-plan="Solo">Izberi Solo</a>
+      </div>
+      <div class="plan pop rv">
+        <span class="tag">Najbolj priljubljen</span>
+        <h3>Salon</h3>
+        <p class="for">Za manjše salone z ekipo in recepcijo.</p>
+        <div class="price"><b data-m="26,90" data-y="22,42">26,90</b><span>€ / mesec</span></div>
+        <div class="billed" data-m="Plačilo mesečno" data-y="269 € letno (10 mesecev)">Plačilo mesečno</div>
+        <ul>
+          <li><svg><use href="#i-check"/></svg>2 koledarja (2 zaposlena)</li><li><svg><use href="#i-check"/></svg>Dodatni zaposleni 8,90 € + 75 SMS</li>
+          <li><svg><use href="#i-check"/></svg>150 SMS na mesec vključenih</li>
+          <li><svg><use href="#i-check"/></svg>Vloge: admin, recepcija, zaposleni</li>
+          <li><svg><use href="#i-check"/></svg>Obračun in promet po zaposlenih</li>
+          <li><svg><use href="#i-check"/></svg>Vse iz paketa Solo</li>
+        </ul>
+        <a href="#kontakt" class="btn btn-honey" data-plan="Salon">Izberi Salon</a>
+      </div>
+      <div class="plan rv">
+        <h3>Pro</h3>
+        <p class="for">Za večje ekipe in več delovnih mest.</p>
+        <div class="price"><b data-m="46,90" data-y="39,08">46,90</b><span>€ / mesec</span></div>
+        <div class="billed" data-m="Plačilo mesečno" data-y="469 € letno (10 mesecev)">Plačilo mesečno</div>
+        <ul>
+          <li><svg><use href="#i-check"/></svg>Neomejeno koledarjev in zaposlenih</li>
+          <li><svg><use href="#i-check"/></svg>400 SMS na mesec vključenih</li>
+          <li><svg><use href="#i-check"/></svg>Prednostna podpora</li>
+          <li><svg><use href="#i-check"/></svg>Pomoč pri prenosu strank</li>
+          <li><svg><use href="#i-check"/></svg>Vse iz paketa Salon</li>
+        </ul>
+        <a href="#kontakt" class="btn btn-ghost" data-plan="Pro">Izberi Pro</a>
+      </div>
+    </div>
+    <p class="price-note">Cene so končne. DDV ni obračunan na podlagi 1. odstavka 94. člena ZDDV-1. SMS nad vključeno količino 0,06 €.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="vprasanja" style="padding-top:0">
+  <div class="wrap faq-grid">
+    <div class="rv">
+      <span class="eyebrow">Vprašanja</span>
+      <h2 style="margin-top:16px">Pogosta vprašanja</h2>
+      <p class="lead" style="margin-top:18px">Ne najdete odgovora? Pišite na <a href="mailto:info@slotbee.si" style="color:var(--ink);border-bottom:1px solid var(--honey)">info@slotbee.si</a>.</p>
+    </div>
+    <div class="faq rv">
+      <details open>
+        <summary>Ali potrebujem svojo spletno stran?<i><svg><use href="#i-plus"/></svg></i></summary>
+        <p>Ne. Dobite svoj naslov slotbee.si/vas-salon, ki ga delite povsod. Če spletno stran že imate, nanjo dodate gumb »Naroči se«.</p>
+      </details>
+      <details>
+        <summary>Ali morajo stranke namestiti aplikacijo?<i><svg><use href="#i-plus"/></svg></i></summary>
+        <p>Ne. Naročijo se v brskalniku na telefonu ali računalniku, brez registracije. Vpišejo le ime in telefonsko številko.</p>
+      </details>
+      <details>
+        <summary>Kaj pa stranke, ki še vedno pokličejo?<i><svg><use href="#i-plus"/></svg></i></summary>
+        <p>Termin vpišete v koledar sami, v nekaj sekundah. Tudi te stranke prejmejo potrditev in opomnik, če to želite.</p>
+      </details>
+      <details>
+        <summary>Kako hitro lahko začnem?<i><svg><use href="#i-plus"/></svg></i></summary>
+        <p>Običajno v enem do dveh dneh. Po kratkem pogovoru vaš salon pripravimo mi, vi ga pregledate in delite povezavo.</p>
+      </details>
+      <details>
+        <summary>Kaj, če porabim več SMS?<i><svg><use href="#i-plus"/></svg></i></summary>
+        <p>Nič hudega, opomniki se pošiljajo naprej. SMS nad vključeno količino v paketu obračunamo po 0,06 € na sporočilo, na mesečnem računu.</p>
+      </details>
+      <details>
+        <summary>Ali je vezava? Kaj, če odneham?<i><svg><use href="#i-plus"/></svg></i></summary>
+        <p>Vezave ni. Naročnino lahko odpoveste kadarkoli, svoje podatke o strankah pa izvozite v preglednico.</p>
+      </details>
+      <details>
+        <summary>Ali Slotbee deluje tudi za avtomehanike in vulkanizerje?<i><svg><use href="#i-plus"/></svg></i></summary>
+        <p>Da. Slotbee deluje za vsako dejavnost s termini: storitve, trajanje in »zaposlene« (npr. delovna mesta ali dvigala) nastavite po svoje.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="sec" id="kontakt" style="padding-top:0">
+  <div class="wrap contact">
+    <div class="rv">
+      <span class="eyebrow">Predstavitev</span>
+      <h2 style="margin:16px 0 18px">Pokažemo vam v<br><em class="accent">15 minutah.</em></h2>
+      <p class="lead">Pustite kontakt in oglasimo se v enem delovnem dnevu. Skupaj pogledamo, kako bi Slotbee deloval v vašem salonu, brez obveznosti.</p>
+      <div class="contact-aside">
+        <a href="mailto:info@slotbee.si"><span class="ci"><svg><use href="#i-mail"/></svg></span><span>info@slotbee.si<small>Odgovorimo v enem delovnem dnevu</small></span></a>
+        <a href="tel:+38631217361"><span class="ci"><svg><use href="#i-phone"/></svg></span><span>031 217 361<small>Med tednom med 9. in 17. uro</small></span></a>
+      </div>
+    </div>
+    <form class="box rv" id="leadForm" novalidate>
+      <div class="field"><label for="f-ime">Ime in priimek</label><input id="f-ime" name="ime" autocomplete="name" required></div>
+      <div class="field"><label for="f-salon">Ime salona / podjetja</label><input id="f-salon" name="salon" autocomplete="organization" required></div>
+      <div class="field"><label for="f-dej">Dejavnost</label>
+        <select id="f-dej" name="dejavnost">
+          <option>Frizerski salon</option><option>Brivnica</option><option>Kozmetični salon</option><option>Manikura / pedikura</option><option>Pasji frizer</option><option>Vulkanizer</option><option>Avtomehanik</option><option>Masaže / wellness</option><option>Drugo</option>
+        </select>
+      </div>
+      <div class="field"><label for="f-zap">Število zaposlenih</label>
+        <select id="f-zap" name="zaposleni"><option>1</option><option>2–3</option><option>4–6</option><option>7 ali več</option></select>
+      </div>
+      <div class="field"><label for="f-tel">Telefon</label><input id="f-tel" name="telefon" type="tel" autocomplete="tel" inputmode="tel"></div>
+      <div class="field"><label for="f-mail">E-pošta</label><input id="f-mail" name="email" type="email" autocomplete="email" required></div>
+      <div class="field full"><label for="f-msg">Sporočilo (neobvezno)</label><textarea id="f-msg" name="sporocilo" placeholder="Npr. kako se stranke naročajo zdaj, kaj vas najbolj moti …"></textarea></div>
+      <div class="hp" aria-hidden="true"><label for="f-web">Spletna stran</label><input id="f-web" name="web" tabindex="-1" autocomplete="off"></div>
+      <button type="submit" class="btn btn-dark" id="f-btn">Pošlji povpraševanje <svg><use href="#i-arrow"/></svg></button>
+      <p class="form-err" id="f-err" role="alert" hidden></p>
+      <p class="form-note">Podatke uporabimo samo za odgovor na vaše povpraševanje. <a href="#" data-open="zasebnost">Varstvo podatkov</a></p>
+      <div class="form-ok" id="f-ok" hidden>
+        <div class="ok-ic"><svg><use href="#i-check"/></svg></div>
+        <h3>Hvala, prejeli smo vaše povpraševanje.</h3>
+        <p>Oglasimo se v enem delovnem dnevu, običajno še isti dan. Medtem si lahko ogledate <a href="/studio-velvet">primer salona</a>.</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="band">
+  <div class="wrap">
+    <div class="band-in rv">
+      <h2>Naj se telefon oglaša manj, koledar pa polni sam.</h2>
+      <p>Pridružite se prvim salonom na Slotbee in obdržite ustanovno ceno.</p>
+      <a href="#kontakt" class="btn btn-dark">Želim predstavitev <svg><use href="#i-arrow"/></svg></a>
+    </div>
+  </div>
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="about">
+        <a href="#" class="logo" style="color:var(--ink)"><svg><use href="#i-logo"/></svg>slotbee</a>
+        <p>Spletno naročanje strank za salone in storitvene dejavnosti. Narejeno v Sloveniji.</p>
+      </div>
+      <div>
+        <h4>Slotbee</h4>
+        <ul><li><a href="#kako">Kako deluje</a></li><li><a href="#funkcije">Funkcije</a></li><li><a href="#cenik">Cenik</a></li><li><a href="#vprasanja">Vprašanja</a></li></ul>
+      </div>
+      <div>
+        <h4>Za salone</h4>
+        <ul><li><a href="/admin">Prijava</a></li><li><a href="#kontakt">Predstavitev</a></li><li><a href="/studio-velvet">Primer salona</a></li></ul>
+      </div>
+      <div>
+        <h4>Kontakt</h4>
+        <ul><li><a href="mailto:info@slotbee.si">info@slotbee.si</a></li><li><a href="tel:+38631217361">031 217 361</a></li></ul>
+      </div>
+    </div>
+    <div class="legal">
+      <span>© <span id="yr">2026</span> Slotbee · Nataša Markuta s.p., Forme 37, 4209 Žabnica · Davčna št. 54499453</span>
+      <span><a href="#" data-open="zasebnost">Varstvo podatkov</a></span>
+    </div>
+  </div>
+</footer>
+
+<dialog id="dlg-zasebnost" class="dlg" aria-labelledby="dlg-t">
+  <div class="dlg-in">
+    <h3 id="dlg-t">Varstvo osebnih podatkov</h3>
+    <p><b>Upravljavec:</b> Nataša Markuta s.p., Forme 37, 4209 Žabnica, davčna št. 54499453 (ponudnik storitve Slotbee). Kontakt: info@slotbee.si.</p>
+    <p><b>Obrazec za predstavitev:</b> ime, ime salona, dejavnost, število zaposlenih, telefon, e-pošto in sporočilo uporabimo izključno za odgovor na vaše povpraševanje in dogovor o predstavitvi (pravna podlaga: ukrepi pred sklenitvijo pogodbe, čl. 6(1)(b) GDPR). Podatke hranimo največ 12 mesecev, razen če postanete naročnik.</p>
+    <p><b>Kje so podatki:</b> v podatkovni bazi Supabase v Frankfurtu (EU). Obvestilo o novem povpraševanju prejme samo skrbnik platforme. Podatkov ne prodajamo in ne delimo za oglaševanje.</p>
+    <p><b>Vaše pravice:</b> dostop, popravek, izbris, omejitev obdelave in ugovor – pišite na info@slotbee.si. Pritožbo lahko vložite pri Informacijskem pooblaščencu (ip-rs.si).</p>
+    <p><b>Stranke salonov:</b> pravilnik o zasebnosti za naročanje na termin je objavljen na strani vsakega salona.</p>
+    <p><b>Piškotki:</b> ta stran ne uporablja piškotkov za sledenje ali oglaševanje.</p>
+    <button type="button" class="btn btn-dark">Zapri</button>
+  </div>
+</dialog>
+
+<script>
+(function(){
+  // Nav senca ob pomikanju
+  var nav=document.getElementById('nav');
+  function onScroll(){nav.classList.toggle('scrolled',window.scrollY>8)}
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+  // Mobilni meni
+  var btn=document.getElementById('menuBtn'),menu=document.getElementById('mobileMenu');
+  btn.addEventListener('click',function(){var o=menu.classList.toggle('open');btn.setAttribute('aria-expanded',o)});
+  menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('open');btn.setAttribute('aria-expanded',false)})});
+
+  // Podvojen trak panog za neskončno drsenje
+  var t=document.getElementById('track');t.innerHTML+=t.innerHTML;
+
+  // Prikaz ob pomikanju
+  var els=document.querySelectorAll('.rv');
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+    els.forEach(function(el){io.observe(el)});
+  } else els.forEach(function(el){el.classList.add('in')});
+
+  // Mesečno / letno
+  document.querySelectorAll('[data-bill]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var k=b.dataset.bill;
+      document.querySelectorAll('[data-bill]').forEach(function(x){x.classList.toggle('on',x===b)});
+      document.querySelectorAll('.price b,.billed').forEach(function(el){el.textContent=el.dataset[k]});
+    });
+  });
+
+  // Izbira paketa vpiše v sporočilo
+  document.querySelectorAll('[data-plan]').forEach(function(a){
+    a.addEventListener('click',function(){var m=document.getElementById('f-msg');if(!m.value)m.value='Zanima me paket '+a.dataset.plan+'.'});
+  });
+
+  // Obrazec → Supabase (app_oddaj_povprasevanje) → Telegram skrbniku
+  var SB_URL='https://lzbmdmdtycgimqirzknu.supabase.co', SB_KEY='sb_publishable_Rnf1nx52p7m0Iis_lvRSDA_8GYvbwet';
+  var form=document.getElementById('leadForm'), fBtn=document.getElementById('f-btn'), fErr=document.getElementById('f-err');
+  function napaka(t){fErr.textContent=t;fErr.hidden=!t}
+  function uspeh(){form.classList.add('sent');document.getElementById('f-ok').hidden=false}
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var f=form; napaka('');
+    if(!f.ime.value.trim()||!f.salon.value.trim()||!f.email.value.trim()){
+      [f.ime,f.salon,f.email].some(function(x){if(!x.value.trim()){x.focus();return true}});
+      napaka('Prosimo, izpolnite ime, ime salona in e-pošto.');return;
+    }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email.value.trim())){f.email.focus();napaka('E-poštni naslov ni pravilen.');return}
+    if(f.web.value){uspeh();return}   // past za robote
+    fBtn.disabled=true; var t=fBtn.innerHTML; fBtn.textContent='Pošiljam …';
+    fetch(SB_URL+'/rest/v1/rpc/app_oddaj_povprasevanje',{method:'POST',
+      headers:{apikey:SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({p_ime:f.ime.value.trim(),p_salon:f.salon.value.trim(),p_dejavnost:f.dejavnost.value,
+        p_zaposleni:f.zaposleni.value,p_telefon:f.telefon.value.trim(),p_email:f.email.value.trim(),p_sporocilo:f.sporocilo.value.trim()})})
+    .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})})
+    .then(function(x){
+      if(x.ok && x.j && x.j.ok){uspeh();return}
+      var k=x.j&&x.j.napaka;
+      napaka(k==='prevec'?'Povpraševanje ste že poslali. Oglasimo se kmalu.':k==='email'?'E-poštni naslov ni pravilen.':'Pošiljanje ni uspelo. Pišite nam na info@slotbee.si ali pokličite 031 217 361.');
+    })
+    .catch(function(){napaka('Pošiljanje ni uspelo. Pišite nam na info@slotbee.si ali pokličite 031 217 361.')})
+    .then(function(){fBtn.disabled=false;fBtn.innerHTML=t});
+  });
+
+  // Varstvo podatkov (okno)
+  var dlg=document.getElementById('dlg-zasebnost');
+  document.querySelectorAll('[data-open="zasebnost"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','')})});
+  dlg.querySelector('button').addEventListener('click',function(){dlg.close?dlg.close():dlg.removeAttribute('open')});
+  dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+
+  document.getElementById('yr').textContent=new Date().getFullYear();
+})();
+</script>
+</body>
+</html>

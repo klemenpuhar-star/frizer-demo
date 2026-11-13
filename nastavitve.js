@@ -23,7 +23,7 @@ window.APP = {
 (function (A) {
   var skript = document.currentScript;
   var STRAN = (skript && skript.getAttribute('data-stran')) || 'narocanje';   // narocanje | narocilo | admin | zasebnost
-  var REZERVIRANO = ['index', 'index.html', 'admin', 'admin.html', 'narocilo', 'narocilo.html', 'zasebnost',
+  var REZERVIRANO = ['index', 'index.html', 'domov', 'domov.html', 'admin', 'admin.html', 'narocilo', 'narocilo.html', 'zasebnost',
                      'zasebnost.html', 'n', 'nastavitve.js', 'robots.txt', 'favicon.ico', 'superadmin', 'superadmin.html'];
 
   function slugIzNaslova() {
