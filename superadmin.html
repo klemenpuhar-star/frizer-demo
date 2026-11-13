@@ -71,7 +71,13 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
 .k-polje{display:grid;grid-template-columns:1fr 90px;gap:8px;align-items:center;margin-bottom:7px;font-size:.86rem}
 .k-polje input,.k-polje select{padding:.35rem .5rem;font-size:.88rem;text-align:right}
 .k-polje select{text-align:left}
-.k-paket{display:grid;grid-template-columns:1fr 62px 56px 50px;gap:6px;margin-bottom:6px}
+.k-paket{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-bottom:10px}
+.k-paket input:first-child{grid-column:1/-1;font-weight:600}
+.k-paket-glava{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;font-size:.68rem;color:var(--siva);text-align:right;margin-bottom:3px}
+.k-paket input[type=number]{padding:.32rem .25rem;font-size:.82rem;-moz-appearance:textfield;appearance:textfield}
+.k-paket input[type=number]::-webkit-inner-spin-button,.k-paket input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.obr-mesec{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.obr-mesec input{padding:.35rem .5rem;font-size:.88rem}
 .opoz-paket{color:#b23b3b;font-weight:600}
 .dogodek{display:flex;gap:10px;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid rgba(0,0,0,.07);font-size:.88rem}
 .dogodek small{color:var(--siva);white-space:nowrap}
@@ -148,10 +154,12 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
       <div class="k-mreza">
         <div class="karta" id="kNast">
           <h2>Predpostavke</h2>
-          <div class="k-leg">Paketi (ime · €/mes · SMS · do zaposlenih, 0 = brez omejitve)</div>
-          <div class="k-paket"><input id="p_solo_ime" aria-label="Ime paketa 1"><input id="p_solo_cena" type="number" step="0.5" aria-label="Cena paketa 1"><input id="p_solo_sms" type="number" step="10" aria-label="SMS paketa 1"><input id="p_solo_zap" type="number" step="1" min="0" aria-label="Največ zaposlenih v paketu 1"></div>
-          <div class="k-paket"><input id="p_salon_ime" aria-label="Ime paketa 2"><input id="p_salon_cena" type="number" step="0.5" aria-label="Cena paketa 2"><input id="p_salon_sms" type="number" step="10" aria-label="SMS paketa 2"><input id="p_salon_zap" type="number" step="1" min="0" aria-label="Največ zaposlenih v paketu 2"></div>
-          <div class="k-paket"><input id="p_pro_ime" aria-label="Ime paketa 3"><input id="p_pro_cena" type="number" step="0.5" aria-label="Cena paketa 3"><input id="p_pro_sms" type="number" step="10" aria-label="SMS paketa 3"><input id="p_pro_zap" type="number" step="1" min="0" aria-label="Največ zaposlenih v paketu 3"></div>
+          <div class="k-leg">Paketi</div>
+          <div class="k-paket-glava"><span>€/mes</span><span>SMS</span><span>koledarji</span><span>+kol. €</span><span>+SMS</span></div>
+          <div class="k-paket"><input id="p_solo_ime" aria-label="Ime paketa 1"><input id="p_solo_cena" type="number" step="0.5" aria-label="Cena paketa 1"><input id="p_solo_sms" type="number" step="10" aria-label="SMS paketa 1"><input id="p_solo_zap" type="number" step="1" min="0" aria-label="Vključeni koledarji v paketu 1 (0 = brez omejitve)"><input id="p_solo_dod" type="number" step="0.5" min="0" aria-label="Cena dodatnega koledarja v paketu 1 (0 = ni mogoče)"><input id="p_solo_dodSms" type="number" step="5" min="0" aria-label="Dodatni SMS na dodatni koledar v paketu 1"></div>
+          <div class="k-paket"><input id="p_salon_ime" aria-label="Ime paketa 2"><input id="p_salon_cena" type="number" step="0.5" aria-label="Cena paketa 2"><input id="p_salon_sms" type="number" step="10" aria-label="SMS paketa 2"><input id="p_salon_zap" type="number" step="1" min="0" aria-label="Vključeni koledarji v paketu 2 (0 = brez omejitve)"><input id="p_salon_dod" type="number" step="0.5" min="0" aria-label="Cena dodatnega koledarja v paketu 2 (0 = ni mogoče)"><input id="p_salon_dodSms" type="number" step="5" min="0" aria-label="Dodatni SMS na dodatni koledar v paketu 2"></div>
+          <div class="k-paket"><input id="p_pro_ime" aria-label="Ime paketa 3"><input id="p_pro_cena" type="number" step="0.5" aria-label="Cena paketa 3"><input id="p_pro_sms" type="number" step="10" aria-label="SMS paketa 3"><input id="p_pro_zap" type="number" step="1" min="0" aria-label="Vključeni koledarji v paketu 3 (0 = brez omejitve)"><input id="p_pro_dod" type="number" step="0.5" min="0" aria-label="Cena dodatnega koledarja v paketu 3 (0 = ni mogoče)"><input id="p_pro_dodSms" type="number" step="5" min="0" aria-label="Dodatni SMS na dodatni koledar v paketu 3"></div>
+          <p class="namig" style="margin-top:-4px">Koledar = aktiven zaposleni (salon brez zaposlenih = 1). Koledarji 0 = brez omejitve. +koledar 0 = dodatni koledar ni mogoč (presega paket).</p>
           <div class="k-leg">SMS in plačila</div>
           <div class="k-polje"><span>Tvoj strošek SMS (€)</span><input id="k_smsCena" type="number" step="0.01"></div>
           <div class="k-polje"><span>Doplačilo nad paketom (€/SMS)</span><input id="k_smsDoplacilo" type="number" step="0.01"></div>
@@ -204,6 +212,19 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
             </div>
             <p class="namig" style="margin-top:8px">Saloni, ustvarjeni zgoraj pod »Nov salon«, se v tabelo dodajo sami s statusom »Poskus«. Ročno dodaj salone, ki jih še nimaš v sistemu.</p>
             <div class="sporocilo" id="spNar"></div>
+          </div>
+          <div class="karta" id="kartaObracun">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+              <h2 style="margin:0">Mesečni obračun</h2>
+              <div class="obr-mesec"><input type="month" id="obrMesec" aria-label="Mesec obračuna"><button class="gumb svetel mali" type="button" id="gObrCsv">Izvozi CSV</button></div>
+            </div>
+            <div class="tabela"><table>
+              <thead><tr><th>Salon</th><th>Paket</th><th class="d">Naročnina</th><th class="d">Koledarji</th><th class="d">Dodatni koledarji</th><th class="d">SMS / kvota</th><th class="d">Presežek SMS</th><th class="d">Za račun</th></tr></thead>
+              <tbody id="obrVrstice"><tr><td colspan="8" class="namig">Izberi mesec.</td></tr></tbody>
+              <tfoot><tr><td colspan="7">Skupaj za račune</td><td class="d num" id="obrSkupaj"></td></tr></tfoot>
+            </table></div>
+            <p class="namig" style="margin-top:8px">Šteti so uspešno poslani SMS v koledarskem mesecu. Koledarji = trenutno aktivni zaposleni. Saloni na poskusu in neaktivni se ne zaračunajo. Posebna cena nadomesti ceno paketa.</p>
+            <div class="sporocilo" id="spObr"></div>
           </div>
         </div>
       </div>
@@ -490,13 +511,22 @@ var EUR0 = new Intl.NumberFormat('sl-SI',{style:'currency',currency:'EUR',maximu
 var STATUSI = {poskus:'Poskus (brezplačno)', ustanovna:'Ustanovna cena', placuje:'Plačuje', neaktiven:'Neaktiven'};
 var PAKETI = ['solo','salon','pro'];
 var K_PRIVZETO = {
-  paketi:{solo:{ime:'Solo',cena:15,sms:0,zap:1}, salon:{ime:'Salon',cena:25,sms:150,zap:3}, pro:{ime:'Pro',cena:39,sms:400,zap:0}}, tgChat:'',
-  smsCena:0.06, smsDoplacilo:0.10, provizija:0.5, davek:4,
+  paketi:{solo:{ime:'Solo',cena:13.9,sms:50,zap:1,dod:0,dodSms:0}, salon:{ime:'Salon',cena:26.9,sms:150,zap:2,dod:8.9,dodSms:75}, pro:{ime:'Pro',cena:46.9,sms:400,zap:0,dod:0,dodSms:0}}, tgChat:'',
+  smsCena:0.0363, smsDoplacilo:0.06, provizija:0.5, davek:4,
   prispevkiTip:'93', prispevki:93, tech:45, racunovodstvo:60, banka:10,
   cilj:1000, ddvPrag:60000, useLive:false
 };
 var K_POLJA = ['smsCena','smsDoplacilo','provizija','davek','prispevki','tech','racunovodstvo','banka','cilj','ddvPrag'];
 var KS = JSON.parse(JSON.stringify(K_PRIVZETO)), kNar = [], kPoraba = {}, kSaloni = {}, kZap = {}, kNalozeno = false;
+function kKoledarji(salonId){ var z = salonId ? kZap[salonId] : null; return Math.max(1, z ? z.aktivni : 0); }
+/* paket + dodatni koledarji: {p, meja, dodatni, presega, kvota, osnova} */
+function kPaketObseg(n, koledarji){
+  var p = KS.paketi[n.paket] || KS.paketi.salon, meja = kMejaZap(n.paket), dod = +p.dod || 0;
+  var cez = (meja > 0 && koledarji > meja) ? koledarji - meja : 0;
+  var dodatni = dod > 0 ? cez : 0;
+  var osnova = (n.posebna_cena === null || n.posebna_cena === undefined || n.posebna_cena === '') ? p.cena : kst(n.posebna_cena, p.cena);
+  return {p:p, meja:meja, dodatni:dodatni, presega: dod > 0 ? 0 : cez, kvota: (+p.sms||0) + dodatni*(+p.dodSms||0), osnova:osnova, dodZnesek: dodatni*dod};
+}
 function kMejaZap(paket){ var p = KS.paketi[paket] || KS.paketi.salon; var m = p.zap; if(m === undefined || m === null || m === '') m = (K_PRIVZETO.paketi[paket]||{}).zap; return +m || 0; }
 
 function kst(v, d){ var x = parseFloat(String(v).replace(',','.')); return isFinite(x) ? x : d; }
@@ -510,7 +540,7 @@ function kPaketiOpc(){ var o={}; PAKETI.forEach(function(k){ o[k]=KS.paketi[k].i
 function kVObrazec(){
   PAKETI.forEach(function(k){
     $('p_'+k+'_ime').value = KS.paketi[k].ime; $('p_'+k+'_cena').value = KS.paketi[k].cena; $('p_'+k+'_sms').value = KS.paketi[k].sms;
-    $('p_'+k+'_zap').value = kMejaZap(k);
+    $('p_'+k+'_zap').value = kMejaZap(k); $('p_'+k+'_dod').value = +KS.paketi[k].dod || 0; $('p_'+k+'_dodSms').value = +KS.paketi[k].dodSms || 0;
   });
   K_POLJA.forEach(function(f){ $('k_'+f).value = KS[f]; });
   $('k_tgChat').value = KS.tgChat || '';
@@ -522,6 +552,7 @@ function kIzObrazca(){
     KS.paketi[k].ime = $('p_'+k+'_ime').value || KS.paketi[k].ime;
     KS.paketi[k].cena = kst($('p_'+k+'_cena').value, 0); KS.paketi[k].sms = kst($('p_'+k+'_sms').value, 0);
     KS.paketi[k].zap = Math.max(0, Math.round(kst($('p_'+k+'_zap').value, 0)));
+    KS.paketi[k].dod = Math.max(0, kst($('p_'+k+'_dod').value, 0)); KS.paketi[k].dodSms = Math.max(0, Math.round(kst($('p_'+k+'_dodSms').value, 0)));
   });
   K_POLJA.forEach(function(f){ KS[f] = kst($('k_'+f).value, 0); });
   KS.tgChat = $('k_tgChat').value.trim();
@@ -568,6 +599,7 @@ function kNalozi(){
     kZap = {}; (r[4].data || []).forEach(function(z){ kZap[z.salon_id] = z; });
     kNalozeno = true;
     kVObrazec(); kIzris();
+    if(!$('obrMesec').value){ $('obrMesec').value = obrPrejsnjiMesec(); obrNalozi(); }
   });
 }
 
@@ -578,8 +610,8 @@ function kIzracun(n){
   if(n.status === 'neaktiven') return {sms:0, pri:0, str:0, ost:0, placljiv:false, por:por};
   var pri = 0;
   if(n.status === 'placuje' || n.status === 'ustanovna'){
-    var cena = (n.posebna_cena === null || n.posebna_cena === undefined || n.posebna_cena === '') ? p.cena : kst(n.posebna_cena, p.cena);
-    pri = cena + Math.max(0, sms - p.sms) * KS.smsDoplacilo;
+    var o = kPaketObseg(n, n.salon_id ? kKoledarji(n.salon_id) : 1);
+    pri = o.osnova + o.dodZnesek + Math.max(0, sms - o.kvota) * KS.smsDoplacilo;
   }
   var str = sms*KS.smsCena + (pri > 0 ? KS.provizija : 0) + pri*KS.davek/100;
   return {sms:sms, pri:pri, str:str, ost:pri-str, placljiv:pri>0, por:por};
@@ -607,7 +639,7 @@ function kIzris(){
 
   var avg = plac ? ostPlac / plac : 0, vir = 'povprečje plačljivih salonov';
   if(avg <= 0){
-    var p = KS.paketi.salon, s = 120, pr = p.cena + Math.max(0, s - p.sms)*KS.smsDoplacilo;
+    var p = KS.paketi.salon, s = 120, pr = p.cena + Math.max(0, s - (+p.sms||0))*KS.smsDoplacilo;
     avg = pr - (s*KS.smsCena + KS.provizija + pr*KS.davek/100); vir = 'paket ' + p.ime + ', 120 SMS';
   }
   $('nMarza').textContent = EUR.format(avg); $('nMarza').title = vir;
@@ -617,6 +649,7 @@ function kIzris(){
   var leto = pri*12, pct = KS.ddvPrag > 0 ? Math.min(100, leto/KS.ddvPrag*100) : 0;
   $('ddvTxt').textContent = EUR0.format(leto) + ' / ' + EUR0.format(KS.ddvPrag);
   $('ddvTrak').style.width = pct.toFixed(1) + '%'; $('ddvTrak').className = pct >= 80 ? 'opoz' : '';
+  clearTimeout(obrTimer); if($('obrMesec').value) obrTimer = setTimeout(obrNalozi, 800);
 }
 
 function kVrstica(n, c){
@@ -630,11 +663,17 @@ function kVrstica(n, c){
   var zz = n.salon_id ? kZap[n.salon_id] : null, nz = zz ? zz.aktivni : 0;
   if(n.salon_id) deli.push(nz + (nz === 1 ? ' zaposleni' : (nz === 2 ? ' zaposlena' : (nz === 3 || nz === 4 ? ' zaposleni' : ' zaposlenih'))));
   sm.textContent = deli.join(' · '); td.appendChild(sm);
-  var meja = kMejaZap(n.paket);
-  if(n.salon_id && meja > 0 && nz > meja){
-    var op = document.createElement('small'); op.className = 'opoz-paket';
-    op.textContent = '⚠ presega paket ' + (KS.paketi[n.paket]||KS.paketi.salon).ime + ' (do ' + meja + ' zaposlenih)';
-    td.appendChild(op);
+  if(n.salon_id){
+    var ob = kPaketObseg(n, kKoledarji(n.salon_id));
+    if(ob.presega){
+      var op = document.createElement('small'); op.className = 'opoz-paket';
+      op.textContent = '⚠ presega paket ' + ob.p.ime + ' (vključeni koledarji: ' + ob.meja + ') – predlagaj višji paket';
+      td.appendChild(op);
+    } else if(ob.dodatni){
+      var od = document.createElement('small');
+      od.textContent = 'dodatni koledarji: ' + ob.dodatni + ' × ' + EUR.format(+ob.p.dod) + ' (+' + ob.dodatni*(+ob.p.dodSms||0) + ' SMS)';
+      td.appendChild(od);
+    }
   }
   tr.appendChild(td);
 
@@ -673,6 +712,54 @@ function kVrstica(n, c){
   tr.appendChild(td);
   return tr;
 }
+
+/* ---- mesečni obračun ---- */
+var obrPodatki = [], obrTimer = null;
+function obrPrejsnjiMesec(){ var d = new Date(); d.setDate(1); d.setMonth(d.getMonth()-1); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+function obrNalozi(){
+  var m = $('obrMesec').value; if(!m) return;
+  $('obrVrstice').innerHTML = '<tr><td colspan="8" class="namig">Nalagam …</td></tr>';
+  sb.rpc('app_superadmin_obracun', {p_mesec: m + '-01'}).then(function(r){
+    if(r.error){ $('obrVrstice').innerHTML = '<tr><td colspan="8" class="sporocilo err">Napaka: ' + esc(r.error.message) + '</td></tr>'; return; }
+    var por = {}; (r.data || []).forEach(function(x){ por[x.salon_id] = x; });
+    var tb = $('obrVrstice'), skupaj = 0; tb.innerHTML = ''; obrPodatki = [];
+    kNar.filter(function(n){ return n.salon_id; }).forEach(function(n){
+      var x = por[n.salon_id] || {sms:0, sms_neuspesni:0, termini:0, koledarji:1};
+      var s = kSaloni[n.salon_id] || {}, ob = kPaketObseg(n, x.koledarji);
+      var placljiv = n.status === 'placuje' || n.status === 'ustanovna';
+      var cez = Math.max(0, x.sms - ob.kvota), smsZn = cez * KS.smsDoplacilo;
+      var znesek = placljiv ? ob.osnova + ob.dodZnesek + smsZn : 0;
+      skupaj += znesek;
+      obrPodatki.push({salon: s.ime || n.ime, slug: s.slug || '', status: STATUSI[n.status] || n.status, paket: ob.p.ime,
+        narocnina: placljiv ? ob.osnova : 0, koledarji: x.koledarji, dodatni: ob.dodatni, dodZnesek: placljiv ? ob.dodZnesek : 0,
+        sms: x.sms, kvota: ob.kvota, presezek: cez, smsZnesek: placljiv ? smsZn : 0, skupaj: znesek});
+      var tr = document.createElement('tr');
+      var celice = [
+        '<b>' + esc(s.ime || n.ime) + '</b><small>' + esc(STATUSI[n.status] || n.status) + ' · ' + x.termini + ' terminov' + (x.sms_neuspesni ? ' · ' + x.sms_neuspesni + ' neuspešnih SMS' : '') + (ob.presega ? '</small><small class="opoz-paket">⚠ presega paket' : '') + '</small>',
+        esc(ob.p.ime),
+        '<span class="num">' + (placljiv ? EUR.format(ob.osnova) : '–') + '</span>',
+        '<span class="num">' + x.koledarji + (ob.meja > 0 ? ' / ' + ob.meja : '') + '</span>',
+        '<span class="num">' + (ob.dodatni ? ob.dodatni + ' × ' + EUR.format(+ob.p.dod) : '–') + '</span>',
+        '<span class="num">' + x.sms + ' / ' + ob.kvota + '</span>',
+        '<span class="num">' + (cez ? cez + ' × ' + EUR.format(KS.smsDoplacilo) + ' = ' + EUR.format(smsZn) : '–') + '</span>',
+        '<b class="num">' + (placljiv ? EUR.format(znesek) : 'ni računa') + '</b>'];
+      celice.forEach(function(h, i){ var td = document.createElement('td'); if(i > 1) td.className = 'd'; td.innerHTML = h; tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+    if(!obrPodatki.length) tb.innerHTML = '<tr><td colspan="8" class="namig">Ni salonov.</td></tr>';
+    $('obrSkupaj').textContent = EUR.format(skupaj);
+  });
+}
+$('obrMesec').addEventListener('change', obrNalozi);
+$('gObrCsv').addEventListener('click', function(){
+  if(!obrPodatki.length){ sporoci('spObr', 'Ni podatkov za izvoz.', false); return; }
+  var st = function(v){ return typeof v === 'number' ? String(Math.round(v*100)/100).replace('.', ',') : '"' + String(v).replace(/"/g,'""') + '"'; };
+  var glava = ['Salon','Pot','Status','Paket','Naročnina €','Koledarji','Dodatni koledarji','Dodatni koledarji €','SMS poslani','SMS kvota','SMS presežek','SMS presežek €','Skupaj €'];
+  var vr = obrPodatki.map(function(o){ return [o.salon,o.slug,o.status,o.paket,o.narocnina,o.koledarji,o.dodatni,o.dodZnesek,o.sms,o.kvota,o.presezek,o.smsZnesek,o.skupaj].map(st).join(';'); });
+  var blob = new Blob(['﻿' + glava.map(st).join(';') + '\n' + vr.join('\n')], {type:'text/csv;charset=utf-8'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'obracun-' + $('obrMesec').value + '.csv';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+});
 
 function kPopravi(n, pod){
   pod.updated_at = new Date().toISOString();
