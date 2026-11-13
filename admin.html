@@ -7,7 +7,7 @@
 <title>{KRATKO} · Admin</title>
 <script src="/nastavitve.js" data-stran="admin"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <!-- preverjanje telefonskih stevilk: Googlova knjiznica (za tuje stevilke) s CDN + lastna koda vgrajena tukaj,
      da ne potrebujemo posebne datoteke. Ce se knjiznica ne nalozi, slovenske stevilke se vedno preverjamo. -->
@@ -655,13 +655,82 @@ header .brand .brand-tag[style]{ opacity:.55 !important }   /* oznaka razlicice 
   #detail .pop .x, .pop .x{ min-width:40px; min-height:40px }
   .pop .x::after{ content:''; position:absolute; inset:-4px }
 }
+
+/* ══ SLOTBEE TEMA (usklajeno s slotbee.si) ══════════════════════════ */
+:root{ --coral-txt:var(--sb-honey-deep,#A8720A); --coral-gumb:var(--sb-ink,#16181D); }
+body{ background:var(--sb-bg); font-family:var(--sb-sans); color:var(--sb-ink); }
+/* prijava */
+.login-wrap{ background:radial-gradient(1200px 500px at 50% -10%, var(--sb-honey-soft), transparent 60%), var(--sb-bg); flex-direction:column; gap:22px; }
+.login-card{ border:1px solid var(--sb-line); border-radius:24px; box-shadow:var(--sb-shadow-lg); padding:38px 30px 30px; }
+.login-sb{ display:flex; justify-content:center; margin-bottom:22px; }
+.login-card .login-pecat{ display:flex; justify-content:center; margin:2px 0 14px; }
+.login-card .login-logo:not([style*="display: none"]) + .login-pecat{ display:none; }
+.login-card [data-app="ime"]{ font-family:var(--sb-serif)!important; font-weight:500; letter-spacing:-.02em; font-size:1.6rem!important; }
+.login-card .sub{ font-weight:600; letter-spacing:.12em; font-size:.72rem; color:var(--sb-honey-deep); }
+.field label{ opacity:1; color:var(--sb-muted); font-weight:600; letter-spacing:.08em; font-size:.68rem; }
+.field input{ border:1px solid var(--sb-line); border-radius:12px; background:#fff; }
+.field input:focus{ border-color:var(--sb-ink); box-shadow:0 0 0 3px var(--sb-honey-soft); }
+.btn-main{ background:var(--sb-ink); color:#fff; font-weight:600; min-height:50px; font-size:.95rem; box-shadow:0 10px 24px -12px rgba(22,24,29,.6); }
+.btn-main:hover{ background:#000; filter:none; }
+.link-btn{ color:var(--sb-muted); }
+/* glava */
+header{ height:64px; background:rgba(251,248,243,.92); border-bottom:1px solid var(--sb-line); padding:0 20px; gap:12px; }
+header .brand{ gap:12px; min-width:0; }
+header .brand .sb-logo{ flex:none; }
+header .brand .loc{ width:1px; height:24px; background:var(--sb-line); flex:none; }
+header .brand .salon-hd{ display:flex; align-items:center; gap:9px; min-width:0; }
+header .brand .salon-hd .sb-pecat{ --ps:30px; outline-offset:2px; outline-width:1px; }
+header .brand .salon-hd b{ font-family:var(--sb-serif); font-weight:500; font-size:1.05rem; letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+header .brand .logo-img{ height:30px; }
+header .brand .logo-img:not([style*="display: none"]) + .salon-hd .sb-pecat{ display:none; }
+header .brand .brand-tag{ font-size:.66rem; opacity:.5; }
+header .who .who-naziv{ font-family:var(--sb-sans); }
+@media(max-width:700px){ header{ padding:0 12px; } header .brand{ flex:none; } header .brand .sb-logo span, header .brand .salon-hd, header .brand .logo-img, header .brand .brand-tag, header .brand .loc{ display:none!important; } header .right{ gap:.5rem; min-width:0; } }
+.btn-ghost, .act, .zap-filter{ border:1px solid var(--sb-line); background:#fff; font-weight:500; }
+.btn-ghost:hover, .act:hover, .nav-btn:hover{ border-color:var(--sb-ink); color:var(--sb-ink); }
+.nav-btn{ border:1px solid var(--sb-line); }
+.act.save{ background:var(--sb-ink); border-color:var(--sb-ink); color:#fff; }
+/* orodna vrstica */
+.toolbar{ padding:1.1rem 1.5rem .5rem; }
+.range{ font-family:var(--sb-serif); font-weight:500; letter-spacing:-.02em; font-size:1.4rem; }
+.seg{ border:1px solid var(--sb-line); background:#fff; padding:3px; gap:2px; }
+.seg button{ border-radius:999px; font-weight:500; color:var(--sb-ink-2); }
+.seg button:hover{ background:var(--sb-bg-2); }
+.seg button.active{ background:var(--sb-ink); color:#fff; }
+/* kartice, koledar */
+.card, .mini-cal, .cal, .cust, .bl-glavni, .bl-mesec, .obr-box, .obr-form, .ui-card, .block-form, .stranke .search{ border-color:var(--sb-line); }
+.mini-day.sel{ background:var(--sb-ink); }
+.mini-day.today{ color:var(--sb-honey-deep); }
+.dayhead .dnum{ font-family:var(--sb-serif); font-weight:500; }
+.mcell{ border-color:var(--sb-line-2); border-radius:12px; }
+.mcell:hover{ border-color:var(--sb-ink); }
+.mcell.today{ border-color:var(--sb-honey); box-shadow:0 0 0 2px var(--sb-honey-soft); }
+.mcell .mcount{ background:var(--sb-honey); color:var(--sb-ink); }
+.ev{ background:var(--sb-honey-soft); border-left-color:var(--sb-honey); border-radius:8px; }
+.pop{ border-radius:22px; box-shadow:var(--sb-shadow-lg); }
+.overlay{ background:rgba(22,24,29,.45); }
+.pop .d-head-ime, .nb-title, .cust-head .cust-name{ font-family:var(--sb-serif); font-weight:500; letter-spacing:-.01em; }
+.pop-wide input, .pop .d-edit-row input, .obr-row input, .obr-row select, .obr-op input, .block-form input, .stranke .search{ border-radius:10px; }
+.pop-wide input:focus, .stranke .search:focus{ border-color:var(--sb-ink); box-shadow:0 0 0 3px var(--sb-honey-soft); }
+.obr-nacin button.on{ background:var(--sb-ink); color:#fff; }
+.bl-kpi b, .obr-total b, .obr-big b{ font-family:var(--sb-serif); font-weight:500; }
+.tip{ border-color:var(--sb-line); border-radius:14px; }
+.crta-zdaj{ background:var(--sb-honey-deep); }
+.bl-add, .uvoz-potrdi, .kos-pv.on{ background:var(--sb-honey); color:var(--sb-ink); font-weight:600; border-color:var(--sb-honey); }
+.bl-add:hover, .uvoz-potrdi:hover{ background:#F0B53A; }
+.obr-open{ background:var(--sb-ink)!important; color:#fff!important; font-weight:600; }
+.uvoz-btn:hover, .obr-copy:hover{ background:var(--sb-honey-soft); }
+.mcell .mcount{ font-weight:600; }
+.vir-trak i{ background:var(--sb-honey); }
 </style>
+<link rel="stylesheet" href="/slotbee.css">
 </head>
 <body>
 
 <div class="login-wrap" id="loginView">
   <div class="login-card">
-    <img data-app="logo" alt="" class="login-logo" onerror="this.style.display='none'" /><div data-app="ime" style="font-family:var(--serif);font-size:1.45rem;text-align:center;margin:0 0 .6rem"></div>
+    <div class="login-sb"><span class="sb-logo" data-app="slotbee"></span></div>
+    <img data-app="logo" alt="" class="login-logo" onerror="this.style.display='none'" /><div class="login-pecat" data-app="pecat"></div><div data-app="ime" style="font-family:var(--serif);font-size:1.45rem;text-align:center;margin:0 0 .6rem"></div>
     <p class="sub">Administracija</p>
     <div class="field"><label>E-pošta</label><input type="email" id="email" autocomplete="username" placeholder="vasa@posta.si" /></div>
     <div class="field"><label>Geslo</label><input type="password" id="password" autocomplete="current-password" placeholder="********" /></div>
@@ -673,7 +742,7 @@ header .brand .brand-tag[style]{ opacity:.55 !important }   /* oznaka razlicice 
 
 <div id="appView" class="hidden">
   <header>
-    <div class="brand"><img data-app="logo" alt="" class="logo-img" onerror="this.style.display='none'" /><span class="brand-tag">admin</span><span class="brand-tag" style="opacity:.32;letter-spacing:.05em">v61 · 11.11.</span></div>
+    <div class="brand"><span class="sb-logo" data-app="slotbee"></span><span class="loc"></span><img data-app="logo" alt="" class="logo-img" onerror="this.style.display='none'" /><span class="salon-hd"><span data-app="pecat"></span><b data-app="kratko"></b></span><span class="brand-tag" style="opacity:.32;letter-spacing:.05em">v62 · 13.11.</span></div>
     <div class="right"><span class="who" id="whoLabel"></span><button class="btn-ghost" id="pwdBtn">Geslo</button><button class="btn-ghost" id="logoutBtn">Odjava</button></div>
   </header>
 
@@ -903,9 +972,6 @@ function izrisiNastavitve(box){
     +'<div class="obr-row">'+nsInp('nsIme','Ime salona',s.ime)+nsInp('nsKratko','Kratko ime',s.kratko)+'</div>'
     +'<div class="obr-row">'+nsInp('nsTel','Telefon za stranke',k.telefon)+nsInp('nsEmail','E-pošta',k.email)+'</div>'
     +'<div class="obr-row">'+nsInp('nsNaslov','Naslov',k.naslov)+nsInp('nsLogo','Povezava do logotipa (URL)',s.logo_url,'placeholder="https://…/logo.png"')+'</div>'
-    +'<div class="d-edit-hd" style="margin-top:.9rem">Videz</div>'
-    +'<div class="obr-row">'+nsBarva('nsB1','Glavna (besedilo, gumbi)',b.glavna)+nsBarva('nsB2','Poudarek',b.poudarek)+'</div>'
-    +'<div class="obr-row">'+nsBarva('nsB3','Ozadje',b.ozadje)+nsBarva('nsB4','Ozadje 2 (kartice, glava)',b.ozadje2)+'</div>'
     +'<div class="d-edit-hd" style="margin-top:.9rem">Pravila naročanja</div>'
     +'<div class="obr-row">'+nsInp('nsMinUr','Najmanj ur vnaprej',p.min_ur_vnaprej!=null?p.min_ur_vnaprej:4,'inputmode="decimal"')
     +'<label>Korak terminov (min)<select id="nsKorak">'+[5,10,15,20,30,60].map(function(x){return '<option'+((+p.korak_min||15)===x?' selected':'')+'>'+x+'</option>';}).join('')+'</select></label></div>'
@@ -944,7 +1010,7 @@ function izrisiNastavitve(box){
 
   /* storitve */
   h+='<div class="obr-form" style="margin-bottom:1rem"><div class="d-edit-hd">Storitve</div>'
-    +'<div class="bl-actions" style="margin-top:.4rem"><button class="btn bl-add" id="nsNovaSvc">➕ Nova storitev</button></div>'
+    +'<div class="bl-actions" style="margin-top:.4rem"><button class="btn bl-add" id="nsNovaSvc">+ Nova storitev</button></div>'
     +'<div id="nsSvcForm"></div>'
     +(NS.svc.length?'<div class="bl-list">'+NS.svc.map(function(v){
         return '<div class="bl-row"><div class="bl-l" style="min-width:0;flex:1 1 auto"><b>'+esc(v.name)+'</b> · '+esc(v.category)
@@ -977,7 +1043,6 @@ function izrisiNastavitve(box){
   izrisiZaposleneNastavitve();
   izrisiDostope();
 
-  ['nsB1','nsB2','nsB3','nsB4'].forEach(function(id){ var el=document.getElementById(id); el.addEventListener('input',function(){ document.getElementById(id+'Hex').textContent=el.value; }); });
   document.getElementById('nsSaveSalon').addEventListener('click',shraniSalon);
   document.getElementById('nsSaveDc').addEventListener('click',function(){ shraniDelovniCas(vrstni); });
   document.getElementById('nsSaveKat').addEventListener('click',function(){ shraniKategorije(kl); });
@@ -997,7 +1062,6 @@ function shraniSalon(){
   var patch={
     ime:nsVal('nsIme'), kratko:nsVal('nsKratko')||null, logo_url:nsVal('nsLogo')||null, sms_predpona:sms,
     kontakt:Object.assign({},NS.salon.kontakt||{},{telefon:nsVal('nsTel')||null,email:nsVal('nsEmail')||null,naslov:nsVal('nsNaslov')||null}),
-    barve:{glavna:nsVal('nsB1'),poudarek:nsVal('nsB2'),ozadje:nsVal('nsB3'),ozadje2:nsVal('nsB4')},
     pravila:p,
     obvestila:{telegram_chat_ids:nsVal('nsTg')||null,lastnik_telefon:nsVal('nsLastTel')||null,email_od:nsVal('nsMailOd')||null,email_odgovor:nsVal('nsMailOdg')||null}
   };
@@ -1205,7 +1269,7 @@ function izrisiZaposleneNastavitve(){
     NZ=r.data||[];
     box.innerHTML='<p class="bl-svc" style="margin:.2rem 0 .7rem">Vsak zaposleni ima svoj koledar, urnik, odsotnosti ter lahko svoje cene in trajanja. '
       +'Z e-pošto se lahko prijavi v admin, kjer vidi samo svoje termine. Salon brez zaposlenih deluje kot doslej.</p>'
-      +'<div class="bl-actions" style="margin-top:.2rem"><button class="btn bl-add" id="nsNovZap">➕ Nov zaposleni</button></div>'
+      +'<div class="bl-actions" style="margin-top:.2rem"><button class="btn bl-add" id="nsNovZap">+ Nov zaposleni</button></div>'
       +'<div id="nsZapForm"></div>'
       +(NZ.length?'<div class="bl-list">'+NZ.map(function(z){
           return '<div class="bl-row"><div class="bl-l" style="min-width:0;flex:1 1 auto"><b><span class="zap-pika" style="background:'+esc(z.barva||'#9aa0a6')+'"></span>'+esc(z.ime)+'</b>'
@@ -2204,7 +2268,7 @@ function kosRisi(){
       +'<span class="kos-vs">'+eur(stevilo(r.cena)*(parseInt(r.kol)||1))+'</span>'
       +'<button class="kos-x" data-i="'+i+'" title="Odstrani">✕</button></div>';
   });
-  h+='</div><button type="button" class="kos-add" id="kosAdd">➕ Dodaj storitev ali izdelek</button><div id="kosPick"></div>';
+  h+='</div><button type="button" class="kos-add" id="kosAdd">+ Dodaj storitev ali izdelek</button><div id="kosPick"></div>';
   h+='<div class="obr-row" style="margin-top:.6rem"><label>Popust<span class="kos-pop">'
     +'<input type="text" id="kosPopust" value="'+stevilo(KOS.popust)+'">'
     +'<button type="button" class="kos-pv'+(KOS.popustVrsta==='eur'?' on':'')+'" data-v="eur">€</button>'
@@ -2364,7 +2428,7 @@ function loadBlagajna(){
       +'</div>'
       +blPoZaposlenih(dnevni,mesecni,vs)
       +(dnevni.filter(function(o){return !o.stevilka_racuna;}).length?('<div class="bl-opoz">📋 Brez vpisane številke računa: '+dnevni.filter(function(o){return !o.stevilka_racuna;}).length+' — račun izdajte v miniBLAGAJNI, številko pa vpišite pri terminu.</div>'):'')
-      +'<div class="bl-actions"><button class="btn bl-add" id="blAdd">➕ Prost vnos</button>'
+      +'<div class="bl-actions"><button class="btn bl-add" id="blAdd">+ Prost vnos</button>'
       +'<button class="btn bl-exp" id="blExp">⬇ Izvozi mesec v Excel</button></div>'
       +'<div id="blForm"></div>';
     if(!dnevni.length){ h+='<div class="empty">Ta dan še ni obračunov.</div>'; }
@@ -2469,7 +2533,7 @@ function loadIzdelki(){
   });
 }
 function izrisiIzdelke(box){
-  var h='<div class="bl-actions"><button class="btn bl-add" id="izNov">➕ Nov izdelek</button></div>'
+  var h='<div class="bl-actions"><button class="btn bl-add" id="izNov">+ Nov izdelek</button></div>'
     +'<div id="izForm"></div>';
   if(!IZD_CACHE.length){ h+='<div class="empty">Še ni izdelkov. Dodajte prvega zgoraj.</div>'; }
   else {
@@ -3290,7 +3354,7 @@ function odpriOpravek(bl){
     +'<input type="text" id="opOpis" value="'+esc(bl.note||'')+'" placeholder="npr. malica, dostava, zdravnik, dopust"></label>'
     +'<div class="op-btns">'
     +'<button type="button" class="btn op-shrani" id="opShrani">Shrani opis</button>'
-    +'<button type="button" class="btn op-vrini" id="opVrini">➕ Vrini termin ob '+esc(hm(bl.start_time))+'</button>'
+    +'<button type="button" class="btn op-vrini" id="opVrini">+ Vrini termin ob '+esc(hm(bl.start_time))+'</button>'
     +'<button type="button" class="btn op-brisi" id="opBrisi">🗑 Odstrani opravek</button>'
     +'</div><div id="opMsg" class="uvoz-sub"></div></div>';
   document.body.appendChild(ov);

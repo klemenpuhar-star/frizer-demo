@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Moje naročilo — {IME}</title>
 <script src="/nastavitve.js" data-stran="narocilo"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{ --navy:#1c1a19; --coral:#b08d57; --bez:#e8dfd3; --line:#ebe4da; --bg:#fbf8f4; }
@@ -67,12 +68,58 @@ h1{ font-family:Georgia,'Times New Roman',serif; font-weight:400; font-size:1.5r
 .summary{ background:var(--bg); border-radius:12px; padding:12px 14px; margin-top:14px; font-size:.92rem; }
 .summary .tot{ display:flex; justify-content:space-between; font-weight:700; margin-top:6px; padding-top:6px; border-top:1px solid var(--line); }
 .tel{ color:var(--coral); text-decoration:none; }
+
+/* ══ SLOTBEE TEMA ══ */
+body{ background:var(--sb-bg); font-family:var(--sb-sans); }
+.wrap{ padding-top:32px; }
+.brand{ display:flex; flex-direction:column; align-items:center; gap:10px; margin:0 0 22px; }
+.brand img{ height:56px; }
+.brand img:not([style*="display: none"]) + .brand-pecat{ display:none; }
+.brand .nm{ font-family:var(--sb-serif); font-weight:500; font-size:1.7rem; letter-spacing:-.02em; margin:0; line-height:1.1; }
+.brand .sb-eyebrow{ margin-top:2px; }
+.card{ border:1px solid var(--sb-line); border-radius:24px; padding:26px 24px; box-shadow:var(--sb-shadow-lg); }
+h1{ font-family:var(--sb-serif); font-weight:500; letter-spacing:-.02em; font-size:1.7rem; }
+.sub, .row .k, .item .meta, .field label, .slotmsg, .loading{ color:var(--sb-muted); }
+.row{ border-bottom:1px solid var(--sb-line-2); }
+.note{ border-radius:14px; }
+.note-info{ background:var(--sb-honey-soft); color:#6B4A07; }
+.note-warn{ background:#FDF0D5; color:#7A5300; }
+.note-ok{ background:var(--sb-ok-soft); color:var(--sb-ok); }
+.note-bad{ background:var(--sb-napaka-soft); color:var(--sb-napaka); }
+.b-nova{ background:var(--sb-honey-soft); color:var(--sb-honey-deep); }
+.b-potrjeno{ background:var(--sb-ok-soft); color:var(--sb-ok); }
+.b-preklicano{ background:var(--sb-napaka-soft); color:var(--sb-napaka); }
+.btn{ border-radius:999px; min-height:50px; padding:0 22px; font-weight:600; font-size:.95rem; }
+.btn-primary{ background:var(--sb-ink); color:#fff; box-shadow:0 10px 24px -12px rgba(22,24,29,.6); }
+.btn-primary:hover{ background:#000; filter:none; }
+.btn-primary:disabled{ background:var(--sb-muted); box-shadow:none; }
+.btn-ghost{ border:1px solid var(--sb-line); }
+.btn-ghost:hover{ border-color:var(--sb-ink); color:var(--sb-ink); }
+.btn-danger{ border:1px solid #EBC3BA; color:var(--sb-napaka); }
+.btn-danger:hover{ background:var(--sb-napaka-soft); }
+.acc details{ border-radius:16px; border-color:var(--sb-line); background:#fff; }
+.acc summary{ font-family:var(--sb-serif); font-weight:500; font-size:1.08rem; }
+.acc summary .ar{ color:var(--sb-ink); }
+.item{ border-top-color:var(--sb-line-2); }
+.item input[type=checkbox]{ accent-color:var(--sb-ink); }
+.qty button{ border-radius:50%; border-color:var(--sb-line); }
+.field input[type=date]{ border:1px solid var(--sb-line); border-radius:14px; background:#fff; }
+.field input[type=date]:focus{ outline:none; border-color:var(--sb-ink); box-shadow:0 0 0 3px var(--sb-honey-soft); }
+.slot{ border:1px solid var(--sb-line); border-radius:12px; font-family:var(--sb-serif); font-weight:500; }
+.slot:hover{ border-color:var(--sb-ink); }
+.slot.sel{ background:var(--sb-honey-soft); color:var(--sb-ink); border-color:var(--sb-ink); }
+.summary{ background:#fff; border:1px solid var(--sb-line); border-radius:16px; }
+.summary .tot{ border-top-color:var(--sb-line); font-family:var(--sb-serif); font-weight:500; font-size:1.05rem; }
+.tel{ color:var(--sb-ink); font-weight:600; text-decoration:underline; text-decoration-color:var(--sb-honey); text-underline-offset:3px; }
 </style>
+<link rel="stylesheet" href="/slotbee.css">
 </head>
 <body>
 <div class="wrap">
   <div class="brand">
     <img data-app="logo" alt="" onerror="this.style.display='none'">
+    <span class="brand-pecat" data-app="pecat"></span>
+    <span class="sb-eyebrow" data-app="tip"></span>
     <div class="nm" data-app="ime"></div>
   </div>
   <div id="app" class="card"><div class="loading">Nalagam vaše naročilo…</div></div>
@@ -259,7 +306,7 @@ function renderView(){
   if(b.status==='preklicano'){
     h+='<div class="note note-bad">Ta termin je <strong>preklican</strong>. Za nov termin obiščite našo spletno stran.</div>';
   } else if(b.status==='opravljeno'){
-    h+='<div class="note note-ok">Ta termin je zaključen. Hvala za obisk! 💛</div>';
+    h+='<div class="note note-ok">Ta termin je zaključen. Hvala za obisk!</div>';
   } else if(!b.je_urejanje_mozno){
     h+='<div class="note note-warn">Rok za spremembe in preklic je <strong>potekel</strong> (bil je do '+fmtRokSI(b.rok)+'). Za spremembe nas pokličite na <a class="tel" href="tel:'+APP.telefonIntl+'">'+APP.telefon+'</a>.</div>';
   } else {
@@ -457,8 +504,9 @@ function saveEdit(){
 window.toggleSvc=toggleSvc; window.bumpQty=bumpQty; window.pickSlot=pickSlot;
 init();
 </script>
-<div style="text-align:center;margin:26px auto 40px;font-size:.82rem;color:#8a969d">
-  <a data-app="zasebnost" href="/zasebnost.html" style="color:#8a969d">Pravilnik o zasebnosti</a>
-</div>
+<footer class="sb-noga">
+  <a class="sb-poganja" href="https://slotbee.si/" rel="noopener">Spletno naročanje poganja <b data-app="slotbee" class="sb-logo mali"></b></a>
+  <a data-app="zasebnost" href="/zasebnost.html">Pravilnik o zasebnosti</a>
+</footer>
 </body>
 </html>

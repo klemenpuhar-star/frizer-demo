@@ -20,11 +20,31 @@ th{ font-weight:600; }
 .izpolni{ background:#fff3cd; padding:0 .25rem; border-radius:4px; }
 a{ color:var(--navy); text-decoration-color:var(--coral); text-underline-offset:3px; }
 .nazaj{ display:inline-block; margin-bottom:14px; }
+
+/* ══ SLOTBEE TEMA ══ */
+body{ background:var(--sb-bg); font-family:var(--sb-sans); color:var(--sb-ink-2); }
+.wrap{ padding-top:28px; }
+.glava{ display:flex; align-items:center; gap:14px; margin:6px 0 22px; }
+.glava .sb-pecat{ --ps:44px; }
+.glava .ime{ font-family:var(--sb-serif); font-weight:500; font-size:1.25rem; letter-spacing:-.01em; color:var(--sb-ink); line-height:1.15; }
+.card{ border:1px solid var(--sb-line); border-radius:24px; padding:34px 30px; box-shadow:var(--sb-shadow); }
+h1{ font-family:var(--sb-serif); font-weight:500; letter-spacing:-.02em; font-size:clamp(1.9rem,5vw,2.4rem); color:var(--sb-ink); }
+h2{ font-family:var(--sb-serif); font-weight:500; font-size:1.25rem; letter-spacing:-.01em; color:var(--sb-ink); margin:2rem 0 .5rem; }
+.sub{ color:var(--sb-muted); }
+td,th{ border-bottom-color:var(--sb-line-2); }
+th{ color:var(--sb-ink); }
+a{ color:var(--sb-ink); text-decoration-color:var(--sb-honey); }
+.nazaj{ font-weight:500; text-decoration:none; color:var(--sb-muted); }
+.nazaj:hover{ color:var(--sb-ink); }
+@media (max-width:560px){ .card{ padding:26px 20px; } }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/slotbee.css">
 </head>
 <body>
 <div class="wrap">
   <a class="nazaj" data-app="domov" href="/">← Nazaj na naročanje</a>
+  <div class="glava"><span data-app="pecat"></span><div><span class="sb-eyebrow" data-app="tip"></span><div class="ime" data-app="ime"></div></div></div>
   <div class="card">
     <!-- Podatki upravljavca (salona) se preberejo iz baze: ime, naslov in davčna iz »Podjetje« v superadminu,
          telefon in e-pošta iz Nastavitev salona. Ponudnika platforme vpišete v nastavitve.js (obdelovalec).
@@ -70,8 +90,8 @@ a{ color:var(--navy); text-decoration-color:var(--coral); text-underline-offset:
       <tr><th>Ponudnik</th><th>Namen</th><th>Lokacija</th></tr>
       <tr><td data-z="obdelovalec-vrsta">Ponudnik platforme</td><td>Delovanje sistema za naročanje (obdelovalec)</td><td>Slovenija (EU)</td></tr>
       <tr><td>Supabase</td><td>Baza rezervacij</td><td>EU (Frankfurt)</td></tr>
-      <tr><td>Lertify</td><td>Pošiljanje SMS obvestil</td><td>Slovenija (EU)</td></tr>
-      <tr><td>Resend</td><td>Pošiljanje e-poštnih potrditev</td><td>ZDA</td></tr>
+      <tr><td>BulkGate (TOPefekt s.r.o.)</td><td>Pošiljanje SMS obvestil</td><td>Češka (EU)</td></tr>
+      <tr><td>Resend</td><td>Pošiljanje e-poštnih potrditev</td><td>Irska (EU), podjetje iz ZDA</td></tr>
       <tr><td>Telegram</td><td>Obvestilo salonu in zaposlenemu o rezervaciji</td><td>Izven EU</td></tr>
       <tr><td>Cloudflare</td><td>Gostovanje spletne strani</td><td>Omrežje strežnikov (ZDA)</td></tr>
       <tr><td>jsDelivr</td><td>Nalaganje programskih knjižnic</td><td>Omrežje strežnikov</td></tr>
@@ -108,5 +128,8 @@ a{ color:var(--navy); text-decoration-color:var(--coral); text-underline-offset:
   });
 })();
 </script>
+<footer class="sb-noga">
+  <a class="sb-poganja" href="https://slotbee.si/" rel="noopener">Spletno naročanje poganja <b data-app="slotbee" class="sb-logo mali"></b></a>
+</footer>
 </body>
 </html>

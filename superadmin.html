@@ -113,13 +113,58 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
 @media (max-width:860px){.k-mreza{grid-template-columns:1fr}}
 .tabela td:first-child{min-width:170px}
 .tabela td select{max-width:150px}
+
+/* ══ SLOTBEE TEMA ══ */
+body{ font-family:var(--sb-sans); background:var(--sb-bg); color:var(--sb-ink); }
+a{ color:var(--sb-ink); text-decoration-color:var(--sb-honey); text-underline-offset:3px; }
+header{ padding:4px 0 14px; border-bottom:1px solid var(--sb-line); margin-bottom:22px; }
+.sa-brand{ display:flex; align-items:center; gap:14px; }
+.sa-brand .loc{ width:1px; height:24px; background:var(--sb-line); }
+header h1{ font-family:var(--sb-serif); font-weight:500; letter-spacing:-.02em; font-size:1.45rem; }
+.karta{ border-color:var(--sb-line); border-radius:20px; padding:22px 22px 18px; box-shadow:var(--sb-shadow); }
+.karta h2{ font-family:var(--sb-serif); font-weight:500; letter-spacing:-.01em; font-size:1.25rem; }
+label{ font-weight:500; }
+input,select{ border-radius:12px; border-color:var(--sb-line); }
+input:focus,select:focus{ outline:none; border-color:var(--sb-ink); box-shadow:0 0 0 3px var(--sb-honey-soft); }
+.gumb{ background:var(--sb-ink); border-color:var(--sb-ink); font-weight:600; box-shadow:0 8px 20px -12px rgba(22,24,29,.6); }
+.gumb:hover{ background:#000; }
+.gumb.svetel{ background:#fff; color:var(--sb-ink); border:1px solid var(--sb-line); box-shadow:none; font-weight:500; }
+.gumb.svetel:hover{ border-color:var(--sb-ink); }
+.zavihki{ background:#fff; border:1px solid var(--sb-line); border-radius:999px; padding:4px; display:inline-flex; }
+.zavihki button{ border:none; font-weight:500; }
+.zavihki button:hover{ background:var(--sb-bg-2); }
+.zavihki button.akt{ background:var(--sb-ink); color:#fff; }
+.salon{ align-items:flex-start; }
+.salon > .sb-pecat{ margin-top:2px; }
+.salon b{ font-weight:600; }
+.salon .levo > b:first-child{ font-family:var(--sb-serif); font-weight:500; font-size:1.12rem; letter-spacing:-.01em; }
+.znacka{ background:var(--sb-ok-soft); color:var(--sb-ok); font-weight:500; }
+.znacka.off{ background:var(--sb-honey-soft); color:var(--sb-honey-deep); }
+.clani-sez, .tabela{ border-color:var(--sb-line); border-radius:14px; }
+.rac-forma{ background:var(--sb-bg); }
+.rezultat{ background:var(--sb-ok-soft); border-color:#C6E3CF; border-radius:14px; }
+.rezultat.opoz{ background:var(--sb-honey-soft); border-color:#F0DCAA; }
+.kpi{ border-color:var(--sb-line); border-radius:18px; box-shadow:var(--sb-shadow); }
+.kpi .v{ font-family:var(--sb-serif); font-weight:500; letter-spacing:-.02em; font-size:1.7rem; }
+.kpi .l, .k-leg, .tabela th{ color:var(--sb-honey-deep); }
+.tabela th{ background:var(--sb-bg); }
+.tabela tfoot td{ background:var(--sb-bg); }
+.potreba div{ background:var(--sb-bg); border:1px solid var(--sb-line-2); border-radius:14px; }
+.potreba b{ font-family:var(--sb-serif); font-weight:500; }
+.trak{ background:var(--sb-bg-2); border-color:var(--sb-line); }
+.trak i{ background:var(--sb-honey); }
+.opoz-paket{ color:var(--sb-napaka); }
+@media(max-width:560px){ .sa-brand h1{ font-size:1.15rem; } .sa-brand .loc{ display:none; } }
 </style>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/slotbee.css">
 </head>
 <body>
 <div class="vsebina">
 
   <div id="pogledPrijava" class="prijava karta hidden">
-    <h2 style="font-family:Georgia,serif;font-weight:400;font-size:1.4rem;margin-bottom:4px">Skrbnik platforme</h2>
+    <div style="margin-bottom:18px"><span class="sb-logo" data-app="slotbee"></span></div>
+    <h2 style="font-family:var(--sb-serif);font-weight:500;letter-spacing:-.02em;font-size:1.7rem;margin-bottom:4px">Skrbnik platforme</h2>
     <p class="namig" style="margin-bottom:14px">Prijava z računom skrbnika.</p>
     <div class="vrsta"><label>E-pošta<input type="email" id="email" autocomplete="username"></label></div>
     <div class="vrsta"><label>Geslo<input type="password" id="geslo" autocomplete="current-password"></label></div>
@@ -135,7 +180,7 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
 
   <div id="pogledApp" class="hidden">
     <header>
-      <h1>Saloni</h1>
+      <div class="sa-brand"><span class="sb-logo" data-app="slotbee"></span><span class="loc"></span><h1>Skrbnik platforme</h1></div>
       <div class="desno"><span id="kdo"></span><a href="/admin">Administracija</a><button class="gumb svetel" id="gOdjava">Odjava</button></div>
     </header>
 
@@ -264,7 +309,7 @@ input:focus,select:focus{outline:2px solid var(--poudarek);outline-offset:1px}
         <label>E-pošta lastnika<input type="email" id="nEmail" placeholder="lastnik@primer.si"></label>
         <label>Telefon salona<input type="text" id="nTel" placeholder="031 000 000"></label>
       </div>
-      <p class="namig" style="margin-bottom:10px">Salon dobi privzete barve in storitve glede na tip, delovni čas pon–pet 8–16, sobota po dogovoru. Vse to lastnik kasneje spremeni v administraciji pod »Nastavitve«.</p>
+      <p class="namig" style="margin-bottom:10px">Salon dobi privzete storitve glede na tip (videz je za vse salone enoten – Slotbee), delovni čas pon–pet 8–16, sobota po dogovoru. Vse to lastnik kasneje spremeni v administraciji pod »Nastavitve«.</p>
       <button class="gumb" id="gUstvari">Ustvari salon</button>
       <div class="sporocilo" id="spUstvari"></div>
       <div id="rezUstvari"></div>
@@ -365,7 +410,7 @@ function nalozi2(){
     if(!v.length){ box.innerHTML='<p class="namig">Še ni salonov.</p>'; return; }
     box.innerHTML = v.map(function(s){
       var url=location.origin+'/'+s.slug;
-      return '<div class="salon"><div class="levo"><b>'+esc(s.ime)+'</b>'
+      return '<div class="salon"><span class="sb-pecat mali">'+APP.ikonaTipa(s.tip)+'</span><div class="levo"><b>'+esc(s.ime)+'</b>'
         +(s.aktiven?'<span class="znacka">aktiven</span>':'<span class="znacka off">izklopljen</span>')
         +'<div class="meta">'+esc(TIPI[s.tip]||'drugo')+' · <a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(url)+'</a></div>'
         +'<div class="meta">Storitev: '+s.st_storitev+' · Rezervacij: '+s.st_rezervacij+' · Ustvarjen: '+new Date(s.created_at).toLocaleDateString('sl-SI')+'</div>'

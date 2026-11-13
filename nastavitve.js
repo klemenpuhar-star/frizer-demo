@@ -15,7 +15,8 @@ window.APP = {
 
   // privzete vrednosti, dokler se salon ne naloži
   ime: '', kratko: '', telefon: '', logo: '',
-  barve: { navy: '#1c1a19', coral: '#b08d57', bez: '#e8dfd3', bez2: '#f7f3ee' }
+  // enoten videz Slotbee za vse salone (barve salona v bazi se ne uporabljajo)
+  barve: { navy: '#16181D', coral: '#A8720A', bez: '#F4EEE4', bez2: '#FBF8F3' }
 };
 
 /* ── od tu naprej ni treba nicesar spreminjati ── */
@@ -48,6 +49,30 @@ window.APP = {
     if (b.bez2) r.setProperty('--bez2', b.bez2);
   }
 
+  /* ── Slotbee: logotip in pečat dejavnosti (ikona po tipu salona) ── */
+  var IKONE = {
+    frizer: '<g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="6" cy="6.5" r="2.7"/><circle cx="6" cy="17.5" r="2.7"/><path d="M8.2 8.2 20 18M8.2 15.8 20 6"/></g>',
+    brivec: '<path d="M12 12.6c-1.4-2.6-4.4-3.7-6.6-2.2-1.3.9-1.3 2.9.3 3.6-1.7.1-3-.6-3.4-1.8-.6 2.9 2 5.1 5.2 4.5 2.3-.4 3.6-2 4.5-4.1.9 2.1 2.2 3.7 4.5 4.1 3.2.6 5.8-1.6 5.2-4.5-.4 1.2-1.7 1.9-3.4 1.8 1.6-.7 1.6-2.7.3-3.6-2.2-1.5-5.2-.4-6.6 2.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+    pasji_frizer: '<g fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="16" rx="4.5" ry="3.8"/><circle cx="6" cy="10.5" r="1.8"/><circle cx="9.5" cy="6.5" r="1.8"/><circle cx="14.5" cy="6.5" r="1.8"/><circle cx="18" cy="10.5" r="1.8"/></g>',
+    kozmetika: '<path d="M12 3.5c.6 4.3 2.9 6.6 7.5 7.5-4.6.9-6.9 3.2-7.5 8-.6-4.8-2.9-7.1-7.5-8 4.6-.9 6.9-3.2 7.5-7.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>',
+    masaza: '<path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5a1.5 1.5 0 0 1 3 0V11m0-5a1.5 1.5 0 0 1 3 0v6.5c0 4.5-2.5 8-6.5 8-3 0-4.4-1.5-6-4.2L3 13a1.5 1.5 0 0 1 2.6-1.5L8 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    vulkanizer: '<g fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/><path d="M12 3.5V9M12 15v5.5M3.5 12H9M15 12h5.5"/></g>',
+    avtomehanik: '<path d="M14.5 4.2a4.5 4.5 0 0 0-5.3 6L4 15.4a2 2 0 0 0 2.8 2.8L12 13a4.5 4.5 0 0 0 6-5.3l-2.7 2.7-2.5-.4-.4-2.5z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>',
+    drugo: '<g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g>'
+  };
+  A.ikonaTipa = function (tip) {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + (IKONE[tip] || IKONE.drugo) + '</svg>';
+  };
+  /* pečat: okrogel žig z ikono dejavnosti */
+  A.pecat = function (tip) { return '<span class="sb-pecat" data-tip="' + (IKONE[tip] ? tip : 'drugo') + '">' + A.ikonaTipa(tip) + '</span>'; };
+  var TIPI = { frizer: 'Frizerski salon', brivec: 'Brivnica', pasji_frizer: 'Salon za hišne ljubljenčke', kozmetika: 'Kozmetični salon',
+               masaza: 'Masaža in nega', vulkanizer: 'Vulkanizerstvo', avtomehanik: 'Avtomehanična delavnica' };
+  A.tipIme = function (tip) { return TIPI[tip] || 'Naročanje na termin'; };
+  A.logoSlotbee = function () {
+    return '<svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25z" fill="currentColor"/>'
+      + '<rect x="10" y="14" width="12" height="4.5" rx="2.25" fill="#E5A82B"/></svg>';
+  };
+
   function vstavi() {
     document.title = document.title.replace(/\{IME\}/g, A.ime || A.platforma).replace(/\{KRATKO\}/g, A.kratko || A.ime || A.platforma);
     var el = document.querySelectorAll('[data-app]');
@@ -60,6 +85,9 @@ window.APP = {
       else if (k === 'tel') { el[i].href = 'tel:' + A.telefonIntl; el[i].textContent = A.telefon; }
       else if (k === 'zasebnost') el[i].href = '/zasebnost.html' + (A.slug ? '?s=' + encodeURIComponent(A.slug) : '');
       else if (k === 'domov') el[i].href = '/' + (A.slug || '');
+      else if (k === 'pecat') el[i].innerHTML = A.pecat(A.tip);
+      else if (k === 'tip') el[i].textContent = A.tipIme(A.tip);
+      else if (k === 'slotbee') el[i].innerHTML = A.logoSlotbee() + '<span>' + String(A.platforma).toLowerCase().replace(/</g, '&lt;') + '</span>';
       else el[i].textContent = A[k] || '';
     }
   }
@@ -77,14 +105,12 @@ window.APP = {
       .then(function (v) {
         var s = v && v[0];
         if (!s) return false;
-        var b = s.barve || {}, k = s.kontakt || {};
+        var k = s.kontakt || {};
         A.salonId = s.id; A.slug = s.slug; A.tip = s.tip;
         A.ime = s.ime; A.kratko = s.kratko || s.ime;
         A.telefon = k.telefon || ''; A.telefonIntl = telIntl(A.telefon);
         A.email = k.email || ''; A.naslov = k.naslov || '';
         A.logo = s.logo_url || '';
-        A.barve = { navy: b.glavna || A.barve.navy, coral: b.poudarek || A.barve.coral,
-                    bez: b.ozadje2 || A.barve.bez, bez2: b.ozadje || A.barve.bez2 };
         A.pravila = s.pravila || {};
         nastaviBarve();
         return rest('app_kategorije?select=ime,sort_order,vec_oseb,oznaka_oseb,nujna,barva&salon_id=eq.' + s.id)

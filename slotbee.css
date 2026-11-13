@@ -1,0 +1,62 @@
+/* ═══════════════════════════════════════════════════════════════
+   SLOTBEE – skupni videz vseh strani (naročanje, naročilo, zasebnost,
+   admin, superadmin). Usklajeno s predstavitveno stranjo slotbee.si.
+   Naložite ZA <style> strani, da prepiše njene spremenljivke.
+   ═══════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap');
+
+:root{
+  /* barve Slotbee */
+  --sb-bg:#FBF8F3; --sb-bg-2:#F4EEE4; --sb-surface:#FFFFFF;
+  --sb-ink:#16181D; --sb-ink-2:#2B2F38; --sb-muted:#5F6470;
+  --sb-line:#E6DFD3; --sb-line-2:#EFE9DF;
+  --sb-honey:#E5A82B; --sb-honey-deep:#A8720A; --sb-honey-soft:#FBEFD3;
+  --sb-sage:#DCE7DF; --sb-rose:#F3DCD6; --sb-sky:#DCE4F1;
+  --sb-ok:#2F7A4A; --sb-ok-soft:#DCEFE2; --sb-napaka:#B4402F; --sb-napaka-soft:#F8E1DC;
+  --sb-radius:18px; --sb-radius-sm:12px;
+  --sb-shadow:0 1px 2px rgba(22,24,29,.04),0 8px 24px -8px rgba(22,24,29,.10);
+  --sb-shadow-lg:0 2px 4px rgba(22,24,29,.04),0 30px 60px -20px rgba(22,24,29,.22);
+  --sb-serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sb-sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+
+  /* spremenljivke posameznih strani → Slotbee */
+  --navy:var(--sb-ink); --coral:var(--sb-honey-deep); --roza:var(--sb-ink-2);
+  --bez:var(--sb-bg-2); --bez2:var(--sb-bg); --line:var(--sb-line); --bg:var(--sb-bg);
+  --opozorilo:var(--sb-napaka);
+  --serif:var(--sb-serif); --sans:var(--sb-sans);
+  /* superadmin */
+  --crna:var(--sb-ink); --siva:var(--sb-muted); --rob:var(--sb-line); --ozadje:var(--sb-bg);
+  --poudarek:var(--sb-honey-deep); --napaka:var(--sb-napaka); --ok:var(--sb-ok);
+}
+
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--sb-sans);background:var(--sb-bg);color:var(--sb-ink);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit}
+::selection{background:var(--sb-honey-soft)}
+:focus-visible{outline:2px solid var(--sb-honey);outline-offset:2px}
+
+/* ── logotip Slotbee ── */
+.sb-logo{display:inline-flex;align-items:center;gap:9px;font-family:var(--sb-sans);font-weight:600;font-size:1.12rem;letter-spacing:-.02em;color:var(--sb-ink);text-decoration:none;line-height:1}
+.sb-logo svg{width:26px;height:26px;flex:none}
+.sb-logo.mali{font-size:.95rem;gap:7px}
+.sb-logo.mali svg{width:20px;height:20px}
+
+/* ── pečat dejavnosti (ikona v okroglem žigu) ── */
+.sb-pecat{--ps:56px;position:relative;display:inline-grid;place-items:center;width:var(--ps);height:var(--ps);border-radius:50%;
+  background:var(--sb-honey-soft);color:var(--sb-honey-deep);flex:none;
+  outline:1.5px dashed rgba(168,114,10,.45);outline-offset:4px}
+.sb-pecat svg{width:calc(var(--ps) * .46);height:calc(var(--ps) * .46)}
+.sb-pecat.mali{--ps:34px;outline-offset:2px;outline-width:1px}
+
+/* ── oznaka (eyebrow) ── */
+.sb-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:.74rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--sb-honey-deep)}
+.sb-eyebrow::before{content:"";width:20px;height:1.5px;background:currentColor}
+
+/* ── noga »Poganja Slotbee« ── */
+.sb-noga{display:flex;flex-direction:column;align-items:center;gap:8px;margin:40px auto 24px;padding:0 16px;font-size:.8rem;color:var(--sb-muted);text-align:center}
+.sb-noga a{color:var(--sb-muted)}
+.sb-noga .sb-poganja{display:inline-flex;align-items:center;gap:7px;color:var(--sb-muted);text-decoration:none}
+.sb-noga .sb-poganja b{color:var(--sb-ink);font-weight:600;letter-spacing:-.01em}
+.sb-noga .sb-poganja svg{width:16px;height:16px}
+
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}

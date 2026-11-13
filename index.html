@@ -6,6 +6,8 @@
 <title>Spletno naročanje — {IME}</title>
 <meta name="description" content="Spletno naročanje na termin – izberite storitev in prosto uro.">
 <script src="/nastavitve.js" data-stran="narocanje"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta name="theme-color" content="#FBF8F3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <!-- preverjanje telefonskih stevilk: Googlova knjiznica (za tuje stevilke) -->
 <script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.13.12/bundle/libphonenumber-max.js" defer></script>
@@ -560,11 +562,11 @@
     .bk-btn-next:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 
 
-    /* ── LOGOTIP (img) ── */
+    /* ── DOSTOPNOST (okno za naročanje) ──
        Samo znotraj okna za naročanje (#bkOverlay). Barve in razporeditev ostanejo,
        popravljeno je le: velikost pisave v poljih (iPhone se ne poveča vec ob dotiku),
        velikost gumbov za prst (min. 44px), kontrast drobnega besedila, fokus za tipkovnico. */
-    #bkOverlay { --coral-txt: #8a6a3b; }
+    #bkOverlay { --coral-txt: var(--sb-honey-deep, #A8720A); }
     #bkOverlay .bk-input, #bkOverlay .bk-textarea { font-size: 16px; }
     #bkOverlay .bk-close { position: relative; }
     #bkOverlay .bk-close::after,
@@ -601,26 +603,110 @@
 .vstop p { color: rgba(28,26,25,.78); line-height: 1.6; margin-bottom: 1.6rem; }
 .vstop .mali { font-size: .88rem; margin: 1.4rem 0 0; }
 .vstop .mali a { color: var(--navy); text-decoration: underline; text-decoration-color: var(--coral); text-underline-offset: 3px; }
+
+/* ══ SLOTBEE TEMA (usklajeno s slotbee.si) ══════════════════════════ */
+body { background: var(--sb-bg, #FBF8F3); }
+.vstop { min-height: auto; padding: 9vh 16px 0; }
+.vstop-karta { border-radius: 24px; border: 1px solid var(--sb-line); box-shadow: var(--sb-shadow-lg); padding: 44px 30px 36px; }
+.vstop-logo { height: 64px; margin-bottom: 18px; }
+.vstop-logo[style*="display: none"] + .vstop-pecat, .vstop-pecat { display: flex; justify-content: center; margin: 4px 0 22px; }
+.vstop-logo:not([style*="display: none"]) + .vstop-pecat { display: none; }
+.vstop-tip { margin-bottom: 10px; }
+.vstop h1 { font-family: var(--sb-serif); font-weight: 500; letter-spacing: -.02em; font-size: clamp(2rem, 6vw, 2.5rem); line-height: 1.1; margin-bottom: .7rem; }
+.vstop p { color: var(--sb-muted); }
+.btn-main { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 54px; padding: 0 34px;
+  border-radius: 999px; background: var(--sb-ink); color: #fff; font-family: var(--sb-sans); font-weight: 600;
+  font-size: 1rem; letter-spacing: 0; text-transform: none; box-shadow: 0 10px 24px -10px rgba(22,24,29,.5); }
+.btn-main::after { content: ""; width: 9px; height: 9px; border-radius: 3px; background: var(--sb-honey); }
+.btn-main:hover { background: #000; transform: translateY(-1px); box-shadow: 0 14px 28px -10px rgba(22,24,29,.55); }
+.vstop .mali a { text-decoration-color: var(--sb-honey); }
+
+/* okno za naročanje */
+.bk-overlay { background: rgba(22,24,29,.5); }
+.bk-modal { background: var(--sb-bg); border-radius: 26px; box-shadow: var(--sb-shadow-lg); }
+.bk-head { background: rgba(251,248,243,.96); backdrop-filter: blur(10px); border-bottom-color: var(--sb-line); }
+.bk-modal-title { display: flex; align-items: center; gap: 12px; font-family: var(--sb-serif); font-weight: 500; font-size: 1.45rem; letter-spacing: -.02em; line-height: 1.1; }
+.bk-modal-title > span:last-child { display: flex; flex-direction: column; }
+.bk-modal-salon { font-family: var(--sb-sans); font-size: .72rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--sb-honey-deep); margin-bottom: 3px; }
+.bk-modal-pecat .sb-pecat { --ps: 38px; outline-offset: 2px; outline-width: 1px; }
+.bk-close { background: var(--sb-surface); border: 1px solid var(--sb-line); }
+.bk-close:hover { background: var(--sb-bg-2); }
+.bk-step-dot { height: 4px; border-radius: 4px; background: var(--sb-line); }
+.bk-step-dot.done { background: var(--sb-honey); }
+.bk-step-dot.active { background: var(--sb-ink); }
+.bk-step-label, .bk-cat-label, .bk-label, .bk-sel-label, .bk-sum-hd, .bk-nujni-label, .bk-zap-lbl { font-weight: 600; letter-spacing: .12em; color: var(--sb-honey-deep); opacity: 1; }
+.bk-step-title { font-family: var(--sb-serif); font-weight: 500; font-size: 1.5rem; letter-spacing: -.02em; }
+.bk-macc-item { border: 1px solid var(--sb-line); border-radius: 16px; box-shadow: none; }
+.bk-macc-item.open { box-shadow: var(--sb-shadow); }
+.bk-macc-trigger { padding: 1rem 1.15rem; }
+.bk-macc-cat { font-family: var(--sb-serif); font-weight: 500; font-size: 1.1rem; }
+.bk-macc-arr { width: 28px; height: 28px; border-radius: 50%; background: var(--sb-bg-2); display: grid; place-items: center; color: var(--sb-ink) !important; }
+.bk-chk-row { border-bottom-color: var(--sb-line-2); border-bottom-style: solid; }
+.bk-chk-row input[type="checkbox"] { accent-color: var(--sb-ink); }
+.bk-chk-price, .bk-svc-price, .bk-sel-tot strong, .bk-sum-total, .bk-slot-time, .bk-day-num { font-family: var(--sb-serif); font-weight: 500; }
+.bk-sel-summary { background: var(--sb-surface); border: 1px solid var(--sb-line); border-radius: 16px; }
+.bk-service-btn { border: 1px solid var(--sb-line); border-radius: 14px; }
+.bk-service-btn:hover, .bk-slot-row:hover, .bk-day-card:hover:not(.disabled), .bk-slot:hover { border-color: var(--sb-ink); }
+.bk-service-btn.selected { border-color: var(--sb-ink); box-shadow: 0 0 0 3px var(--sb-honey-soft); }
+.bk-zap-btn { border: 1px solid var(--sb-line); }
+.bk-zap-btn.selected { background: var(--sb-ink); border-color: var(--sb-ink); }
+.bk-day-card { border: 1px solid var(--sb-line); border-radius: 14px; }
+.bk-day-card.selected { border-color: var(--sb-ink); box-shadow: 0 0 0 3px var(--sb-honey-soft); }
+.bk-day-num { font-weight: 400; }
+.bk-day-status { border-top-color: var(--sb-line-2); }
+.bk-day-nav-btn, .bk-cal-arrow { border-color: var(--sb-line); background: var(--sb-surface); }
+.bk-slot-row, .bk-slot { border: 1px solid var(--sb-line); border-radius: 14px; }
+.bk-slot-row.selected { border-color: var(--sb-ink); background: var(--sb-honey-soft); }
+.bk-slot.selected, .bk-cal-day.selected { background: var(--sb-ink); border-color: var(--sb-ink); }
+.bk-sched-right, .bk-summary, .bk-cal, .bk-nujni-box { border: 1px solid var(--sb-line); border-radius: 16px; box-shadow: var(--sb-shadow); }
+.bk-nujni-box { border-left: 3px solid var(--sb-honey); }
+.bk-input, .bk-textarea { border: 1px solid var(--sb-line); border-radius: 12px; padding: .75rem .95rem; background: var(--sb-surface); }
+.bk-input:focus, .bk-textarea:focus { border-color: var(--sb-ink); box-shadow: 0 0 0 3px var(--sb-honey-soft); }
+.bk-label { text-transform: uppercase; font-size: .72rem; }
+.bk-sum-row { border-bottom: 1px solid var(--sb-line-2); }
+.bk-success-icon { width: 64px; height: 64px; margin: 0 auto .9rem; border-radius: 50%; background: var(--sb-honey-soft); color: var(--sb-honey-deep);
+  display: grid; place-items: center; font-size: 1.8rem; outline: 1.5px dashed rgba(168,114,10,.45); outline-offset: 4px; }
+.bk-success-title { font-family: var(--sb-serif); font-weight: 500; font-size: 1.7rem; letter-spacing: -.02em; }
+.bk-foot { background: rgba(251,248,243,.96); backdrop-filter: blur(10px); border-top-color: var(--sb-line); }
+.bk-btn-back, .bk-btn-next { min-height: 48px; padding: 0 1.6rem; font-family: var(--sb-sans); font-weight: 600; font-size: .92rem; letter-spacing: 0; text-transform: none; border-radius: 999px; }
+.bk-btn-back { border: 1px solid var(--sb-line); background: var(--sb-surface); }
+.bk-btn-back:hover { border-color: var(--sb-ink); }
+.bk-btn-next { background: var(--sb-ink); box-shadow: 0 10px 24px -12px rgba(22,24,29,.6); }
+.bk-btn-next:hover { background: #000; }
+.bk-btn-next:disabled { background: var(--sb-muted); box-shadow: none; }
+#bkOverlay :focus-visible { outline-color: var(--sb-honey); }
+@media (hover: none) { #bkOverlay .bk-btn-next:hover { background: var(--sb-ink); } }
+@media (max-width: 600px) {
+  .bk-head { padding: 1.1rem 1.1rem 0; }
+  .bk-body { padding: 1.2rem 1.1rem; }
+  .bk-foot { padding: .8rem 1.1rem 1rem; }
+}
 </style>
+<link rel="stylesheet" href="/slotbee.css">
 </head>
 <body>
 <main class="vstop">
   <div class="vstop-karta">
     <img class="vstop-logo" data-app="logo" alt="" onerror="this.style.display='none'">
+    <div class="vstop-pecat" data-app="pecat"></div>
+    <span class="sb-eyebrow vstop-tip" data-app="tip"></span>
     <h1 data-app="ime"></h1>
     <p>Izberite storitev in prosto uro. Potrditev prejmete takoj, dan pred terminom pa še opomnik po SMS-u.</p>
-    <button class="btn-main open-modal" type="button" style="font-size:.95rem;padding:1rem 2.8rem">Naroči se ✦</button>
+    <button class="btn-main open-modal" type="button">Naroči se</button>
     <p class="mali">Imate vprašanje? Pokličite <a data-app="tel" href="#"></a>.</p>
-    <p class="mali" style="font-size:.78rem;margin-top:.6rem"><a data-app="zasebnost" href="/zasebnost.html">Pravilnik o zasebnosti</a></p>
   </div>
 </main>
+<footer class="sb-noga">
+  <a class="sb-poganja" href="https://slotbee.si/" rel="noopener">Spletno naročanje poganja <b data-app="slotbee" class="sb-logo mali"></b></a>
+  <a data-app="zasebnost" href="/zasebnost.html">Pravilnik o zasebnosti</a>
+</footer>
 
 <!-- ══ BOOKING MODAL ══════════════════════════════════════ -->
 <div class="bk-overlay" id="bkOverlay" role="dialog" aria-modal="true" aria-label="Spletno naročanje">
   <div class="bk-modal" id="bkModal">
     <div class="bk-head">
       <div class="bk-head-top">
-        <span class="bk-modal-title">Naročanje ✦</span>
+        <span class="bk-modal-title"><span class="bk-modal-pecat" data-app="pecat"></span><span><span class="bk-modal-salon" data-app="kratko"></span>Naročanje</span></span>
         <button class="bk-close" id="bkClose" aria-label="Zapri">✕</button>
       </div>
       <div class="bk-steps" id="bkStepBar"></div>
@@ -1535,7 +1621,7 @@ function renderStepConfirm(){
   var bk=document.createElement('button'); bk.className='bk-btn-back'; bk.textContent='← Nazaj';
   bk.addEventListener('click',function(){ state.step=state.isNujni?3:4; renderStep(); });
   foot.appendChild(bk);
-  var nx=document.createElement('button'); nx.className='bk-btn-next'; nx.textContent='Potrdi naročilo ✦';
+  var nx=document.createElement('button'); nx.className='bk-btn-next'; nx.textContent='Potrdi naročilo';
   nx.addEventListener('click',function(){ submitBooking(nx); });
   foot.appendChild(nx);
 }
@@ -1600,7 +1686,7 @@ function submitBooking(btn){
       else if(res.error)                    t = 'Prišlo je do napake: '+res.error.message+'. Pokličite nas na '+APP.telefon+'.';
       var errEl = document.getElementById('bkErr2');
       if(errEl){ errEl.textContent = t; errEl.classList.add('show'); }
-      btn.disabled=false; btn.textContent='Potrdi naročilo ✶';
+      btn.disabled=false; btn.textContent='Potrdi naročilo';
       return;
     }
     mtoken = r.zeton;
@@ -1608,7 +1694,7 @@ function submitBooking(btn){
     try{ if(VIR_OBISKA && r.zeton) sb.rpc('app_zabelezi_vir', { zeton: r.zeton, vir: VIR_OBISKA }).then(function(){}, function(){}); }catch(e){}
     foot.innerHTML = '';
     body.innerHTML = '<div class="bk-success">'
-      + '<div class="bk-success-icon">✶</div>'
+      + '<div class="bk-success-icon"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M5 12.5 10 17 19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
       + '<div class="bk-success-title">Naročeni ste!</div>'
       + '<p class="bk-success-sub">'+(state.isNujni
           ? 'Vaša zahteva je bila sprejeta. Pokličemo vas za potrditev termina.'
