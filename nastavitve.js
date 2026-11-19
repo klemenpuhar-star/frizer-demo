@@ -24,7 +24,7 @@ window.APP = {
   var skript = document.currentScript;
   var STRAN = (skript && skript.getAttribute('data-stran')) || 'narocanje';   // narocanje | narocilo | admin | zasebnost
   var REZERVIRANO = ['index', 'index.html', 'dostopnost', 'dostopnost.html', 'fonts', 'vendor', 'ikone', 'favicon.svg', 'apple-touch-icon.png', 'manifest.webmanifest', 'sitemap.xml', 'og-slotbee.png', 'slotbee.css', 'domov', 'domov.html', 'admin', 'admin.html', 'narocilo', 'narocilo.html', 'zasebnost',
-                     'zasebnost.html', 'n', 'nastavitve.js', 'robots.txt', 'favicon.ico', 'superadmin', 'superadmin.html'];
+                     'zasebnost.html', 'n', 'nastavitve.js', 'robots.txt', 'favicon.ico', 'superadmin', 'superadmin.html', 'js', '.well-known'];
 
   function slugIzNaslova() {
     var q = new URLSearchParams(location.search).get('s');

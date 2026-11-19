@@ -5,7 +5,7 @@ var $ = function(id){ return document.getElementById(id); };
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function sporoci(id, t, ok){ var m=$(id); m.textContent=t; m.className='sporocilo '+(ok?'ok':'err'); }
 function pokazi(k){ ['pogledPrijava','pogledNi','pogledApp'].forEach(function(x){ $(x).classList.toggle('hidden', x!==k); }); }
-var TIPI={frizer:'Frizerski salon',brivec:'Brivnica',pasji_frizer:'Salon za ljubljenčke',kozmetika:'Kozmetični salon'};
+var TIPI={frizer:'Frizerski salon',brivec:'Brivnica',pasji_frizer:'Salon za ljubljenčke',kozmetika:'Kozmetični salon',masaza:'Masaža in nega',vulkanizer:'Vulkanizerstvo',avtomehanik:'Avtomehanična delavnica'};
 
 /* naslov iz imena: "Frizerski salon Ana" -> "frizerski-salon-ana" */
 function vSlug(t){
@@ -184,7 +184,7 @@ $('gUstvari').addEventListener('click', function(){
   $('rezUstvari').innerHTML='';
   if(!ime){ sporoci('spUstvari','Vpišite ime salona.',false); return; }
   if(!slug){ sporoci('spUstvari','Vpišite naslov strani.',false); return; }
-  if($('nTip').value==='-'){ sporoci('spUstvari','Izberite tip salona (od njega so odvisne privzete storitve in barve).',false); return; }
+  if($('nTip').value==='-'){ sporoci('spUstvari','Izberite dejavnost (od njega so odvisne privzete storitve in pečat dejavnosti).',false); return; }
   if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ sporoci('spUstvari','E-pošta lastnika ni veljavna.',false); return; }
   b.disabled=true; sporoci('spUstvari','Ustvarjam …',true);
   sb.rpc('app_ustvari_salon',{p_ime:ime, p_slug:slug, p_tip:$('nTip').value, p_email_lastnika:email||null, p_telefon:$('nTel').value.trim()||null}).then(function(r){

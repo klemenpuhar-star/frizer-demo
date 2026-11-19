@@ -8,7 +8,7 @@ var sb=supabase.createClient(SB_URL,SB_KEY);
    novi zapisi pa salon_id. Pravila dostopa (RLS) v bazi to še dodatno varujejo. */
 var SALON_ID=null, SALON_VLOGA=null, MOJI_SALONI=[];
 var SALONSKE_TABELE={services:1,bookings:1,blocks:1,delovni_cas:1,stranke:1,sms_dnevnik:1,artikli:1,obracuni:1,
-                     narocila_trgovina:1,nastavitve_trgovina:1,app_kategorije:1};
+                     app_kategorije:1};
 var _sbFrom=sb.from.bind(sb);
 sb.from=function(t){
   var qb=_sbFrom(t);
@@ -327,10 +327,10 @@ function nalozZaposlene(){
   }).then(prilagodiVlogi);
 }
 function prilagodiVlogi(){
-  /* zaposleni: brez strank, blagajne, izdelkov in naročil */
-  ['stranke','blagajna','izdelki','narocila'].forEach(function(m){
+  /* zaposleni: brez strank in blagajne */
+  ['stranke','blagajna'].forEach(function(m){
     var b=document.querySelector('.seg button[data-mode="'+m+'"]');
-    if(b) b.classList.toggle('hidden',jeZap()||(jeRecepcija()&&(m==='izdelki'||m==='narocila')));
+    if(b) b.classList.toggle('hidden',jeZap());
   });
   var ns=document.querySelector('.seg button[data-mode="nastavitve"]');
   if(ns){ ns.textContent=jeZap()?'Moj urnik':'Nastavitve'; ns.classList.toggle('hidden',jeRecepcija()); }
@@ -1065,13 +1065,11 @@ function rangeText(days){
 }
 function load(){
   nastaviMerilo();
-  var lg=document.getElementById('catLegend'); if(lg)lg.style.display=(mode==='stranke'||mode==='blagajna'||mode==='izdelki'||mode==='narocila'||mode==='nastavitve')?'none':'flex';
+  var lg=document.getElementById('catLegend'); if(lg)lg.style.display=(mode==='stranke'||mode==='blagajna'||mode==='nastavitve')?'none':'flex';
   if(isMobile()&&MINI_BUILT){buildMini();}else{updateMiniSel();}
   if(mode==='nujni'){loadNujni();return;}
   if(mode==='stranke'){loadStranke();return;}
   if(mode==='blagajna'){loadBlagajna();return;}
-  if(mode==='izdelki'){loadIzdelki();return;}
-  if(mode==='narocila'){loadNarocila();return;}
   if(mode==='nastavitve'){loadNastavitve();return;}
   if(mode==='month'){loadMonth();return;}
   calScroll.classList.remove('hidden');nujniList.classList.add('hidden');document.getElementById('strankeView').classList.add('hidden');skrijBlagajno();
@@ -1358,7 +1356,7 @@ function uvozShrani(R,btn){
   })();
 }
 
-function skrijBlagajno(){["blagajnaView","izdelkiView","narocilaView","nastavitveView"].forEach(function(id){var b=document.getElementById(id);if(b)b.classList.add("hidden");});}
+function skrijBlagajno(){["blagajnaView","nastavitveView"].forEach(function(id){var b=document.getElementById(id);if(b)b.classList.add("hidden");});}
 /* ── BLAGAJNA: obracun opravljenih storitev ───────────────────── */
 var NACINI=[['gotovina','💶 Gotovina'],['kartica','💳 Kartica'],['nakazilo','🏦 Nakazilo']];
 function nacinIme(n){for(var i=0;i<NACINI.length;i++){if(NACINI[i][0]===n)return NACINI[i][1];}return n;}
@@ -1450,7 +1448,7 @@ function kosIzbirnik(){
   p.innerHTML='<div class="kos-pick"><input type="text" id="kosIsci" placeholder="Išči storitev ali izdelek …" autocomplete="off">'
     +'<div class="kos-rez" id="kosRez"></div>'
     +'<div class="kos-rocno"><input type="text" id="kosRNaziv" placeholder="Ročni vnos – naziv"><input type="text" id="kosRCena" placeholder="cena"><button type="button" id="kosRDodaj">Dodaj</button></div>'
-    +'<div class="kos-novart"><input type="text" id="kosANaziv" placeholder="Nov izdelek – naziv"><input type="text" id="kosACena" placeholder="cena"><button type="button" id="kosADodaj">Shrani v cenik izdelkov</button><span id="kosAMsg"></span></div></div>';
+    +'<div class="kos-novart"><input type="text" id="kosANaziv" placeholder="Nov izdelek – naziv"><input type="text" id="kosACena" placeholder="cena"><button type="button" id="kosADodaj">Shrani med izdelke za prodajo</button><span id="kosAMsg"></span></div></div>';
   function rezultati(){
     var q=brezSum(document.getElementById('kosIsci').value);
     var sez=[];
@@ -1662,183 +1660,6 @@ function blIzvoz(){
       var wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Promet');
       XLSX.writeFile(wb,'Promet_'+(APP.kratko||'')+'_'+cur.getFullYear()+'-'+pad(cur.getMonth()+1)+'.xlsx');
       btn.disabled=false; btn.textContent='⬇ Izvozi mesec v Excel';
-    });
-  });
-}
-
-/* ═══ IZDELKI (spletna trgovina) ═══════════════════════════ */
-var IZD_CACHE=[];
-function loadIzdelki(){
-  calScroll.classList.add('hidden'); nujniList.classList.add('hidden');
-  document.getElementById('strankeView').classList.add('hidden');
-  var box=document.getElementById('izdelkiView'); box.classList.remove('hidden');
-  resetMiniHeight();
-  document.getElementById('rangeLabel').textContent='Izdelki (spletna trgovina)';
-  box.innerHTML='<div class="empty">Nalagam …</div>';
-  sb.from('artikli').select('*').order('kategorija').order('sort_order').order('naziv').then(function(r){
-    if(r.error){box.innerHTML='<div class="empty">Napaka: '+esc(r.error.message)+'</div>';return;}
-    IZD_CACHE=r.data||[];
-    izrisiIzdelke(box);
-  });
-}
-function izrisiIzdelke(box){
-  var h='<div class="bl-actions"><button class="btn bl-add" id="izNov">+ Nov izdelek</button></div>'
-    +'<div id="izForm"></div>';
-  if(!IZD_CACHE.length){ h+='<div class="empty">Še ni izdelkov. Dodajte prvega zgoraj.</div>'; }
-  else {
-    h+='<div class="bl-list">'+IZD_CACHE.map(function(a){
-      var zalBadge = a.zaloga==null ? '' : (' <span class="bl-rn'+(a.zaloga<=0?' bl-rn-ni':'')+'">zaloga: '+a.zaloga+'</span>');
-      var webBadge = a.prikazi_na_spletu ? ' <span class="bl-rn">na spletu</span>' : ' <span class="bl-rn bl-rn-ni">skrito</span>';
-      var aktBadge = a.aktiven ? '' : ' <span class="bl-rn bl-rn-ni">neaktivno</span>';
-      return '<div class="bl-row"><div class="bl-l" style="min-width:0;flex:1 1 auto"><b>'+esc(a.naziv)+'</b>'
-        +(a.kategorija?(' · '+esc(a.kategorija)):'')+(a.velikost?(' · '+esc(a.velikost)):'')
-        +'<div class="bl-svc">'+eur(a.cena)+webBadge+zalBadge+aktBadge+'</div></div>'
-        +'<div class="bl-r" style="flex-shrink:0"><button class="act" data-edit="'+a.id+'">Uredi</button></div></div>';
-    }).join('')+'</div>';
-  }
-  box.innerHTML=h;
-  document.getElementById('izNov').addEventListener('click',function(){ izdelekForma(null); });
-  box.querySelectorAll('[data-edit]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var a=IZD_CACHE.filter(function(x){return x.id===btn.getAttribute('data-edit');})[0];
-      izdelekForma(a||null);
-    });
-  });
-}
-function izdelekForma(a){
-  var box=document.getElementById('izForm'); if(!box)return;
-  a=a||{};
-  box.innerHTML='<div class="obr-form"><div class="d-edit-hd">'+(a.id?'Uredi izdelek':'Nov izdelek')+'</div>'
-    +'<div class="obr-row">'
-    +'<label>Naziv<input type="text" id="izNaziv" value="'+esc(a.naziv||'')+'"></label>'
-    +'<label>Kategorija<input type="text" id="izKat" value="'+esc(a.kategorija||'')+'" placeholder="npr. Šampon"></label>'
-    +'<label>Velikost<input type="text" id="izVel" value="'+esc(a.velikost||'')+'" placeholder="npr. 250 ml"></label>'
-    +'</div><div class="obr-row">'
-    +'<label>Cena (€)<input type="text" id="izCena" value="'+(a.cena!=null?esc(a.cena):'')+'"></label>'
-    +'<label>Zaloga (pusti prazno = ne sledimo)<input type="text" id="izZaloga" value="'+(a.zaloga!=null?esc(a.zaloga):'')+'"></label>'
-    +'</div><div class="obr-row">'
-    +'<label style="flex:1 0 100%">Opis (izviren, ne prepisan s konkurenčnih strani)<textarea id="izOpis" rows="3" style="padding:.5rem;border:1px solid #ebe4da;border-radius:9px;font-family:inherit;font-size:.9rem;color:var(--navy)">'+esc(a.opis||'')+'</textarea></label>'
-    +'</div><div class="obr-row">'
-    +'<label style="flex:1 0 100%">Pot do slike (npr. izdelki/sampon-250.jpg)<input type="text" id="izSlika" value="'+esc(a.slika_url||'')+'"></label>'
-    +'</div><div class="obr-row">'
-    +'<label style="flex-direction:row;align-items:center;gap:.4rem"><input type="checkbox" id="izSpletu" style="width:auto"'+(a.prikazi_na_spletu?' checked':'')+'> Prikaži na spletni strani</label>'
-    +'<label style="flex-direction:row;align-items:center;gap:.4rem"><input type="checkbox" id="izAktiven" style="width:auto"'+(a.aktiven!==false?' checked':'')+'> Aktiven (v prodaji)</label>'
-    +'</div>'
-    +'<div class="obr-btns"><button class="act" id="izCancel">Prekliči</button><button class="act save" id="izSave">Shrani</button></div>'
-    +'<div class="d-edit-msg" id="izMsg"></div></div>';
-  document.getElementById('izCancel').addEventListener('click',function(){box.innerHTML='';});
-  document.getElementById('izSave').addEventListener('click',function(){
-    var btn=this, msg=document.getElementById('izMsg');
-    var naziv=document.getElementById('izNaziv').value.trim();
-    if(!naziv){msg.textContent='Vnesite naziv izdelka.';msg.className='d-edit-msg err';return;}
-    var zalVal=document.getElementById('izZaloga').value.trim();
-    var vrstica={
-      naziv:naziv,
-      kategorija:document.getElementById('izKat').value.trim()||null,
-      velikost:document.getElementById('izVel').value.trim()||null,
-      cena:stevilo(document.getElementById('izCena').value),
-      zaloga: zalVal===''?null:(parseInt(zalVal,10)||0),
-      opis:document.getElementById('izOpis').value.trim()||null,
-      slika_url:document.getElementById('izSlika').value.trim()||null,
-      prikazi_na_spletu:document.getElementById('izSpletu').checked,
-      aktiven:document.getElementById('izAktiven').checked
-    };
-    btn.disabled=true; btn.textContent='Shranjujem …';
-    var q = a.id ? sb.from('artikli').update(vrstica).eq('id',a.id) : sb.from('artikli').insert([vrstica]);
-    q.then(function(res){
-      if(res.error){msg.textContent='Napaka: '+res.error.message;msg.className='d-edit-msg err';btn.disabled=false;btn.textContent='Shrani';return;}
-      box.innerHTML=''; loadIzdelki();
-    });
-  });
-}
-
-/* ═══ NAROČILA (spletna trgovina) ═══════════════════════════ */
-var STATUSI_TRG=[['novo','Novo – čaka plačilo'],['placano','Plačano'],['pripravljeno','Pripravljeno za prevzem'],['poslano','Poslano'],['prevzeto','Prevzeto'],['preklicano','Preklicano']];
-function statusImeTrg(s){for(var i=0;i<STATUSI_TRG.length;i++){if(STATUSI_TRG[i][0]===s)return STATUSI_TRG[i][1];}return s;}
-function loadNarocila(){
-  calScroll.classList.add('hidden'); nujniList.classList.add('hidden');
-  document.getElementById('strankeView').classList.add('hidden');
-  var box=document.getElementById('narocilaView'); box.classList.remove('hidden');
-  resetMiniHeight();
-  document.getElementById('rangeLabel').textContent='Naročila (spletna trgovina)';
-  box.innerHTML='<div class="empty">Nalagam …</div>';
-  Promise.all([
-    sb.from('narocila_trgovina').select('*').order('created_at',{ascending:false}).limit(300),
-    sb.from('nastavitve_trgovina').select('*').limit(1)
-  ]).then(function(r){
-    if(r[0].error){box.innerHTML='<div class="empty">Napaka: '+esc(r[0].error.message)+'</div>';return;}
-    izrisiNastavitveTrg(box, (r[1].data||[])[0]||{});
-    izrisiNarocila(box, r[0].data||[]);
-  });
-}
-function izrisiNastavitveTrg(box,n){
-  var h='<div class="obr-form" style="margin-bottom:1rem"><div class="d-edit-hd">Dostava in plačilo</div>'
-    +'<div class="obr-row">'
-    +'<label>Cena dostave (€)<input type="text" id="ntCena" value="'+(n.cena_dostave!=null?esc(n.cena_dostave):'')+'"></label>'
-    +'<label>Brezplačna dostava nad (€)<input type="text" id="ntPrag" value="'+(n.prag_brezplacna_dostava!=null?esc(n.prag_brezplacna_dostava):'')+'"></label>'
-    +'</div><div class="obr-row">'
-    +'<label>Flik – številka<input type="text" id="ntFlik" value="'+esc(n.flik_stevilka||'')+'"></label>'
-    +'<label>TRR za nakazilo<input type="text" id="ntTrr" value="'+esc(n.tr_racun||'')+'"></label>'
-    +'</div><div class="obr-row">'
-    +'<label style="flex:1 0 100%">Prejemnik nakazila<input type="text" id="ntPrejemnik" value="'+esc(n.prejemnik||'')+'"></label>'
-    +'</div>'
-    +'<div class="obr-btns"><button class="act save" id="ntSave">Shrani nastavitve</button></div>'
-    +'<div class="d-edit-msg" id="ntMsg"></div></div>'
-    +'<div id="narFormWrap"></div>';
-  box.innerHTML=h;
-  document.getElementById('ntSave').addEventListener('click',function(){
-    var btn=this, msg=document.getElementById('ntMsg');
-    var vrstica={id:true,
-      cena_dostave:stevilo(document.getElementById('ntCena').value),
-      prag_brezplacna_dostava: document.getElementById('ntPrag').value.trim()===''?null:stevilo(document.getElementById('ntPrag').value),
-      flik_stevilka:document.getElementById('ntFlik').value.trim()||null,
-      tr_racun:document.getElementById('ntTrr').value.trim()||null,
-      prejemnik:document.getElementById('ntPrejemnik').value.trim()||null
-    };
-    btn.disabled=true; btn.textContent='Shranjujem …';
-    sb.from('nastavitve_trgovina').upsert([vrstica]).then(function(res){
-      btn.disabled=false; btn.textContent='Shrani nastavitve';
-      if(res.error){msg.textContent='Napaka: '+res.error.message;msg.className='d-edit-msg err';return;}
-      msg.textContent='Shranjeno.';msg.className='d-edit-msg ok';
-    });
-  });
-}
-function izrisiNarocila(box,vrstice){
-  var wrap=document.getElementById('narFormWrap'); if(!wrap)return;
-  if(!vrstice.length){ wrap.innerHTML='<div class="empty">Še ni naročil iz spletne trgovine.</div>'; return; }
-  wrap.innerHTML='<div class="bl-list">'+vrstice.map(function(o){
-    var postavke=Array.isArray(o.postavke)?o.postavke:[];
-    var izdelkiTxt=postavke.map(function(p){return esc(p.naziv)+' ×'+p.kolicina;}).join(', ');
-    var dostavaTxt = o.nacin_dostave==='posta' ? ('Pošta: '+esc(o.naslov||'')+', '+esc(o.posta||'')) : 'Osebni prevzem';
-    var placiloTxt = o.nacin_placila==='flik' ? 'Flik' : 'Nakazilo';
-    var statusSel='<select class="nar-status" data-id="'+o.id+'">'+STATUSI_TRG.map(function(s){
-      return '<option value="'+s[0]+'"'+(s[0]===o.status?' selected':'')+'>'+esc(s[1])+'</option>';
-    }).join('')+'</select>';
-    return '<div class="bl-row" style="align-items:flex-start;flex-wrap:wrap">'
-      +'<div class="bl-l" style="flex:1 1 260px;min-width:0">'
-      +'<b>'+esc(o.ime)+'</b> · '+esc(o.telefon)+(o.email?(' · '+esc(o.email)):'')
-      +'<div class="bl-svc">'+izdelkiTxt+'</div>'
-      +'<div class="bl-svc">'+dostavaTxt+' · '+placiloTxt+' · '+prettyDate(String(o.created_at).slice(0,10))+'</div>'
-      +(o.nacin_dostave==='posta'?('<div class="obr-row" style="margin-top:.4rem"><label>Sledilna številka<input type="text" class="nar-sled" data-id="'+o.id+'" value="'+esc(o.sledilna_stevilka||'')+'"></label></div>'):'')
-      +'</div>'
-      +'<div class="bl-r" style="flex-direction:column;align-items:flex-end;gap:.4rem;flex-shrink:0">'
-      +'<b>'+eur(o.skupaj)+'</b>'+statusSel
-      +'<button class="act save" data-save="'+o.id+'" style="white-space:nowrap">Shrani</button>'
-      +'</div></div>';
-  }).join('')+'</div>';
-  wrap.querySelectorAll('[data-save]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var id=btn.getAttribute('data-save');
-      var sel=wrap.querySelector('.nar-status[data-id="'+id+'"]');
-      var sledInp=wrap.querySelector('.nar-sled[data-id="'+id+'"]');
-      var patch={status:sel.value};
-      if(sledInp) patch.sledilna_stevilka = sledInp.value.trim()||null;
-      btn.disabled=true; btn.textContent='Shranjujem …';
-      sb.from('narocila_trgovina').update(patch).eq('id',id).then(function(res){
-        btn.disabled=false; btn.textContent='Shrani';
-        if(res.error){ alert('Napaka: '+res.error.message); return; }
-        loadNarocila();
-      });
     });
   });
 }

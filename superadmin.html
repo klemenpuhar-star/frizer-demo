@@ -305,12 +305,15 @@ input:focus,select:focus{ outline:none; border-color:var(--sb-ink); box-shadow:0
         <label>E-pošta za račune<input type="email" id="nPodEmail" placeholder="racuni@podjetje.si"></label>
       </div>
       <div class="vrsta">
-        <label>Tip salona<select id="nTip">
-          <option value="-" selected disabled>— izberite tip —</option>
+        <label>Dejavnost<select id="nTip">
+          <option value="-" selected disabled>— izberite dejavnost —</option>
           <option value="frizer">Frizerski salon</option>
           <option value="brivec">Brivnica</option>
           <option value="pasji_frizer">Salon za hišne ljubljenčke</option>
           <option value="kozmetika">Kozmetični salon</option>
+          <option value="masaza">Masaža in nega</option>
+          <option value="vulkanizer">Vulkanizerstvo</option>
+          <option value="avtomehanik">Avtomehanična delavnica</option>
           <option value="">Drugo (brez privzetih storitev)</option>
         </select></label>
         <label>E-pošta lastnika<input type="email" id="nEmail" placeholder="lastnik@primer.si"></label>
@@ -332,6 +335,6 @@ input:focus,select:focus{ outline:none; border-color:var(--sb-ink); box-shadow:0
 </main>
 <script src="/js/dom.js?v=20261119"></script>
 <script src="/vendor/supabase-2.119.1.js"></script>
-<script src="/js/superadmin.js?v=20261119"></script>
+<script src="/js/superadmin.js?v=20261119b"></script>
 </body>
 </html>
