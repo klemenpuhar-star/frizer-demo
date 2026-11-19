@@ -1,5 +1,8 @@
 User-agent: *
 Allow: /
-Disallow: /admin.html
-Disallow: /narocilo.html
+Disallow: /admin
+Disallow: /superadmin
+Disallow: /narocilo
 Disallow: /n/
+
+Sitemap: https://slotbee.si/sitemap.xml

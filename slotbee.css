@@ -3,14 +3,13 @@
    admin, superadmin). Usklajeno s predstavitveno stranjo slotbee.si.
    Naložite ZA <style> strani, da prepiše njene spremenljivke.
    ═══════════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap');
 
 :root{
   /* barve Slotbee */
   --sb-bg:#FBF8F3; --sb-bg-2:#F4EEE4; --sb-surface:#FFFFFF;
   --sb-ink:#16181D; --sb-ink-2:#2B2F38; --sb-muted:#5F6470;
   --sb-line:#E6DFD3; --sb-line-2:#EFE9DF;
-  --sb-honey:#E5A82B; --sb-honey-deep:#A8720A; --sb-honey-soft:#FBEFD3;
+  --sb-honey:#E5A82B; --sb-honey-deep:#8F6107; --sb-honey-soft:#FBEFD3;
   --sb-sage:#DCE7DF; --sb-rose:#F3DCD6; --sb-sky:#DCE4F1;
   --sb-ok:#2F7A4A; --sb-ok-soft:#DCEFE2; --sb-napaka:#B4402F; --sb-napaka-soft:#F8E1DC;
   --sb-radius:18px; --sb-radius-sm:12px;
@@ -54,9 +53,17 @@ button,input,select,textarea{font-family:inherit}
 
 /* ── noga »Poganja Slotbee« ── */
 .sb-noga{display:flex;flex-direction:column;align-items:center;gap:8px;margin:40px auto 24px;padding:0 16px;font-size:.8rem;color:var(--sb-muted);text-align:center}
-.sb-noga a{color:var(--sb-muted)}
+.sb-noga a{color:var(--sb-muted);display:inline-flex;align-items:center;min-height:32px;padding:4px 6px;text-decoration:none}
+.sb-noga a:hover{color:var(--sb-ink);text-decoration:underline;text-decoration-color:var(--sb-honey);text-underline-offset:3px}
+.sb-noga-povezave{display:flex;flex-wrap:wrap;justify-content:center;gap:0 14px}
 .sb-noga .sb-poganja{display:inline-flex;align-items:center;gap:7px;color:var(--sb-muted);text-decoration:none}
 .sb-noga .sb-poganja b{color:var(--sb-ink);font-weight:600;letter-spacing:-.01em}
 .sb-noga .sb-poganja svg{width:16px;height:16px}
+
+/* dokler se podatki salona ne naložijo, vsebina ne poskakuje */
+html.sb-nalaga body{visibility:hidden}
+/* preskok na vsebino (tipkovnica) */
+.sb-preskok{position:absolute;left:12px;top:-60px;z-index:100001;background:var(--sb-ink);color:#fff;padding:10px 16px;border-radius:10px;font-weight:600;text-decoration:none}
+.sb-preskok:focus{top:12px}
 
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}

@@ -3,17 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/pisave.css">
 <title>Slotbee – spletno naročanje za salone in storitvene dejavnosti</title>
 <meta name="description" content="Slotbee je preprosto spletno naročanje za frizerje, brivce, kozmetičarke, pasje frizerje, vulkanizerje in avtomehanike. Koledar po zaposlenih, SMS opomniki in osebna podpora v slovenščini.">
 <meta property="og:title" content="Slotbee – termini, ki se naročijo sami">
 <meta property="og:description" content="Spletno naročanje za storitvene dejavnosti. SMS opomniki, koledar po zaposlenih, podatki v EU.">
 <meta property="og:url" content="https://slotbee.si/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="sl_SI">
+<meta property="og:site_name" content="Slotbee">
+<meta property="og:image" content="https://slotbee.si/og-slotbee.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Slotbee – termini, ki se naročijo sami">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#FBF8F3">
 <link rel="canonical" href="https://slotbee.si/">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25z' fill='%2316181D'/%3E%3Crect x='10' y='14' width='12' height='4.5' rx='2.25' fill='%23E5A82B'/%3E%3C/svg%3E">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "https://slotbee.si/#org", "name": "Slotbee", "url": "https://slotbee.si/", "logo": "https://slotbee.si/ikone/icon-512.png", "email": "info@slotbee.si", "telephone": "+38631217361", "address": {"@type": "PostalAddress", "streetAddress": "Forme 37", "postalCode": "4209", "addressLocality": "Žabnica", "addressCountry": "SI"}, "legalName": "Frizerski studio Najs, Nataša Markuta s.p.", "vatID": "54499453"}, {"@type": "WebSite", "@id": "https://slotbee.si/#web", "url": "https://slotbee.si/", "name": "Slotbee", "inLanguage": "sl", "publisher": {"@id": "https://slotbee.si/#org"}}, {"@type": "SoftwareApplication", "name": "Slotbee", "applicationCategory": "BusinessApplication", "operatingSystem": "Splet (brskalnik)", "url": "https://slotbee.si/", "inLanguage": "sl", "publisher": {"@id": "https://slotbee.si/#org"}, "description": "Spletno naročanje strank za salone in storitvene dejavnosti: koledar po zaposlenih, SMS potrditve in opomniki, kartoteka strank, blagajna.", "offers": [{"@type": "Offer", "name": "Solo", "price": "13.90", "priceCurrency": "EUR"}, {"@type": "Offer", "name": "Salon", "price": "26.90", "priceCurrency": "EUR"}, {"@type": "Offer", "name": "Pro", "price": "46.90", "priceCurrency": "EUR"}]}]}</script>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/ikone/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
 :root{
   --bg:#FBF8F3;
@@ -25,7 +36,7 @@
   --line:#E6DFD3;
   --line-2:#EFE9DF;
   --honey:#E5A82B;
-  --honey-deep:#A8720A;
+  --honey-deep:#8F6107;
   --honey-soft:#FBEFD3;
   --deep:#17191F;
   --deep-2:#22252D;
@@ -49,10 +60,11 @@ button,input,select,textarea{font:inherit;color:inherit}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
 @media (max-width:640px){.wrap{padding:0 16px}}
 
-h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.02em;line-height:1.08;margin:0;font-variation-settings:"opsz" 144}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;line-height:1.08;margin:0;font-optical-sizing:auto}
+h1,h2{font-variation-settings:"opsz" 144}
 h1{font-size:clamp(2.6rem,6.2vw,4.6rem)}
 h2{font-size:clamp(2rem,4.2vw,3.1rem)}
-h3{font-size:1.35rem;letter-spacing:-.01em;line-height:1.2}
+h3{font-size:1.35rem;letter-spacing:0;line-height:1.2}
 em.accent{font-style:italic;color:var(--honey-deep)}
 p{margin:0}
 .lead{font-size:clamp(1.05rem,1.6vw,1.2rem);color:var(--muted);max-width:36em}
@@ -330,7 +342,7 @@ form.box .btn{grid-column:1/-1;margin-top:6px}
 /* Footer */
 footer{border-top:1px solid var(--line);padding:60px 0 40px;font-size:.92rem;color:var(--muted)}
 .foot{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px}
-.foot h4{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin:0 0 16px;font-weight:600}
+.foot h3{font-family:var(--sans);font-variation-settings:normal;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin:0 0 16px;font-weight:600}
 .foot ul{list-style:none;padding:0;margin:0;display:grid;gap:10px}
 .foot a:hover{color:var(--ink)}
 .foot .about p{margin-top:14px;max-width:24em}
@@ -364,9 +376,12 @@ form.box{position:relative}
   *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
   .rv{opacity:1;transform:none}
 }
+.preskok{position:absolute;left:12px;top:-60px;z-index:1000;background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-weight:600}
+.preskok:focus{top:12px}
 </style>
 </head>
 <body>
+<a class="preskok" href="#vsebina">Preskoči na vsebino</a>
 
 <!-- SVG simboli -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -422,7 +437,7 @@ form.box{position:relative}
   </div>
 </header>
 
-<main>
+<main id="vsebina">
 <!-- HERO -->
 <section class="hero">
   <div class="wrap hero-grid">
@@ -528,7 +543,7 @@ form.box{position:relative}
       <div class="step rv">
         <div class="num">01</div>
         <h3>Uredimo vaš salon</h3>
-        <p>Vpišemo storitve, cene, trajanje, zaposlene in delovni čas. Dodamo vaš logotip in barve.</p>
+        <p>Vpišemo storitve, cene, trajanje, zaposlene in delovni čas ter dodamo vaš logotip.</p>
       </div>
       <div class="step rv">
         <div class="num">02</div>
@@ -651,7 +666,7 @@ form.box{position:relative}
       </div>
     </div>
 
-    <div class="founder rv"><span>🐝</span><span><b>Ustanovna ponudba:</b> prvih 20 salonov obdrži začetno ceno, dokler ostane naročenih.</span></div>
+    <div class="founder rv"><span aria-hidden="true"><svg width="20" height="20" viewBox="0 0 32 32"><path d="M16 2.5 27.7 9.25v13.5L16 29.5 4.3 22.75V9.25z" fill="#16181D"/><rect x="10" y="14" width="12" height="4.5" rx="2.25" fill="#E5A82B"/></svg></span><span><b>Ustanovna ponudba:</b> prvih 20 salonov obdrži začetno ceno, dokler ostane naročenih.</span></div>
 
     <div class="plans">
       <div class="plan rv">
@@ -802,21 +817,21 @@ form.box{position:relative}
         <p>Spletno naročanje strank za salone in storitvene dejavnosti. Narejeno v Sloveniji.</p>
       </div>
       <div>
-        <h4>Slotbee</h4>
+        <h3>Slotbee</h3>
         <ul><li><a href="#kako">Kako deluje</a></li><li><a href="#funkcije">Funkcije</a></li><li><a href="#cenik">Cenik</a></li><li><a href="#vprasanja">Vprašanja</a></li></ul>
       </div>
       <div>
-        <h4>Za salone</h4>
+        <h3>Za salone</h3>
         <ul><li><a href="/admin">Prijava</a></li><li><a href="#kontakt">Predstavitev</a></li><li><a href="/studio-velvet">Primer salona</a></li></ul>
       </div>
       <div>
-        <h4>Kontakt</h4>
+        <h3>Kontakt</h3>
         <ul><li><a href="mailto:info@slotbee.si">info@slotbee.si</a></li><li><a href="tel:+38631217361">031 217 361</a></li></ul>
       </div>
     </div>
     <div class="legal">
       <span>© <span id="yr">2026</span> Slotbee · Nataša Markuta s.p., Forme 37, 4209 Žabnica · Davčna št. 54499453</span>
-      <span><a href="#" data-open="zasebnost">Varstvo podatkov</a></span>
+      <span><a href="#" data-open="zasebnost">Varstvo podatkov</a> · <a href="/dostopnost">Dostopnost</a></span>
     </div>
   </div>
 </footer>

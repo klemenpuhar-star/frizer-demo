@@ -3,14 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/pisave.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/ikone/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Spletno naročanje — {IME}</title>
 <meta name="description" content="Spletno naročanje na termin – izberite storitev in prosto uro.">
 <script src="/nastavitve.js" data-stran="narocanje"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <meta name="theme-color" content="#FBF8F3">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <!-- preverjanje telefonskih stevilk: Googlova knjiznica (za tuje stevilke) -->
-<script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.13.12/bundle/libphonenumber-max.js" defer></script>
+<script src="/vendor/libphonenumber-max-1.13.16.js" defer></script>
   <script>/* ══════════════════════════════════════════════════════════════════════
      Preverjanje telefonskih stevilk (v1, 2026-11-04)
      Uporablja: index.html (spletno narocanje), admin.html (nova rezervacija, urejanje stranke)
@@ -566,7 +570,7 @@
        Samo znotraj okna za naročanje (#bkOverlay). Barve in razporeditev ostanejo,
        popravljeno je le: velikost pisave v poljih (iPhone se ne poveča vec ob dotiku),
        velikost gumbov za prst (min. 44px), kontrast drobnega besedila, fokus za tipkovnico. */
-    #bkOverlay { --coral-txt: var(--sb-honey-deep, #A8720A); }
+    #bkOverlay { --coral-txt: var(--sb-honey-deep, #8F6107); }
     #bkOverlay .bk-input, #bkOverlay .bk-textarea { font-size: 16px; }
     #bkOverlay .bk-close { position: relative; }
     #bkOverlay .bk-close::after,
@@ -676,6 +680,12 @@ body { background: var(--sb-bg, #FBF8F3); }
 .bk-btn-next:disabled { background: var(--sb-muted); box-shadow: none; }
 #bkOverlay :focus-visible { outline-color: var(--sb-honey); }
 @media (hover: none) { #bkOverlay .bk-btn-next:hover { background: var(--sb-ink); } }
+/* dnevi in termini so gumbi (tipkovnica, bralniki zaslona) */
+button.bk-day-card, button.bk-slot-row { font: inherit; color: inherit; -webkit-appearance: none; appearance: none; }
+button.bk-day-card { padding: 0; display: block; width: 100%; }
+.bk-day-card span { display: block; }
+button.bk-day-card:disabled { cursor: not-allowed; }
+.bk-day-card:focus-visible, .bk-slot-row:focus-visible { outline: 2px solid var(--sb-honey); outline-offset: 2px; }
 @media (max-width: 600px) {
   .bk-head { padding: 1.1rem 1.1rem 0; }
   .bk-body { padding: 1.2rem 1.1rem; }
@@ -698,7 +708,7 @@ body { background: var(--sb-bg, #FBF8F3); }
 </main>
 <footer class="sb-noga">
   <a class="sb-poganja" href="https://slotbee.si/" rel="noopener">Spletno naročanje poganja <b data-app="slotbee" class="sb-logo mali"></b></a>
-  <a data-app="zasebnost" href="/zasebnost.html">Pravilnik o zasebnosti</a>
+  <nav class="sb-noga-povezave" aria-label="Pravne informacije"><a data-app="zasebnost" href="/zasebnost.html">Pravilnik o zasebnosti</a><a href="/dostopnost">Dostopnost</a></nav>
 </footer>
 
 <!-- ══ BOOKING MODAL ══════════════════════════════════════ -->
@@ -716,6 +726,8 @@ body { background: var(--sb-bg, #FBF8F3); }
     <div class="bk-foot" id="bkFoot"></div>
   </div>
 </div>
+<script>APP.dom && APP.dom();</script>
+<script src="/vendor/supabase-2.119.1.js"></script>
 <script>
 (function(){
 'use strict';
@@ -1290,29 +1302,29 @@ function buildStrip(){
     var statusHtml = '';
     var disClass = '';
 
-    if(past){ statusHtml='<div class="bk-day-status closed">preteklo</div>'; disClass='disabled'; }
-    else if(dow===0){ statusHtml='<div class="bk-day-status closed">zaprto</div>'; disClass='disabled'; }
-    else if(PRAZNIKI[ds]){ statusHtml='<div class="bk-day-status closed">praznik</div>'; disClass='disabled'; }
-    else if(dcZa(ds)==='dogovor'){ statusHtml='<div class="bk-day-status closed">po dogovoru</div>'; disClass='disabled'; }
-    else if(status==='all'){ statusHtml='<div class="bk-day-status busy">vse zasedeno</div>'; disClass='disabled'; }
+    if(past){ statusHtml='<span class="bk-day-status closed">preteklo</span>'; disClass='disabled'; }
+    else if(dow===0){ statusHtml='<span class="bk-day-status closed">zaprto</span>'; disClass='disabled'; }
+    else if(PRAZNIKI[ds]){ statusHtml='<span class="bk-day-status closed">praznik</span>'; disClass='disabled'; }
+    else if(dcZa(ds)==='dogovor'){ statusHtml='<span class="bk-day-status closed">po dogovoru</span>'; disClass='disabled'; }
+    else if(status==='all'){ statusHtml='<span class="bk-day-status busy">vse zasedeno</span>'; disClass='disabled'; }
     else if(status==='free'){
-      statusHtml='<div class="bk-day-status avail">'+(cenaBesedilo()||'na voljo')+'</div>';
+      statusHtml='<span class="bk-day-status avail">'+(cenaBesedilo()||'na voljo')+'</div>';
     } else {
       // Neznano – pokaži za zdaj nevtralno, naloži asinhrono
-      statusHtml='<div class="bk-day-status avail" id="dstat-'+ds+'">'+(cenaBesedilo()||'na voljo')+'</div>';
+      statusHtml='<span class="bk-day-status avail" id="dstat-'+ds+'">'+(cenaBesedilo()||'na voljo')+'</span>';
       prefetchDayStatus(ds, dow, d >= today);
     }
 
-    cards += '<div class="bk-day-card'+(isSel?' selected':'')+(disClass?' '+disClass:'')+'" '
-      +(disClass?'':'data-date="'+ds+'" data-dow="'+dow+'"')
-      +'>'
-      +'<div class="bk-day-card-top">'
-      +'<div class="bk-day-name">'+SL_DN[dow]+'</div>'
-      +'<div class="bk-day-num">'+d.getDate()+'</div>'
-      +'<div class="bk-day-mon">'+SL_M[d.getMonth()]+'</div>'
-      +'</div>'
+    cards += '<button type="button" class="bk-day-card'+(isSel?' selected':'')+(disClass?' '+disClass:'')+'" '
+      +(disClass?'disabled ':'data-date="'+ds+'" data-dow="'+dow+'" ')
+      +'aria-pressed="'+(isSel?'true':'false')+'">'
+      +'<span class="bk-day-card-top">'
+      +'<span class="bk-day-name">'+SL_DN[dow]+'</span>'
+      +'<span class="bk-day-num">'+d.getDate()+'</span>'
+      +'<span class="bk-day-mon">'+SL_M[d.getMonth()]+'</span>'
+      +'</span>'
       +statusHtml
-      +'</div>';
+      +'</button>';
   }
   strip.innerHTML = cards;
 
@@ -1324,8 +1336,8 @@ function buildStrip(){
 
   strip.querySelectorAll('.bk-day-card:not(.disabled)').forEach(function(card){
     card.addEventListener('click', function(){
-      strip.querySelectorAll('.bk-day-card').forEach(function(c){ c.classList.remove('selected'); });
-      card.classList.add('selected');
+      strip.querySelectorAll('.bk-day-card').forEach(function(c){ c.classList.remove('selected'); c.setAttribute('aria-pressed','false'); });
+      card.classList.add('selected'); card.setAttribute('aria-pressed','true');
       var parts = card.dataset.date.split('-');
       state.date = new Date(+parts[0],+parts[1]-1,+parts[2]);
       state.slot = null;
@@ -1350,7 +1362,7 @@ function prefetchDayStatus(ds, dow, isFuture){
         el.className='bk-day-status busy'; el.textContent='vse zasedeno';
         // Onemogoči kartico
         var card = el.closest('.bk-day-card');
-        if(card){ card.classList.add('disabled'); card.removeAttribute('data-date'); }
+        if(card){ card.classList.add('disabled'); card.removeAttribute('data-date'); card.disabled = true; }
       }
     }
   });
@@ -1454,9 +1466,9 @@ function loadSlotList(){
     slots.forEach(function(o){
       var t=o.t, ts=minToTime(t);
       var sel=state.slot&&state.slot.start===ts;
-      h+='<div class="bk-slot-row'+(sel?' selected':'')+'" data-s="'+ts+'" data-e="'+minToTime(t+o.dur)+'">'
+      h+='<button type="button" class="bk-slot-row'+(sel?' selected':'')+'" aria-pressed="'+(sel?'true':'false')+'" data-s="'+ts+'" data-e="'+minToTime(t+o.dur)+'">'
         +'<span class="bk-slot-time">'+ts+'</span>'
-        +'</div>';
+        +'</button>';
       first=false;
     });
     h+='</div>';
@@ -1465,8 +1477,8 @@ function loadSlotList(){
     area.querySelectorAll('.bk-slot-row').forEach(function(row){
       row.addEventListener('click',function(){
         state.slot={start:row.dataset.s, end:row.dataset.e};
-        area.querySelectorAll('.bk-slot-row').forEach(function(r){ r.classList.remove('selected'); });
-        row.classList.add('selected');
+        area.querySelectorAll('.bk-slot-row').forEach(function(r){ r.classList.remove('selected'); r.setAttribute('aria-pressed','false'); });
+        row.classList.add('selected'); row.setAttribute('aria-pressed','true');
         renderSummaryPanel();
         renderFoot2();
       });

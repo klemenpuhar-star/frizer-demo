@@ -3,15 +3,21 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/pisave.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/ikone/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#FBF8F3">
+<meta name="apple-mobile-web-app-title" content="Slotbee">
 <meta name="robots" content="noindex, nofollow" />
 <title>{KRATKO} · Admin</title>
 <script src="/nastavitve.js" data-stran="admin"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <!-- preverjanje telefonskih stevilk: Googlova knjiznica (za tuje stevilke) s CDN + lastna koda vgrajena tukaj,
      da ne potrebujemo posebne datoteke. Ce se knjiznica ne nalozi, slovenske stevilke se vedno preverjamo. -->
-<script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1.13.12/bundle/libphonenumber-max.js" defer></script>
+<script src="/vendor/libphonenumber-max-1.13.16.js" defer></script>
 <script>/* ══════════════════════════════════════════════════════════════════════
    Preverjanje telefonskih stevilk (v1, 2026-11-04)
    Uporablja: index.html (spletno narocanje), admin.html (nova rezervacija, urejanje stranke)
@@ -657,7 +663,7 @@ header .brand .brand-tag[style]{ opacity:.55 !important }   /* oznaka razlicice 
 }
 
 /* ══ SLOTBEE TEMA (usklajeno s slotbee.si) ══════════════════════════ */
-:root{ --coral-txt:var(--sb-honey-deep,#A8720A); --coral-gumb:var(--sb-ink,#16181D); }
+:root{ --coral-txt:var(--sb-honey-deep,#8F6107); --coral-gumb:var(--sb-ink,#16181D); }
 body{ background:var(--sb-bg); font-family:var(--sb-sans); color:var(--sb-ink); }
 /* prijava */
 .login-wrap{ background:radial-gradient(1200px 500px at 50% -10%, var(--sb-honey-soft), transparent 60%), var(--sb-bg); flex-direction:column; gap:22px; }
@@ -666,8 +672,8 @@ body{ background:var(--sb-bg); font-family:var(--sb-sans); color:var(--sb-ink); 
 .login-card .login-pecat{ display:flex; justify-content:center; margin:2px 0 14px; }
 .login-card .login-logo:not([style*="display: none"]) + .login-pecat{ display:none; }
 .login-card [data-app="ime"]{ font-family:var(--sb-serif)!important; font-weight:500; letter-spacing:-.02em; font-size:1.6rem!important; }
-.login-card .sub{ font-weight:600; letter-spacing:.12em; font-size:.72rem; color:var(--sb-honey-deep); }
-.field label{ opacity:1; color:var(--sb-muted); font-weight:600; letter-spacing:.08em; font-size:.68rem; }
+.login-card .sub{ font-weight:600; letter-spacing:.12em; font-size:.78rem; color:var(--sb-honey-deep); }
+.field label{ opacity:1; color:var(--sb-muted); font-weight:600; letter-spacing:.08em; font-size:.75rem; }
 .field input{ border:1px solid var(--sb-line); border-radius:12px; background:#fff; }
 .field input:focus{ border-color:var(--sb-ink); box-shadow:0 0 0 3px var(--sb-honey-soft); }
 .btn-main{ background:var(--sb-ink); color:#fff; font-weight:600; min-height:50px; font-size:.95rem; box-shadow:0 10px 24px -12px rgba(22,24,29,.6); }
@@ -727,18 +733,18 @@ header .who .who-naziv{ font-family:var(--sb-sans); }
 </head>
 <body>
 
-<div class="login-wrap" id="loginView">
+<main class="login-wrap" id="loginView">
   <div class="login-card">
     <div class="login-sb"><span class="sb-logo" data-app="slotbee"></span></div>
-    <img data-app="logo" alt="" class="login-logo" onerror="this.style.display='none'" /><div class="login-pecat" data-app="pecat"></div><div data-app="ime" style="font-family:var(--serif);font-size:1.45rem;text-align:center;margin:0 0 .6rem"></div>
+    <img data-app="logo" alt="" class="login-logo" onerror="this.style.display='none'" /><div class="login-pecat" data-app="pecat"></div><h1 data-app="ime" style="font-family:var(--serif);font-size:1.45rem;text-align:center;margin:0 0 .6rem;font-weight:500"></h1>
     <p class="sub">Administracija</p>
-    <div class="field"><label>E-pošta</label><input type="email" id="email" autocomplete="username" placeholder="vasa@posta.si" /></div>
-    <div class="field"><label>Geslo</label><input type="password" id="password" autocomplete="current-password" placeholder="********" /></div>
+    <div class="field"><label for="email">E-pošta</label><input type="email" id="email" autocomplete="username" placeholder="vasa@posta.si" /></div>
+    <div class="field"><label for="password">Geslo</label><input type="password" id="password" autocomplete="current-password" placeholder="********" /></div>
     <button class="btn btn-main" id="loginBtn">Prijava</button>
     <br><button type="button" class="link-btn" id="forgotBtn">Pozabljeno geslo?</button>
     <p class="msg" id="loginMsg"></p>
   </div>
-</div>
+</main>
 
 <div id="appView" class="hidden">
   <header>
@@ -770,7 +776,7 @@ header .who .who-naziv{ font-family:var(--sb-sans); }
 
   <div class="cat-legend" id="catLegend"></div>
 
-  <div class="wrap">
+  <main class="wrap">
     <div class="block-form hidden" id="blockForm">
       <div class="d-edit-hd" style="margin-bottom:.5rem">Opravek / odsotnost</div>
       <div class="bf-row">
@@ -800,7 +806,7 @@ header .who .who-naziv{ font-family:var(--sb-sans); }
         <div class="blagajna hidden" id="nastavitveView"></div>
       </div>
     </div>
-  </div>
+  </main>
 </div>
 
 <div class="overlay hidden" id="detail">
@@ -848,6 +854,8 @@ header .who .who-naziv{ font-family:var(--sb-sans); }
   </div>
 </div>
 
+<script>APP.dom && APP.dom();</script>
+<script src="/vendor/supabase-2.119.1.js"></script>
 <script>
 var SB_URL=APP.supabaseUrl;
 var SB_KEY=APP.supabaseKey;

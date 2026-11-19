@@ -3,11 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/pisave.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/ikone/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Pregled, sprememba ali preklic vašega termina.">
 <title>Moje naročilo — {IME}</title>
 <script src="/nastavitve.js" data-stran="narocilo"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{ --navy:#1c1a19; --coral:#b08d57; --bez:#e8dfd3; --line:#ebe4da; --bg:#fbf8f4; }
 *{ box-sizing:border-box; }
@@ -110,12 +115,15 @@ h1{ font-family:var(--sb-serif); font-weight:500; letter-spacing:-.02em; font-si
 .slot.sel{ background:var(--sb-honey-soft); color:var(--sb-ink); border-color:var(--sb-ink); }
 .summary{ background:#fff; border:1px solid var(--sb-line); border-radius:16px; }
 .summary .tot{ border-top-color:var(--sb-line); font-family:var(--sb-serif); font-weight:500; font-size:1.05rem; }
+.brand{ min-height:176px; }
+#app{ min-height:420px; }
+@media (max-width:440px){ .actions .btn{ flex:1 1 100%; } }
 .tel{ color:var(--sb-ink); font-weight:600; text-decoration:underline; text-decoration-color:var(--sb-honey); text-underline-offset:3px; }
 </style>
 <link rel="stylesheet" href="/slotbee.css">
 </head>
 <body>
-<div class="wrap">
+<main class="wrap">
   <div class="brand">
     <img data-app="logo" alt="" onerror="this.style.display='none'">
     <span class="brand-pecat" data-app="pecat"></span>
@@ -123,8 +131,10 @@ h1{ font-family:var(--sb-serif); font-weight:500; letter-spacing:-.02em; font-si
     <div class="nm" data-app="ime"></div>
   </div>
   <div id="app" class="card"><div class="loading">Nalagam vaše naročilo…</div></div>
-</div>
+</main>
 
+<script>APP.dom && APP.dom();</script>
+<script src="/vendor/supabase-2.119.1.js"></script>
 <script>
 var SB_URL=APP.supabaseUrl;
 var SB_KEY=APP.supabaseKey;
@@ -165,7 +175,13 @@ function minToTime(m){ return pad(Math.floor(m/60))+':'+pad(m%60); }
 function isoDate(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
 function parseISO(s){ var p=String(s).split('-'); return new Date(+p[0],(+p[1])-1,+p[2]); }
 function fmtDateSI(iso){ if(!iso) return '—'; var d=parseISO(iso); return DOW_SI[d.getDay()]+', '+d.getDate()+'. '+MON_SI[d.getMonth()]+' '+d.getFullYear(); }
-function fmtRokSI(rok){ if(!rok) return 'polnoči dneva pred terminom'; var d=new Date(rok); return DOW_GEN[d.getDay()]+', '+d.getDate()+'. '+MON_SI[d.getMonth()]+' '+d.getFullYear()+', do 00:00'; }
+function fmtRokSI(rok){ if(!rok) return 'polnoči dan pred terminom'; var d=new Date(new Date(rok).getTime()-60000); return DOW_GEN[d.getDay()]+', '+d.getDate()+'. '+MON_SI[d.getMonth()]+' '+d.getFullYear()+', do polnoči'; }
+/* kontakt salona za besedilo »pokličite nas«: telefon, sicer e-pošta */
+function kontaktSalona(){
+  if(APP.telefon) return 'pokličite na <a class="tel" href="tel:'+APP.telefonIntl+'">'+esc(APP.telefon)+'</a>';
+  if(APP.email) return 'pišite na <a class="tel" href="mailto:'+esc(APP.email)+'">'+esc(APP.email)+'</a>';
+  return 'se obrnite na salon';
+}
 function fmtTime(t){ return String(t).substring(0,5); }
 function eur(n){ if(n==null||isNaN(n)) return ''; return Number(n).toFixed(2).replace('.',',')+' €'; }
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -243,7 +259,7 @@ function init(){
 }
 
 function zacni(){
-  if(!TOKEN){ app.innerHTML='<div class="note note-bad">Povezava ni veljavna. Odprite jo iz potrditvenega sporočila ali nas pokličite na <a class="tel" href="tel:'+APP.telefonIntl+'">'+APP.telefon+'</a>.</div>'; return; }
+  if(!TOKEN){ app.innerHTML='<div class="note note-bad">Povezava ni veljavna. Odprite jo iz potrditvenega sporočila ali '+kontaktSalona()+'.</div>'; return; }
   sb.from('delovni_cas').select('dan,teden,nacin,od,do_').eq('salon_id', APP.salonId).then(function(dres){
     if(!dres.error && dres.data && dres.data.length){
       var novi={0:{},1:{},2:{}};
@@ -293,7 +309,7 @@ function statusBadge(st){
 }
 
 function renderView(){
-  if(!BOOKING){ app.innerHTML='<div class="note note-bad">Naročila ni mogoče najti. Preverite povezavo ali pokličite <a class="tel" href="tel:'+APP.telefonIntl+'">'+APP.telefon+'</a>.</div>'; return; }
+  if(!BOOKING){ app.innerHTML='<div class="note note-bad">Naročila ni mogoče najti. Preverite povezavo ali '+kontaktSalona()+'.</div>'; return; }
   var b=BOOKING;
   var stor=b.services_text||b.service_name||'—';
   var h='<h1>Vaše naročilo</h1><p class="sub">'+APP.ime+'</p>';
@@ -308,7 +324,7 @@ function renderView(){
   } else if(b.status==='opravljeno'){
     h+='<div class="note note-ok">Ta termin je zaključen. Hvala za obisk!</div>';
   } else if(!b.je_urejanje_mozno){
-    h+='<div class="note note-warn">Rok za spremembe in preklic je <strong>potekel</strong> (bil je do '+fmtRokSI(b.rok)+'). Za spremembe nas pokličite na <a class="tel" href="tel:'+APP.telefonIntl+'">'+APP.telefon+'</a>.</div>';
+    h+='<div class="note note-warn">Rok za spremembe in preklic je <strong>potekel</strong> (bil je do '+fmtRokSI(b.rok)+'). Za spremembe '+kontaktSalona()+'.</div>';
   } else {
     h+='<div class="note note-info">Termin lahko spremenite ali prekličete do <strong>'+fmtRokSI(b.rok)+'</strong>.</div>';
     h+='<div class="actions">'
@@ -443,7 +459,7 @@ function loadSlots(){
   if(dow===0&&!URNZ.length){ area.innerHTML='<div class="slotmsg">Nedelja smo zaprti.</div>'; checkSave(); return; }
   if(URNZ.length&&dcZa(ds)==='zaprto'){ area.innerHTML='<div class="slotmsg">'+esc(ZAPN.ime)+' ta dan ne dela. Izberite drug datum.</div>'; checkSave(); return; }
   if(PRAZNIKI[ds]){ area.innerHTML='<div class="slotmsg">Ta dan smo zaprti zaradi praznika ('+esc(PRAZNIKI[ds])+').</div>'; checkSave(); return; }
-  if(dcZa(ds)==='dogovor'){ area.innerHTML='<div class="slotmsg">📞 Ta dan je po dogovoru — pokličite <a class="tel" href="tel:'+APP.telefonIntl+'">'+APP.telefon+'</a>.</div>'; checkSave(); return; }
+  if(dcZa(ds)==='dogovor'){ area.innerHTML='<div class="slotmsg">Ta dan je po dogovoru — '+kontaktSalona()+'.</div>'; checkSave(); return; }
   area.innerHTML='<div class="slotmsg">Preverjam proste ure…</div>';
   var dur=sumDur()||30;
   sb.rpc('zasedeni_intervali_brez',{izbrani_datum:ds,izvzeti_zeton:TOKEN}).then(function(res){
@@ -506,7 +522,7 @@ init();
 </script>
 <footer class="sb-noga">
   <a class="sb-poganja" href="https://slotbee.si/" rel="noopener">Spletno naročanje poganja <b data-app="slotbee" class="sb-logo mali"></b></a>
-  <a data-app="zasebnost" href="/zasebnost.html">Pravilnik o zasebnosti</a>
+  <nav class="sb-noga-povezave" aria-label="Pravne informacije"><a data-app="zasebnost" href="/zasebnost.html">Pravilnik o zasebnosti</a><a href="/dostopnost">Dostopnost</a></nav>
 </footer>
 </body>
 </html>

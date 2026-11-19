@@ -3,10 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/pisave.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/ikone/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#FBF8F3">
+<meta name="apple-mobile-web-app-title" content="Slotbee">
 <meta name="robots" content="noindex,nofollow">
 <title>Saloni · Skrbnik platforme</title>
 <script src="/nastavitve.js" data-stran="superadmin"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 :root{--crna:#1f2328;--siva:#5d6670;--rob:#e3e6ea;--ozadje:#f5f6f8;--poudarek:#2f6f6a;--napaka:#b23b3b;--ok:#2f7a4a}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -156,17 +164,16 @@ input:focus,select:focus{ outline:none; border-color:var(--sb-ink); box-shadow:0
 .opoz-paket{ color:var(--sb-napaka); }
 @media(max-width:560px){ .sa-brand h1{ font-size:1.15rem; } .sa-brand .loc{ display:none; } }
 </style>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="/slotbee.css">
 </head>
 <body>
-<div class="vsebina">
+<main class="vsebina">
 
   <div id="pogledPrijava" class="prijava karta hidden">
     <div style="margin-bottom:18px"><span class="sb-logo" data-app="slotbee"></span></div>
-    <h2 style="font-family:var(--sb-serif);font-weight:500;letter-spacing:-.02em;font-size:1.7rem;margin-bottom:4px">Skrbnik platforme</h2>
+    <h1 style="font-family:var(--sb-serif);font-weight:500;letter-spacing:-.02em;font-size:1.7rem;margin-bottom:4px">Skrbnik platforme</h1>
     <p class="namig" style="margin-bottom:14px">Prijava z računom skrbnika.</p>
-    <div class="vrsta"><label>E-pošta<input type="email" id="email" autocomplete="username"></label></div>
+    <div class="vrsta"><label>E-pošta<input type="email" id="email" autocomplete="username" required></label></div>
     <div class="vrsta"><label>Geslo<input type="password" id="geslo" autocomplete="current-password"></label></div>
     <button class="gumb" id="gPrijava" style="width:100%">Prijava</button>
     <div class="sporocilo" id="spPrijava"></div>
@@ -322,7 +329,9 @@ input:focus,select:focus{ outline:none; border-color:var(--sb-ink); box-shadow:0
     </div>
   </div>
 
-</div>
+</main>
+<script>APP.dom && APP.dom();</script>
+<script src="/vendor/supabase-2.119.1.js"></script>
 <script>
 (function(){
 'use strict';

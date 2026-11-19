@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/pisave.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/ikone/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="description" content="Pravilnik o zasebnosti pri spletnem naročanju: katere podatke salon zbira, zakaj, kako dolgo jih hrani in katere pravice imate.">
 <title>Pravilnik o zasebnosti — {IME}</title>
 <script src="/nastavitve.js" data-stran="zasebnost"></script>
 <style>
@@ -38,11 +45,10 @@ a{ color:var(--sb-ink); text-decoration-color:var(--sb-honey); }
 .nazaj:hover{ color:var(--sb-ink); }
 @media (max-width:560px){ .card{ padding:26px 20px; } }
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="/slotbee.css">
 </head>
 <body>
-<div class="wrap">
+<main class="wrap">
   <a class="nazaj" data-app="domov" href="/">← Nazaj na naročanje</a>
   <div class="glava"><span data-app="pecat"></span><div><span class="sb-eyebrow" data-app="tip"></span><div class="ime" data-app="ime"></div></div></div>
   <div class="card">
@@ -50,7 +56,7 @@ a{ color:var(--sb-ink); text-decoration-color:var(--sb-honey); }
          telefon in e-pošta iz Nastavitev salona. Ponudnika platforme vpišete v nastavitve.js (obdelovalec).
          Besedilo naj preveri pravni svetovalec. -->
     <h1>Pravilnik o zasebnosti</h1>
-    <p class="sub"><span data-app="ime"></span> · Zadnja sprememba: 11. 11. 2026</p>
+    <p class="sub"><span data-app="ime"></span> · Zadnja sprememba: 19. 11. 2026</p>
 
     <p>Spoštujemo vašo zasebnost. V tem pravilniku pojasnjujemo, katere osebne podatke zbiramo ob spletnem
        naročanju, zakaj, kako dolgo jih hranimo in katere pravice imate. Podatke obdelujemo skladno s Splošno
@@ -94,7 +100,6 @@ a{ color:var(--sb-ink); text-decoration-color:var(--sb-honey); }
       <tr><td>Resend</td><td>Pošiljanje e-poštnih potrditev</td><td>Irska (EU), podjetje iz ZDA</td></tr>
       <tr><td>Telegram</td><td>Obvestilo salonu in zaposlenemu o rezervaciji</td><td>Izven EU</td></tr>
       <tr><td>Cloudflare</td><td>Gostovanje spletne strani</td><td>Omrežje strežnikov (ZDA)</td></tr>
-      <tr><td>jsDelivr</td><td>Nalaganje programskih knjižnic</td><td>Omrežje strežnikov</td></tr>
     </table>
     <p>Pri ponudnikih izven EU prenos poteka na podlagi ustreznih zaščitnih ukrepov iz poglavja V GDPR
        (standardne pogodbene klavzule oziroma odločba o ustreznosti).</p>
@@ -110,7 +115,7 @@ a{ color:var(--sb-ink); text-decoration-color:var(--sb-honey); }
        obdelujemo nezakonito, se lahko pritožite pri Informacijskem pooblaščencu RS
        (Dunajska cesta 22, 1000 Ljubljana, <a href="https://www.ip-rs.si">www.ip-rs.si</a>).</p>
   </div>
-</div>
+</main>
 <script>
 /* podatki upravljavca (salona) iz baze; ponudnik platforme iz nastavitve.js */
 (function(){
@@ -130,6 +135,7 @@ a{ color:var(--sb-ink); text-decoration-color:var(--sb-honey); }
 </script>
 <footer class="sb-noga">
   <a class="sb-poganja" href="https://slotbee.si/" rel="noopener">Spletno naročanje poganja <b data-app="slotbee" class="sb-logo mali"></b></a>
+  <nav class="sb-noga-povezave" aria-label="Pravne informacije"><a href="/dostopnost">Dostopnost</a></nav>
 </footer>
 </body>
 </html>

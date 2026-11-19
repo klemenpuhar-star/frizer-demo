@@ -16,14 +16,14 @@ window.APP = {
   // privzete vrednosti, dokler se salon ne naloži
   ime: '', kratko: '', telefon: '', logo: '',
   // enoten videz Slotbee za vse salone (barve salona v bazi se ne uporabljajo)
-  barve: { navy: '#16181D', coral: '#A8720A', bez: '#F4EEE4', bez2: '#FBF8F3' }
+  barve: { navy: '#16181D', coral: '#8F6107', bez: '#F4EEE4', bez2: '#FBF8F3' }
 };
 
 /* ── od tu naprej ni treba nicesar spreminjati ── */
 (function (A) {
   var skript = document.currentScript;
   var STRAN = (skript && skript.getAttribute('data-stran')) || 'narocanje';   // narocanje | narocilo | admin | zasebnost
-  var REZERVIRANO = ['index', 'index.html', 'domov', 'domov.html', 'admin', 'admin.html', 'narocilo', 'narocilo.html', 'zasebnost',
+  var REZERVIRANO = ['index', 'index.html', 'dostopnost', 'dostopnost.html', 'fonts', 'vendor', 'ikone', 'favicon.svg', 'apple-touch-icon.png', 'manifest.webmanifest', 'sitemap.xml', 'og-slotbee.png', 'slotbee.css', 'domov', 'domov.html', 'admin', 'admin.html', 'narocilo', 'narocilo.html', 'zasebnost',
                      'zasebnost.html', 'n', 'nastavitve.js', 'robots.txt', 'favicon.ico', 'superadmin', 'superadmin.html'];
 
   function slugIzNaslova() {
@@ -145,13 +145,39 @@ window.APP = {
     });
   }
 
+  function meta(name, content) {
+    var m = document.querySelector('meta[name="' + name + '"]');
+    if (!m) { m = document.createElement('meta'); m.setAttribute('name', name); document.head.appendChild(m); }
+    m.setAttribute('content', content);
+  }
+
   function prikaziNiSalona() {
-    document.body.innerHTML = '<main style="max-width:520px;margin:0 auto;padding:64px 20px;text-align:center;font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#1c1a19">'
-      + '<h1 style="font-family:Georgia,serif;font-weight:400;font-size:1.8rem">Salon ne obstaja</h1>'
-      + '<p style="color:#5c5146;line-height:1.6">Naslov ni pravilen ali salon trenutno ne sprejema spletnih naročil.</p>'
-      + '<p><a href="/" style="color:#1c1a19">Seznam salonov</a></p></main>';
-    document.body.style.background = '#f7f3ee';
-    document.title = 'Salon ne obstaja';
+    meta('robots', 'noindex');
+    document.body.innerHTML = '<main style="max-width:520px;margin:0 auto;padding:72px 20px;text-align:center">'
+      + '<a class="sb-logo" href="/" aria-label="Slotbee – domov">' + A.logoSlotbee() + '<span>' + String(A.platforma).toLowerCase() + '</span></a>'
+      + '<h1 style="font-family:var(--sb-serif,Georgia,serif);font-weight:500;letter-spacing:-.02em;font-size:2rem;margin:28px 0 10px">Salon ne obstaja</h1>'
+      + '<p style="color:var(--sb-muted,#5F6470);line-height:1.6">Naslov ni pravilen ali salon trenutno ne sprejema spletnih naročil. Preverite povezavo, ki ste jo prejeli od salona.</p>'
+      + '<p style="margin-top:22px"><a href="/" style="color:var(--sb-ink,#16181D);font-weight:600">Na slotbee.si</a></p></main>';
+    document.title = 'Salon ne obstaja · ' + A.platforma;
+  }
+
+  /* strukturirani podatki in opis strani salona (iskalniki, predogledi povezav) */
+  var SCHEMA_TIP = { frizer: 'HairSalon', brivec: 'HairSalon', kozmetika: 'BeautySalon', masaza: 'DaySpa',
+                     pasji_frizer: 'LocalBusiness', vulkanizer: 'AutoRepair', avtomehanik: 'AutoRepair' };
+  function seoSalona() {
+    var opis = 'Spletno naročanje – ' + A.ime + (A.tip ? ' (' + A.tipIme(A.tip).toLowerCase() + ')' : '')
+      + '. Izberite storitev in prosto uro, potrditev in opomnik prejmete po SMS.';
+    meta('description', opis);
+    if (A.pravila && A.pravila.demo) { meta('robots', 'noindex'); return; }
+    var d = { '@context': 'https://schema.org', '@type': SCHEMA_TIP[A.tip] || 'LocalBusiness', name: A.ime,
+              url: location.origin + '/' + A.slug, potentialAction: { '@type': 'ReserveAction',
+                target: { '@type': 'EntryPoint', urlTemplate: location.origin + '/' + A.slug, inLanguage: 'sl' } } };
+    if (A.telefonIntl) d.telephone = A.telefonIntl;
+    if (A.email) d.email = A.email;
+    if (A.naslov) d.address = A.naslov;
+    if (A.logo) d.image = A.logo;
+    var sc = document.createElement('script'); sc.type = 'application/ld+json'; sc.textContent = JSON.stringify(d);
+    document.head.appendChild(sc);
   }
 
   if (/VAS-PROJEKT|VAS-PUBLISHABLE/.test(A.supabaseUrl + A.supabaseKey)) {
@@ -164,7 +190,19 @@ window.APP = {
   }
 
   nastaviBarve();
+  (function () {   // zgodnja povezava na Supabase (hitrejše prvo nalaganje)
+    try { var l = document.createElement('link'); l.rel = 'preconnect'; l.href = A.supabaseUrl; l.crossOrigin = '';
+          document.head.appendChild(l); } catch (e) {}
+  })();
+  var html = document.documentElement;
+  if (STRAN === 'narocanje' || STRAN === 'zasebnost') {
+    html.classList.add('sb-nalaga');
+    setTimeout(function () { html.classList.remove('sb-nalaga'); }, 4000);   // varovalka
+  }
+  /* DOM je pripravljen ob DOMContentLoaded ali prej, če stran pokliče APP.dom() takoj za vidno vsebino
+     (takrat vsebina ne čaka na nalaganje večjih knjižnic na koncu strani). */
   var domPripravljen = new Promise(function (ok) {
+    A.dom = ok;
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ok); else ok();
   });
 
@@ -181,18 +219,20 @@ window.APP = {
   else nalaganje = A.naloziSalon(slug);
 
   A.ready = Promise.all([nalaganje, domPripravljen]).then(function (r) {
+    html.classList.remove('sb-nalaga');
     var ok = r[0];
     if (!ok && STRAN === 'narocanje') { if (slug) prikaziNiSalona(); else prikaziSeznam(); return false; }
     if (!ok && STRAN === 'admin') { A.ime = A.platforma; A.kratko = A.platforma; }
     vstavi();
+    if (ok && STRAN === 'narocanje') seoSalona();
     if (ok && STRAN === 'narocanje' && A.pravila && A.pravila.demo) demoPasica();
     return ok;
   });
 
   /* Primer salona (pravila.demo = true): pasica nad stranjo */
   function demoPasica() {
-    var o = document.createElement('div');
-    o.setAttribute('role', 'note');
+    var o = document.createElement('aside');
+    o.setAttribute('aria-label', 'Obvestilo');
     o.style.cssText = 'position:relative;z-index:100000;background:#1c1a19;color:#fff;padding:10px 16px;font:14px/1.45 system-ui,-apple-system,Segoe UI,Arial,sans-serif;text-align:center';
     o.innerHTML = '<b>Primer salona za predstavitev ' + String(A.platforma).replace(/</g, '&lt;') + '.</b> Termini niso pravi. '
       + 'Naročilo lahko preizkusite – prejeli boste potrditev po SMS, salon pa vas ne bo pričakoval.';
