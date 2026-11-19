@@ -120,7 +120,7 @@ function nalozi2(){
           nalozi();
           setTimeout(function(){ sporoci('sp-'+id, r.data.rezultat==='povezan'
             ? 'Dodano – uporabnik se lahko takoj prijavi.'
-            : 'Povabilo shranjeno. Ustvarite račun za '+em+' v Supabase (Authentication → Users → Add user); ob tem bo samodejno dodan.', true); }, 400);
+            : 'Povabilo shranjeno – pri '+em+' kliknite »Ustvari račun« in določite začasno geslo.', true); }, 400);
         });
       });
     });
@@ -144,8 +144,54 @@ function naloziClane(sid){
     box.innerHTML=cl.map(function(c,i){
       return '<div class="clan-vr"><span><b style="font-size:.86rem">'+esc(c.email||'')+'</b> · '+esc(VLOGE_SA[c.vloga]||c.vloga)
         +(c.zaposleni?' ('+esc(c.zaposleni)+')':'')+(c.povabilo?' · <span class="caka">čaka na račun</span>':'')+'</span>'
-        +'<span><button type="button" class="gumb svetel" data-rac="'+i+'">'+(c.povabilo?'Ustvari račun':'Novo geslo')+'</button></span></div>';
+        +'<span><button type="button" class="gumb svetel" data-rac="'+i+'">'+(c.povabilo?'Ustvari račun':'Novo geslo')+'</button>'
+        +(c.povabilo?'':' <button type="button" class="gumb svetel" data-mail="'+i+'">Zamenjaj e-pošto</button>')
+        +' <button type="button" class="gumb svetel" data-odstr="'+i+'">Odstrani</button></span></div>';
     }).join('');
+    /* zamenjaj e-pošto za prijavo (račun, geslo in vloga ostanejo) */
+    box.querySelectorAll('[data-mail]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var c=cl[+btn.getAttribute('data-mail')], vr=btn.closest('.clan-vr');
+        var st=vr.nextElementSibling; if(st&&st.classList.contains('rac-forma')){ st.remove(); return; }
+        var f=document.createElement('div'); f.className='rac-forma';
+        f.innerHTML='Nova e-pošta za prijavo namesto <b>'+esc(c.email)+'</b>: '
+          +'<input type="email" class="rf-m" placeholder="nov@naslov.si" autocomplete="off" spellcheck="false"> '
+          +'<button type="button" class="gumb" data-rf="ok">Zamenjaj</button>'
+          +'<div class="namig" style="margin-top:4px">Geslo, vloga in podatki salona ostanejo. Oseba se odslej prijavlja z novo e-pošto.</div>'
+          +'<div class="sporocilo rf-sp"></div>';
+        vr.parentNode.insertBefore(f,vr.nextSibling);
+        f.querySelector('[data-rf="ok"]').onclick=function(){
+          var nov=f.querySelector('.rf-m').value.trim().toLowerCase(), ok=this, sp=f.querySelector('.rf-sp');
+          if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(nov)){ sp.textContent='Vpišite veljavno e-pošto.'; sp.className='sporocilo rf-sp err'; return; }
+          ok.disabled=true; sp.textContent='Pošiljam …'; sp.className='sporocilo rf-sp ok';
+          sb.functions.invoke('ustvari-racun',{body:{salon_id:sid,email:c.email,nov_email:nov,akcija:'email'}}).then(function(x){
+            var obdelaj=function(d){
+              ok.disabled=false;
+              if(d&&d.ok){ sp.textContent='E-pošta je zamenjana. Prijava odslej z '+nov+'.'; sp.className='sporocilo rf-sp ok'; ok.remove();
+                setTimeout(function(){ naloziClane(sid); nalozi(); },2000); return; }
+              sp.textContent=(d&&d.napaka)||'Ni uspelo.'; sp.className='sporocilo rf-sp err';
+            };
+            if(x.error&&x.error.context&&typeof x.error.context.json==='function') x.error.context.json().then(obdelaj,function(){ obdelaj(null); });
+            else obdelaj(x.data);
+          });
+        };
+      });
+    });
+    /* odstrani člana ali povabilo */
+    box.querySelectorAll('[data-odstr]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var c=cl[+btn.getAttribute('data-odstr')];
+        var lastnikov=cl.filter(function(x){return x.vloga==='lastnik'&&!x.povabilo;}).length;
+        var opoz=(c.vloga==='lastnik'&&!c.povabilo&&lastnikov<=1)?'\n\nPOZOR: to je edini lastnik – salon ne bo imel lastnika. Najprej dodajte novega.':'';
+        if(!confirm('Odstranim '+c.email+' ('+(VLOGE_SA[c.vloga]||c.vloga)+') iz salona? Račun ostane, a se v ta salon ne bo več mogel prijaviti.'+opoz)) return;
+        btn.disabled=true;
+        sb.rpc('app_odstrani_clana',{s:sid,p_email:c.email}).then(function(r){
+          btn.disabled=false;
+          if(r.error||!r.data||!r.data.ok){ sporoci('sp-'+sid,(r.error&&r.error.message)||(r.data&&r.data.napaka)||'Ni uspelo.',false); return; }
+          naloziClane(sid); nalozi();
+        });
+      });
+    });
     box.querySelectorAll('[data-rac]').forEach(function(btn){
       btn.addEventListener('click',function(){
         var c=cl[+btn.getAttribute('data-rac')], vr=btn.closest('.clan-vr');
