@@ -190,6 +190,10 @@ window.APP = {
   }
 
   nastaviBarve();
+  /* slika, ki se ne naloži (npr. napačen logotip), se skrije – brez vgrajenih onerror (stroga varnostna politika) */
+  document.addEventListener('error', function (e) {
+    var t = e.target; if (t && t.tagName === 'IMG' && t.hasAttribute('data-skrij-napaka')) t.style.display = 'none';
+  }, true);
   (function () {   // zgodnja povezava na Supabase (hitrejše prvo nalaganje)
     try { var l = document.createElement('link'); l.rel = 'preconnect'; l.href = A.supabaseUrl; l.crossOrigin = '';
           document.head.appendChild(l); } catch (e) {}

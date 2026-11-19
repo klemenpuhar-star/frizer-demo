@@ -1,0 +1,1 @@
+APP.dom && APP.dom();
